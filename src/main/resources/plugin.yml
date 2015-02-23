@@ -1,0 +1,30 @@
+name: ${project.name}
+version: ${project.version}
+description: '${project.description}'
+depend: [FlexCore]
+softdepend: []
+authors: [${project.authors}]
+website: ${project.url}
+main: ${project.mainClass}
+commands:
+  ###########################
+  # Plugin Library Commands #
+  ###########################
+  flexchannel:
+    aliases: [channel, channels, ch]
+  flexmessage:
+    aliases: [message, msg, m, tell, t, whisper, whisp, w]
+
+permissions:
+  ##########
+  # Groups #
+  ##########
+  flexchat.admin:
+    default: op
+
+  flexchat.user:
+    default: true
+
+  #########
+  # Nodes #
+  #########

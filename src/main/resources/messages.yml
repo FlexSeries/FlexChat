@@ -1,0 +1,32 @@
+errors:
+  cannot_message_self: '&cYou cannot message yourself.'
+  channel_active_already_set: '&cYour active channel is already set to &6{CHANNEL}&c.'
+  channel_already_joined: '&cYou are already in channel &6{CHANNEL}&c.'
+  channel_banned: '&cYou are banned from channel &6{CHANNEL}&c.'
+  channel_cannot_join: '&cYou cannot join this channel with this command.'
+  channel_cannot_leave: '&cYou cannot leave this channel with this command.'
+  channel_join_unable: '&cYou cannot join channel &6{CHANNEL}&c.'
+  channel_multiple_found: '&cMultiple channels matching ''&6{NAME}&c'' were found.'
+  channel_none: '&cYou do not have an active chat channel set.'
+  channel_no_permission: '&cYou do not have permission to {VERB} channel &6{CHANNEL}&c.'
+  channel_not_found: '&cChannel ''&6{NAME}&c'' not found.'
+  channel_not_joined: '&cYou are not in channel &6{CHANNEL}&c.'
+  channel_player_banned: '&c{PLAYER} is already banned from channel &6{CHANNEL}&c.'
+  channel_player_unbanned: '&c{PLAYER} is not banned from channel &6{CHANNEL}&c.'
+notices:
+  tag: '&8[&9\u2709&8] '
+  channel_active_set: '{TAG}&9&oNow chatting in {COLOR}&o{CHANNEL}&9&o.'
+  channel_chatter_banned: '{TAG}&4&o{CHATTER} &4&owas banned from channel {COLOR}&o{CHANNEL}&4&o.'
+  channel_chatter_joined: '{TAG}&a&o{CHATTER} &a&ojoined channel {COLOR}&o{CHANNEL}&a&o.'
+  channel_chatter_left: '{TAG}&c&o{CHATTER} &c&oleft channel {COLOR}&o{CHANNEL}&c&o.'
+  channel_chatter_unbanned: '{TAG}&2&o{CHATTER} &2&owas unbanned from channel {COLOR}&o{CHANNEL}&4&o.'
+  channel_joined: '{TAG}&9Joined channel {COLOR}&o{CHANNEL}&9&o.'
+  channel_left: '{TAG}&9Left channel {COLOR}&o{CHANNEL}&9&o.'
+  global_toggled: '{TAG}&9Global chat {STATE}&9.'
+  login_channel: '{TAG}&9Currently chatting in {COLOR}&o{CHANNEL}&9.'
+
+hooks:
+  towny:
+    errors:
+      not_in_nation: '&cYou are not in a nation.'
+      not_in_town: '&cYou are not in a town.'

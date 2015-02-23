@@ -1,0 +1,5 @@
+name: 'town'
+shortName: 't'
+color: 'AQUA'
+formats:
+  default: '&8[{CHCOLOR}{CHSHORTNAME}&8] &f{NAME}: {MESSAGE}'

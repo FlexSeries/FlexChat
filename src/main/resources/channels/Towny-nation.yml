@@ -1,0 +1,5 @@
+name: 'nation'
+shortName: 'n'
+color: 'GOLD'
+formats:
+  default: '&8[{CHCOLOR}{CHSHORTNAME}&8] &f{NAME}: {MESSAGE}'
