@@ -3,6 +3,7 @@ package me.st28.flexseries.flexchat.api;
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexcore.hooks.HookManager;
+import me.st28.flexseries.flexcore.hooks.JobsHook;
 import me.st28.flexseries.flexcore.hooks.exceptions.HookDisabledException;
 import me.st28.flexseries.flexcore.hooks.vault.VaultHook;
 import me.st28.flexseries.flexcore.logging.LogHelper;
@@ -13,8 +14,11 @@ import me.st28.flexseries.flexcore.plugins.exceptions.ModuleDisabledException;
 import me.st28.flexseries.flexcore.storage.flatfile.YamlFileManager;
 import me.st28.flexseries.flexcore.utils.ChatColorUtils;
 import me.st28.flexseries.flexcore.utils.QuickMap;
+import me.zford.jobs.Jobs;
+import me.zford.jobs.container.JobsPlayer;
 import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -180,6 +184,30 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
     protected void handleLoad() throws Exception {
         channelDir = new File(plugin.getDataFolder() + File.separator + "channels");
         customChannelDir = new File(channelDir + File.separator + "custom");
+
+        try {
+            FlexPlugin.getRegisteredModule(HookManager.class).checkHookStatus(JobsHook.class);
+
+            registerChatVariable(new ChatVariable("JOBS") {
+                @Override
+                public String getReplacement(Chatter chatter, Channel channel) {
+                    if (!(chatter instanceof PlayerChatter)) {
+                        return null;
+                    }
+
+                    JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(((PlayerChatter) chatter).getPlayer());
+                    if (jPlayer == null) {
+                        return null;
+                    }
+
+                    return jPlayer.getDisplayHonorific();
+                }
+            });
+
+            LogHelper.info(this, "Chat variables for Jobs enabled.");
+        } catch (HookDisabledException ex) {
+            LogHelper.debug(this, "Unable to register Jobs chat variables because Jobs isn't installed.");
+        }
     }
 
     @Override
