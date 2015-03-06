@@ -115,15 +115,20 @@ public abstract class Chatter {
         data.channels.remove(channel.getIdentifier());
         Bukkit.getPluginManager().callEvent(new ChannelLeaveEvent(channel, this));
 
+        DynamicResponse activeResponse = null;
         if (getActiveChannel() == channel) {
             if (!data.channels.isEmpty()) {
-                setActiveChannel(data.getNextChannel());
+                activeResponse = setActiveChannel(data.getNextChannel());
             } else {
                 setActiveChannel(null);
             }
         }
 
-        return new DynamicResponse(true, MessageReference.create(FlexChat.class, "notices.channel_left", new QuickMap<>("{CHANNEL}", channel.getName()).put("{COLOR}", channel.getColor().toString()).getMap()));
+        if (activeResponse != null && activeResponse.isSuccess()) {
+            return new DynamicResponse(true, MessageReference.create(FlexChat.class, "notices.channel_left", new QuickMap<>("{CHANNEL}", channel.getName()).put("{COLOR}", channel.getColor().toString()).getMap()), activeResponse.getMessages()[0]);
+        } else {
+            return new DynamicResponse(true, MessageReference.create(FlexChat.class, "notices.channel_left", new QuickMap<>("{CHANNEL}", channel.getName()).put("{COLOR}", channel.getColor().toString()).getMap()));
+        }
     }
 
     /**
