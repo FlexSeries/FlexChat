@@ -51,6 +51,8 @@ public final class SCmdChannelList extends FlexCommand<FlexChat> {
         Collections.sort(channels, new Comparator<Channel>() {
             @Override
             public int compare(Channel o1, Channel o2) {
+                if (o1 == o2) return 0;
+
                 if (o2 == activeChannel) {
                     // If the other channel is active, it is automatically first.
                     return 1;

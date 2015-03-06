@@ -89,7 +89,7 @@ public final class ChatterData {
         Collections.sort(returnList, new Comparator<Channel>() {
             @Override
             public int compare(Channel o1, Channel o2) {
-                return channels.get(o1.getIdentifier()).compareTo(channels.get(o2.getIdentifier()));
+                return channels.get(o2.getIdentifier()).compareTo(channels.get(o1.getIdentifier()));
             }
         });
 
