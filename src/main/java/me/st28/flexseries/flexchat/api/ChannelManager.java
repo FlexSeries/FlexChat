@@ -38,6 +38,11 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
     public static enum VariableModifier {
 
         /**
+         * Optional format for the variable.
+         */
+        FORMAT("FORMAT"),
+
+        /**
          * Adds a space after a variable if the replacement is not null.
          */
         NON_NULL_SPACE("BUFFER");
@@ -63,6 +68,12 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
      * <b>Structure:</b> <code>raw key, ChatVariable</code>
      */
     private final Map<String, ChatVariable> variables = new HashMap<>();
+
+    /**
+     * Formats for variables.<br />
+     * <b>Structure:</b> <code>name, modifier</code>
+     */
+    private final Map<String, String> variableFormats = new HashMap<>();
 
     /**
      * Loaded channels.<br />
@@ -224,7 +235,14 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
         defaultChannel = config.getString("default channel");
         activeSymbol = config.getString("active symbol", ">");
 
-        //TODO: Reload channels
+        variableFormats.clear();
+        ConfigurationSection formatSec = config.getConfigurationSection("variable formats");
+        if (formatSec != null) {
+            for (String name : formatSec.getKeys(false)) {
+                variableFormats.put(name.toLowerCase(), formatSec.getString(name));
+            }
+        }
+
         List<String> configurableChannels = new ArrayList<>();
         for (Entry<String, Channel> entry : channels.entrySet()) {
             if (entry.getValue() instanceof ConfigurableChannel) {
@@ -379,8 +397,20 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
                 }
 
                 for (String modifier : modifiers) {
+                    String[] split = modifier.split("=");
+                    String key = split[0];
+                    String value = split.length == 1 ? null : split[1].toLowerCase();
+
                     try {
-                        switch (VARIABLE_MODIFIERS.get(modifier.toUpperCase())) {
+                        switch (VARIABLE_MODIFIERS.get(key.toUpperCase())) {
+                            case FORMAT:
+                                if (value == null || !variableFormats.containsKey(value)) {
+                                    continue;
+                                }
+
+                                replacement = variableFormats.get(value).replace("{VARIABLE}", replacement);
+                                break;
+
                             case NON_NULL_SPACE:
                                 replacement = replacement + " ";
                                 break;

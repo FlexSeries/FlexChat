@@ -1,1 +1,2 @@
-Debug: false
+debug: false
+autosave interval: 10
