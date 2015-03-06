@@ -1,146 +1,137 @@
 package me.st28.flexseries.flexchat.api;
 
 import me.st28.flexseries.flexchat.FlexChat;
-import me.st28.flexseries.flexchat.backend.ChannelManager;
 import me.st28.flexseries.flexcore.messages.MessageReference;
 import me.st28.flexseries.flexcore.utils.DynamicResponse;
 import me.st28.flexseries.flexcore.utils.QuickMap;
 import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * Represents a realm in which chatters can chat.
+ */
 public abstract class Channel {
 
-    private final String name;
+    private final String identifier;
 
-    private boolean isJoinableByCommand;
-    private boolean isLeaveableByCommand;
+    public Channel(String identifier) {
+        Validate.notNull(identifier, "Identifier cannot be null.");
 
-    public Channel(String name, boolean isJoinableByCommand, boolean isLeaveableByCommand) {
-        Validate.notNull(name, "Name cannot be null.");
-        Validate.isTrue(ChannelManager.CHANNEL_NAME_PATTERN.matcher(name).matches(), "Name cannot contain spaces or be purely numbers.");
-        this.name = name;
-
-        this.isJoinableByCommand = isJoinableByCommand;
-        this.isLeaveableByCommand = isLeaveableByCommand;
-    }
-
-    public final String getName() {
-        return name;
+        this.identifier = identifier;
     }
 
     /**
-     * @return true if this channel can be joined via FlexChat's join command.
+     * Saves data that needs to be saved for the channel.
      */
-    public final boolean isJoinableByCommand() {
-        return isJoinableByCommand;
+    public void save() { }
+
+    /**
+     * @return the unique identifier for the channel.
+     */
+    public final String getIdentifier() {
+        return identifier;
     }
 
     /**
-     * @return true if this channel can be left via FlexChat's leave command.
+     * @return the display name of the channel.
      */
-    public final boolean isLeaveableByCommand() {
-        return isLeaveableByCommand;
-    }
-
-    /**
-     * Sends a message to the channel manually.
-     */
-    public final void sendMessage(Chatter sender, String message) {
-        Validate.notNull(sender, "Sender cannot be null.");
-        Validate.notNull(message, "Message cannot be null.");
-
-        for (Chatter chatter : getChatters(sender)) {
-            chatter.sendMessage(message);
-        }
-    }
-
-    /**
-     * Sends a message to the channel manually.
-     */
-    public final void sendMessage(Chatter sender, MessageReference message) {
-        Validate.notNull(sender, "Sender cannot be null.");
-        Validate.notNull(message, "Message cannot be null.");
-
-        for (Chatter chatter : getChatters(sender)) {
-            chatter.sendMessage(message);
-        }
-    }
-
-    /**
-     * @return the main color for the channel.
-     */
-    public ChatColor getColor() {
-        return ChatColor.WHITE;
-    }
+    public abstract String getName();
 
     /**
      * @return the short name of the channel.
      */
-    public String getShortName() {
-        return getName();
+    public abstract String getShortName();
+
+    /**
+     * @return the default ChatColor for this channel.
+     */
+    public abstract ChatColor getColor();
+
+    /**
+     * @return true to signify that this channel should not use FlexChat's default permissions.
+     */
+    public abstract boolean hasOwnPermissions();
+
+    /**
+     * @return false if the channel cannot be joined with the default channel join command.
+     */
+    public boolean isJoinableByCommand() {
+        return true;
     }
 
     /**
-     * @return custom information that should appear on the channel info command for a specified sender.
+     * @return false if the channel cannot be left with the default channel leave command.
      */
-    public Map<String, String> getCustomInfo(CommandSender sender) {
-        return new LinkedHashMap<>();
+    public boolean isLeaveableByCommand() {
+        return true;
+    }
+
+    /**
+     * @return false if the channel shouldn't be visible to the specified chatter on the channel list command.
+     */
+    public boolean isVisibleTo(Chatter chatter) {
+        return true;
     }
 
     /**
      * Checks whether or not a chatter can join the channel.<br />
-     * FlexChat itself will check if the chatter is already in the channel, so there's no need to send an error message here, if they are.
+     * This method is essentially {@link #addChatter(Chatter, boolean)} without actually adding the chatter or changing anything.
      *
      * @return a {@link me.st28.flexseries.flexcore.utils.DynamicResponse} representing whether or not a chatter can join.<br />
      *         By default, channels are unjoinable.
      */
     public DynamicResponse canChatterJoin(Chatter chatter) {
-        return new DynamicResponse(false, MessageReference.create(FlexChat.class, "errors.channel_join_unable", new QuickMap<>("{CHANNEL}", name).getMap()));
+        return new DynamicResponse(false, MessageReference.create(FlexChat.class, "errors.channel_join_unable", new QuickMap<>("{CHANNEL}", getName()).getMap()));
     }
 
     /**
-     * @return a collection of other chatters that exist in another chatter's instance  of the channel and are able to
-     *         receive a message from a specified member of the channel.
+     * Adds a chatter to the channel.
+     *
+     * @return A {@link me.st28.flexseries.flexcore.utils.DynamicResponse} representing the output of this method.
      */
-    public Collection<Chatter> getRecipients(Chatter target) {
-        Validate.notNull(target, "Target cannot be null.");
-        return getChatters(target);
+    public abstract DynamicResponse addChatter(Chatter chatter, boolean silent);
+
+    /**
+     * Removes a chatter from the channel.
+     *
+     * @return A {@link me.st28.flexseries.flexcore.utils.DynamicResponse} representing the output of this method.
+     */
+    public abstract DynamicResponse removeChatter(Chatter chatter, boolean silent);
+
+    /**
+     * @return the chat format for a specified sender.
+     */
+    public abstract String getChatFormat(Chatter sender);
+
+    /**
+     * @return a read-only collection of chatters that exist in the sender's instance of the channel.
+     */
+    public abstract Collection<Chatter> getChatters(Chatter sender);
+
+    /**
+     * @return a read-only collection of chatters that exist in the sender's instance of the channel
+     *         <i>AND</i> are currently able to receive a message from the sender.
+     */
+    public abstract Collection<Chatter> getRecipients(Chatter sender);
+
+    /**
+     * @return a map of custom data to display on the channel information command for this channel.
+     */
+    public Map<String, String> getCustomData(Chatter recipient) {
+        return new LinkedHashMap<>();
     }
 
-    /**
-     * @return true if this channel should show on the channel list command for a specific sender.
-     */
-    public boolean isVisibleTo(CommandSender sender) {
-        return true;
-    }
+    public void sendMessage(Chatter sender, MessageReference message) {
+        Validate.notNull(sender, "Sender cannot be null.");
+        Validate.notNull(message, "Message cannot be null.");
 
-    /**
-     * @return returns the format that should be used for a particular chatter.
-     */
-    public abstract String getFormat(Chatter chatter);
-
-    /**
-     * @return a collection of other chatters that exist in another chatter's instance of the channel.
-     */
-    public abstract Collection<Chatter> getChatters(Chatter target);
-
-    /**
-     * @return a collection of chatter identifiers that are banned from this channel.
-     */
-    public Collection<String> getBanned() {
-        throw new UnsupportedOperationException("Bans aren't supported by this channel.");
-    }
-
-    /**
-     * @return true if the chatter was successfully banned.
-     */
-    public boolean banChatter(Chatter chatter) {
-        throw new UnsupportedOperationException("Bans aren't supported by this channel.");
+        for (Chatter chatter : getChatters(sender)) {
+            chatter.sendMessage(message);
+        }
     }
 
 }

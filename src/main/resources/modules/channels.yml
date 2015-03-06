@@ -1,4 +1,2 @@
-Default channel: 'default'
-Active symbol: '\u25B6'
-Append Space:
-  - JOBS
+default channel: 'default'
+active symbol: '\u25B6'

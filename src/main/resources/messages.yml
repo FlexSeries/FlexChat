@@ -1,5 +1,6 @@
 errors:
   cannot_message_self: '&cYou cannot message yourself.'
+  channel_active_already_none: '&cYour active channel is already not set.'
   channel_active_already_set: '&cYour active channel is already set to &6{CHANNEL}&c.'
   channel_already_joined: '&cYou are already in channel &6{CHANNEL}&c.'
   channel_banned: '&cYou are banned from channel &6{CHANNEL}&c.'

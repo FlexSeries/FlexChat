@@ -2,8 +2,9 @@ package me.st28.flexseries.flexchat.commands;
 
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.Channel;
+import me.st28.flexseries.flexchat.api.ChannelManager;
 import me.st28.flexseries.flexchat.api.Chatter;
-import me.st28.flexseries.flexchat.backend.ChannelManager;
+import me.st28.flexseries.flexchat.api.ChatterManager;
 import me.st28.flexseries.flexcore.commands.CommandArgument;
 import me.st28.flexseries.flexcore.commands.CommandUtils;
 import me.st28.flexseries.flexcore.commands.FlexCommand;
@@ -19,6 +20,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 public final class SCmdChannelInfo extends FlexCommand<FlexChat> {
 
@@ -35,9 +37,10 @@ public final class SCmdChannelInfo extends FlexCommand<FlexChat> {
     }
 
     @Override
-    public void runCommand(CommandSender sender, String command, String label, String[] args) {
+    public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
         ChannelManager channelManager = FlexPlugin.getRegisteredModule(ChannelManager.class);
-        Chatter chatter = channelManager.getChatter(sender);
+        ChatterManager chatterManager = FlexPlugin.getRegisteredModule(ChatterManager.class);
+        Chatter chatter = chatterManager.getChatter(sender);
 
         boolean pageSpecified = false;
         int page = 1;
@@ -46,12 +49,12 @@ public final class SCmdChannelInfo extends FlexCommand<FlexChat> {
 
         if (args.length == 2) {
             page = CommandUtils.getPage(args, 1);
-            channel = channelManager.getChannel(args[0]);
+            channel = CmdChannel.matchChannel(args[0]);
             pageSpecified = true;
         } else if (args.length == 1) {
             page = CommandUtils.getPage(args, 0, true);
             if (page == -1) {
-                channel = channelManager.getChannel(args[0]);
+                channel = CmdChannel.matchChannel(args[0]);
                 page = 1;
             } else {
                 channel = chatter.getActiveChannel();
@@ -80,7 +83,7 @@ public final class SCmdChannelInfo extends FlexCommand<FlexChat> {
             }
         });
 
-        List<String> banned;
+        /*List<String> banned;
         try {
             banned = new ArrayList<>(channel.getBanned());
             Collections.sort(banned, new Comparator<String>() {
@@ -91,7 +94,7 @@ public final class SCmdChannelInfo extends FlexCommand<FlexChat> {
             });
         } catch (UnsupportedOperationException ex) {
             banned = null;
-        }
+        }*/
 
         builder.addMessage("title", "Short Name", shortName);
         builder.addMessage("title", "Color", color + color.name());
@@ -105,13 +108,15 @@ public final class SCmdChannelInfo extends FlexCommand<FlexChat> {
             }
         }, ", "));
 
-        if (banned != null) {
+        /*if (banned != null) {
             builder.addMessage("title", "Banned", banned.isEmpty() ? ("" + ChatColor.RED + ChatColor.ITALIC + "(none)") : StringUtils.stringCollectionToString(banned, ", "));
-        }
+        }*/
 
-        Map<String, String> customInfo = channel.getCustomInfo(sender);
+        Map<String, String> customInfo = channel.getCustomData(chatter);
         if (customInfo != null) {
-            // Add
+            for (Entry<String, String> entry : customInfo.entrySet()) {
+                builder.addMessage("title", entry.getKey(), entry.getValue());
+            }
         }
 
         builder.enableNextPageNotice(label + " " + StringUtils.stringCollectionToString(Arrays.asList(args).subList(0, pageSpecified ? args.length - 1 : args.length)));

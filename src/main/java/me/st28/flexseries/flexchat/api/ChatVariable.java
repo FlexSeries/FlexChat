@@ -1,7 +1,7 @@
 package me.st28.flexseries.flexchat.api;
 
-import me.st28.flexseries.flexchat.backend.ChannelManager;
 import me.st28.flexseries.flexcore.plugins.FlexPlugin;
+import org.apache.commons.lang.Validate;
 
 /**
  * Represents a replaceable part of a chat format.
@@ -12,10 +12,14 @@ public abstract class ChatVariable {
         FlexPlugin.getRegisteredModule(ChannelManager.class).registerChatVariable(variable);
     }
 
-    private String key;
+    /**
+     * The string that will be replaced in chat messages.
+     */
+    private final String key;
 
     public ChatVariable(String key) {
-        this.key = key;
+        Validate.notNull(key, "Key cannot be null.");
+        this.key = key.toUpperCase();
     }
 
     public String getKey() {

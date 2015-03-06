@@ -1,0 +1,8 @@
+name: 'default' # the full name of the channel
+short name: 'def' # the name to show in the default chat format
+color: 'WHITE' # the default color for the channel
+options:
+  chat radius: 0 # 0 to disable local chat
+  permissions: true # false to disable permission checking for this channel
+formats:
+  default: '&8[{CHCOLOR}{CHSHORTNAME}&8] &f{NAME}&8: {CHCOLOR}{MESSAGE}'

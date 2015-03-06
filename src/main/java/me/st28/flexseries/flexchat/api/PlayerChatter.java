@@ -1,6 +1,5 @@
-package me.st28.flexseries.flexchat.backend;
+package me.st28.flexseries.flexchat.api;
 
-import me.st28.flexseries.flexchat.api.Chatter;
 import me.st28.flexseries.flexcore.messages.MessageReference;
 import me.st28.flexseries.flexcore.players.PlayerUUIDTracker;
 import me.st28.flexseries.flexcore.plugins.FlexPlugin;
@@ -34,14 +33,6 @@ public final class PlayerChatter extends Chatter {
     @Override
     public String getDisplayName() {
         return FlexPlugin.getRegisteredModule(PlayerUUIDTracker.class).getTopLevelName(uuid);
-    }
-
-    @Override
-    public void sendMessage(String message) {
-        Player p = getPlayer();
-        if (p != null) {
-            p.sendMessage(message);
-        }
     }
 
     @Override
