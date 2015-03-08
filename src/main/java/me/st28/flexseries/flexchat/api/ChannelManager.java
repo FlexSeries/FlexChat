@@ -485,62 +485,7 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
             return;
         }
 
-        String format = ChatColor.translateAlternateColorCodes('&', channel.getChatFormat(chatter));
-        format = handleReplacements(chatter, channel, format);
-
-        /*Matcher variableMatcher = VARIABLE_PATTERN.matcher(format);
-        while (variableMatcher.find()) {
-            ChatVariable variable = variables.get(variableMatcher.group(1).toLowerCase());
-            if (variable != null) {
-                String replacement = variable.getReplacement(chatter, channel);
-                if (replacement == null || replacement.equals("")) {
-                    format = format.replace(variableMatcher.group(), "");
-                    continue;
-                }
-
-                format = format.replace(variableMatcher.group(), ChatColor.translateAlternateColorCodes('&', replacement));
-            }
-        }
-
-        Matcher variableModifierMatcher = VARIABLE_MODIFIERS_PATTERN.matcher(format);
-        while (variableModifierMatcher.find()) {
-            ChatVariable variable = variables.get(variableModifierMatcher.group(1).toLowerCase());
-            if (variable != null) {
-                String[] modifiers = variableModifierMatcher.group(2).split(",");
-
-                String replacement = variable.getReplacement(chatter, channel);
-                if (replacement == null || replacement.equals("")) {
-                    format = format.replace(variableModifierMatcher.group(), "");
-                    continue;
-                }
-
-                for (String modifier : modifiers) {
-                    String[] split = modifier.split("=");
-                    String key = split[0];
-                    String value = split.length == 1 ? null : split[1].toLowerCase();
-
-                    try {
-                        switch (VARIABLE_MODIFIERS.get(key.toUpperCase())) {
-                            case FORMAT:
-                                if (value == null || !variableFormats.containsKey(value)) {
-                                    continue;
-                                }
-
-                                replacement = variableFormats.get(value).replace("{VARIABLE}", replacement);
-                                break;
-
-                            case NON_NULL_SPACE:
-                                replacement = replacement + " ";
-                                break;
-                        }
-                    } catch (Exception ex) {
-                        continue;
-                    }
-                }
-                format = format.replace(variableModifierMatcher.group(), ChatColor.translateAlternateColorCodes('&', replacement));
-            }
-        }*/
-
+        String format = handleReplacements(chatter, channel, ChatColor.translateAlternateColorCodes('&', channel.getChatFormat(chatter)));
         String message = e.getMessage();
 
         if (PermissionNodes.CHAT_COLOR.isAllowed(p)) {
