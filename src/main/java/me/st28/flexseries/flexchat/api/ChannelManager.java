@@ -1,9 +1,16 @@
 package me.st28.flexseries.flexchat.api;
 
+import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownyUniverse;
 import me.st28.flexseries.flexchat.FlexChat;
+import me.st28.flexseries.flexchat.backend.towny.TownyListener;
+import me.st28.flexseries.flexchat.backend.towny.TownyNationChannel;
+import me.st28.flexseries.flexchat.backend.towny.TownyTownChannel;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexcore.hooks.HookManager;
 import me.st28.flexseries.flexcore.hooks.JobsHook;
+import me.st28.flexseries.flexcore.hooks.TownyHook;
 import me.st28.flexseries.flexcore.hooks.exceptions.HookDisabledException;
 import me.st28.flexseries.flexcore.hooks.vault.VaultHook;
 import me.st28.flexseries.flexcore.logging.LogHelper;
@@ -13,10 +20,14 @@ import me.st28.flexseries.flexcore.plugins.FlexPlugin;
 import me.st28.flexseries.flexcore.plugins.exceptions.ModuleDisabledException;
 import me.st28.flexseries.flexcore.storage.flatfile.YamlFileManager;
 import me.st28.flexseries.flexcore.utils.ChatColorUtils;
+import me.st28.flexseries.flexcore.utils.PluginUtils;
 import me.st28.flexseries.flexcore.utils.QuickMap;
 import me.zford.jobs.Jobs;
 import me.zford.jobs.container.JobsPlayer;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.Validate;
+import org.apache.logging.log4j.Level;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -26,6 +37,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.permissions.Permission;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.util.*;
@@ -56,8 +68,8 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
     private final static Map<String, VariableModifier> VARIABLE_MODIFIERS = new HashMap<>();
 
     public final static Pattern CHANNEL_NAME_PATTERN = Pattern.compile("(?i)^[a-z][\\-_a-z0-9]*|^[0-9]+[\\-_a-z][\\-_a-z0-9]*");
-    public final static Pattern VARIABLE_PATTERN = Pattern.compile("(?i)\\{([a-z0-9]+)}");
-    public final static Pattern VARIABLE_MODIFIERS_PATTERN = Pattern.compile("(?i)\\{([a-z0-9]+):([^}]+)}");
+    public final static Pattern VARIABLE_PATTERN = Pattern.compile("(?i)\\{([a-z0-9-]+)}");
+    public final static Pattern VARIABLE_MODIFIERS_PATTERN = Pattern.compile("(?i)\\{([a-z0-9-]+):([^}]+)}");
 
     /* Configuration values */
     private String defaultChannel; // The identifier of the default channel
@@ -74,6 +86,11 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
      * <b>Structure:</b> <code>name, modifier</code>
      */
     private final Map<String, String> variableFormats = new HashMap<>();
+
+    /**
+     * The identifiers of custom registered {@link me.st28.flexseries.flexchat.api.Channel}s.
+     */
+    private final Set<String> customChannelIdentifiers = new HashSet<>();
 
     /**
      * Loaded channels.<br />
@@ -195,11 +212,12 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
     protected void handleLoad() throws Exception {
         channelDir = new File(plugin.getDataFolder() + File.separator + "channels");
         customChannelDir = new File(channelDir + File.separator + "custom");
+        customChannelDir.mkdirs();
 
         try {
             FlexPlugin.getRegisteredModule(HookManager.class).checkHookStatus(JobsHook.class);
 
-            registerChatVariable(new ChatVariable("JOBS") {
+            registerChatVariable(new ChatVariable("JOBS-JOBS") {
                 @Override
                 public String getReplacement(Chatter chatter, Channel channel) {
                     if (!(chatter instanceof PlayerChatter)) {
@@ -215,9 +233,57 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
                 }
             });
 
-            LogHelper.info(this, "Chat variables for Jobs enabled.");
-        } catch (HookDisabledException ex) {
-            LogHelper.debug(this, "Unable to register Jobs chat variables because Jobs isn't installed.");
+            LogHelper.info(this, "Optional features for Jobs enabled.");
+        } catch (HookDisabledException | ModuleDisabledException ex) {
+            LogHelper.info(this, "Unable to register optional features for Jobs because it isn't installed.");
+        }
+
+        try {
+            FlexPlugin.getRegisteredModule(HookManager.class).checkHookStatus(TownyHook.class);
+
+            registerCustomChannel(plugin, new TownyTownChannel());
+            registerCustomChannel(plugin, new TownyNationChannel());
+
+            registerChatVariable(new ChatVariable("TOWNY-TOWN") {
+                @Override
+                public String getReplacement(Chatter chatter, Channel channel) {
+                    if (!(chatter instanceof PlayerChatter)) {
+                        return null;
+                    }
+
+                    try {
+                        return TownyUniverse.getDataSource().getResident(chatter.getName()).getTown().getName();
+                    } catch (NotRegisteredException ex) {
+                        return null;
+                    }
+                }
+            });
+
+            registerChatVariable(new ChatVariable("TOWNY-NATION") {
+                @Override
+                public String getReplacement(Chatter chatter, Channel channel) {
+                    if (!(chatter instanceof PlayerChatter)) {
+                        return null;
+                    }
+
+                    try {
+                        Town town = TownyUniverse.getDataSource().getResident(chatter.getName()).getTown();
+
+                        try {
+                            return town.getNation().getName();
+                        } catch (NotRegisteredException ex) {
+                            return null;
+                        }
+                    } catch (NotRegisteredException ex) {
+                        return null;
+                    }
+                }
+            });
+
+            Bukkit.getPluginManager().registerEvents(new TownyListener(), plugin);
+            LogHelper.info(this, "Optional features for Towny enabled.");
+        } catch (HookDisabledException | ModuleDisabledException ex) {
+            LogHelper.info(this, "Unable to register optional features for Towny because it isn't installed.");
         }
     }
 
@@ -233,7 +299,7 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
 
         FileConfiguration config = getConfig();
         defaultChannel = config.getString("default channel");
-        activeSymbol = config.getString("active symbol", ">");
+        activeSymbol = StringEscapeUtils.unescapeJava(config.getString("active symbol", ">"));
 
         variableFormats.clear();
         ConfigurationSection formatSec = config.getConfigurationSection("variable formats");
@@ -245,7 +311,7 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
 
         List<String> configurableChannels = new ArrayList<>();
         for (Entry<String, Channel> entry : channels.entrySet()) {
-            if (entry.getValue() instanceof ConfigurableChannel) {
+            if (entry.getValue() instanceof ConfigurableChannel && !customChannelIdentifiers.contains(entry.getKey())) {
                 configurableChannels.add(entry.getKey());
             }
         }
@@ -255,13 +321,18 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
             if (YamlFileManager.YAML_FILE_PATTERN.matcher(file.getName()).matches()) {
                 String identifier = file.getName().replace(".yml", "");
 
+                if (customChannelIdentifiers.contains(identifier)) {
+                    continue;
+                }
+
                 try {
                     if (configurableChannels.remove(identifier)) {
                         loadChannel((ConfigurableChannel) channels.get(identifier), new YamlFileManager(file));
                     } else {
                         ConfigurableChannel channel = new StandardChannel(identifier);
-                        loadChannel(channel, new YamlFileManager(file));
                         channels.put(identifier, channel);
+                        loadChannel(channel, new YamlFileManager(file));
+                        LogHelper.info(this, "Loaded channel '" + identifier + "'");
                     }
                 } catch (Exception ex) {
                     LogHelper.severe(this, "An error occurred while loading channel configuration in file: " + file.getName());
@@ -274,6 +345,18 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
         for (File file : customChannelDir.listFiles()) {
             if (YamlFileManager.YAML_FILE_PATTERN.matcher(file.getName()).matches()) {
                 String identifier = file.getName().replace(".yml", "");
+
+                try {
+                    Channel custChannel = channels.get(identifier);
+
+                    if (custChannel != null && custChannel instanceof ConfigurableChannel) {
+                        loadChannel((ConfigurableChannel) custChannel, new YamlFileManager(file));
+                        LogHelper.info(this, "Loaded data for custom channel identified by '" + identifier + "'");
+                    }
+                } catch (Exception ex) {
+                    LogHelper.severe(this, "An error occurred while loading channel configuration in file: " + file.getName());
+                    ex.printStackTrace();
+                }
             }
         }
 
@@ -287,7 +370,40 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
     }
 
     public void loadChannel(ConfigurableChannel channel, YamlFileManager file) {
-        channel.data = new ChannelData(file);
+        //channel.data = new ChannelData(file);
+        channel.setData(new ChannelData(file));
+    }
+
+    /**
+     * Registers a custom implementation of a channel.
+     * @throws java.lang.IllegalStateException Thrown if a channel with the same identifier is already registered.
+     */
+    public final void registerCustomChannel(JavaPlugin plugin, Channel channel) {
+        Validate.notNull(channel, "Channel cannot be null.");
+
+        String identifier = channel.getIdentifier();
+        if (channels.containsKey(identifier)) {
+            throw new IllegalStateException("A channel identified by '" + identifier + "' is already registered.");
+        }
+
+        channels.put(identifier, channel);
+        customChannelIdentifiers.add(identifier);
+
+        if (channel instanceof ConfigurableChannel) {
+            String fileName = identifier + ".yml";
+            if (!new File(customChannelDir + File.separator + fileName).exists()) {
+                try {
+                    if (!PluginUtils.saveFile(plugin, "channels" + File.separator + "custom" + File.separator + fileName, customChannelDir + File.separator + fileName)) {
+                        LogHelper.warning(this, "No default file for channel '" + identifier + "' found in plugin '" + plugin.getName() + "'");
+                    } else {
+                        LogHelper.info(this, "Created default channel file for channel '" + identifier + "' from plugin '" + plugin.getName() + "'");
+                    }
+                } catch (Exception ex) {
+                    LogHelper.warning(this, "An exception occurred while trying to copy the channel file for custom channel '" + identifier + "'");
+                    ex.printStackTrace();
+                }
+            }
+        }
     }
 
     /**
@@ -302,6 +418,7 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
             throw new IllegalStateException("A chat variable with the key '" + key + "' is already registered.");
 
         variables.put(key, variable);
+        LogHelper.debug(this, "Registered chat variable '" + variable.getRawKey() + "'");
     }
 
     /**
@@ -369,8 +486,9 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
         }
 
         String format = ChatColor.translateAlternateColorCodes('&', channel.getChatFormat(chatter));
+        format = handleReplacements(chatter, channel, format);
 
-        Matcher variableMatcher = VARIABLE_PATTERN.matcher(format);
+        /*Matcher variableMatcher = VARIABLE_PATTERN.matcher(format);
         while (variableMatcher.find()) {
             ChatVariable variable = variables.get(variableMatcher.group(1).toLowerCase());
             if (variable != null) {
@@ -421,7 +539,7 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
                 }
                 format = format.replace(variableModifierMatcher.group(), ChatColor.translateAlternateColorCodes('&', replacement));
             }
-        }
+        }*/
 
         String message = e.getMessage();
 
@@ -443,6 +561,65 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
         for (Chatter curChatter : channel.getRecipients(chatter)) {
             curChatter.sendMessage(messageRef);
         }
+
+        FlexChat.CHAT_LOGGER.log(Level.INFO, "[[" + channel.getName() + "]] " + ChatColor.stripColor(handleReplacements(chatter, channel, channel.getLogFormat()).replace("{MESSAGE}", message)));
+    }
+
+    private String handleReplacements(Chatter chatter, Channel channel, String input) {
+        Matcher variableMatcher = VARIABLE_PATTERN.matcher(input);
+        while (variableMatcher.find()) {
+            ChatVariable variable = variables.get(variableMatcher.group(1).toLowerCase());
+            if (variable != null) {
+                String replacement = variable.getReplacement(chatter, channel);
+                if (replacement == null || replacement.equals("")) {
+                    input = input.replace(variableMatcher.group(), "");
+                    continue;
+                }
+
+                input = input.replace(variableMatcher.group(), ChatColor.translateAlternateColorCodes('&', replacement));
+            }
+        }
+
+        Matcher variableModifierMatcher = VARIABLE_MODIFIERS_PATTERN.matcher(input);
+        while (variableModifierMatcher.find()) {
+            ChatVariable variable = variables.get(variableModifierMatcher.group(1).toLowerCase());
+            if (variable != null) {
+                String[] modifiers = variableModifierMatcher.group(2).split(",");
+
+                String replacement = variable.getReplacement(chatter, channel);
+                if (replacement == null || replacement.equals("")) {
+                    input = input.replace(variableModifierMatcher.group(), "");
+                    continue;
+                }
+
+                for (String modifier : modifiers) {
+                    String[] split = modifier.split("=");
+                    String key = split[0];
+                    String value = split.length == 1 ? null : split[1].toLowerCase();
+
+                    try {
+                        switch (VARIABLE_MODIFIERS.get(key.toUpperCase())) {
+                            case FORMAT:
+                                if (value == null || !variableFormats.containsKey(value)) {
+                                    continue;
+                                }
+
+                                replacement = variableFormats.get(value).replace("{VARIABLE}", replacement);
+                                break;
+
+                            case NON_NULL_SPACE:
+                                replacement = replacement + " ";
+                                break;
+                        }
+                    } catch (Exception ex) {
+                        continue;
+                    }
+                }
+                input = input.replace(variableModifierMatcher.group(), ChatColor.translateAlternateColorCodes('&', replacement));
+            }
+        }
+
+        return input;
     }
 
 }

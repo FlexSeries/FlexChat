@@ -93,19 +93,26 @@ public abstract class Channel {
      *
      * @return A {@link me.st28.flexseries.flexcore.utils.DynamicResponse} representing the output of this method.
      */
-    public abstract DynamicResponse addChatter(Chatter chatter, boolean silent);
+    protected abstract DynamicResponse addChatter(Chatter chatter, boolean silent);
 
     /**
      * Removes a chatter from the channel.
      *
      * @return A {@link me.st28.flexseries.flexcore.utils.DynamicResponse} representing the output of this method.
      */
-    public abstract DynamicResponse removeChatter(Chatter chatter, boolean silent);
+    protected abstract DynamicResponse removeChatter(Chatter chatter, boolean silent);
+
+    protected void refreshChatters() { }
 
     /**
      * @return the chat format for a specified sender.
      */
     public abstract String getChatFormat(Chatter sender);
+
+    /**
+     * @return the chat format to use for logging purposes.
+     */
+    public abstract String getLogFormat();
 
     /**
      * @return a read-only collection of chatters that exist in the sender's instance of the channel.

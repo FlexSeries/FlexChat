@@ -19,6 +19,7 @@ public final class ChannelData {
     private String name;
     private String shortName;
     private ChatColor color;
+    private String logFormat;
 
     /**
      * <b>Structure:</b> <code>group, format</code>
@@ -44,6 +45,9 @@ public final class ChannelData {
 
         shortName = config.getString("short name");
         color = ChatColor.valueOf(config.getString("color", "WHITE"));
+
+        logFormat = config.getString("log format");
+        Validate.notNull(logFormat, "Log format cannot be null.");
 
         ConfigurationSection formatSec = config.getConfigurationSection("formats");
         if (formatSec != null) {
@@ -112,6 +116,13 @@ public final class ChannelData {
         Validate.notNull(group, "Group cannot be null.");
         group = group.toLowerCase();
         return formats.containsKey(group) ? formats.get(group) : formats.get("default");
+    }
+
+    /**
+     * @return the format to use for logging purposes.
+     */
+    public final String getLogFormat() {
+        return logFormat;
     }
 
     /**

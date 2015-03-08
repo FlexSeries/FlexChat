@@ -1,28 +1,23 @@
-package me.st28.flexseries.flexchat.api;
+package me.st28.flexseries.flexchat.backend.towny;
 
 import me.st28.flexseries.flexchat.FlexChat;
+import me.st28.flexseries.flexchat.api.Chatter;
+import me.st28.flexseries.flexchat.api.ConfigurableChannel;
+import me.st28.flexseries.flexchat.api.PlayerChatter;
 import me.st28.flexseries.flexcore.messages.MessageReference;
 import me.st28.flexseries.flexcore.utils.DynamicResponse;
 import me.st28.flexseries.flexcore.utils.QuickMap;
 
-import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
-public class StandardChannel extends ConfigurableChannel {
+public abstract  class TrackingConfigurableChannel extends ConfigurableChannel {
 
-    private final Set<Chatter> chatters = new HashSet<>();
+    private Set<Chatter> chatters = new HashSet<>();
 
-    public StandardChannel(String identifier) {
+    public TrackingConfigurableChannel(String identifier) {
         super(identifier);
-    }
-
-    @Override
-    public DynamicResponse canChatterJoin(Chatter chatter) {
-        if (chatters.contains(chatter)) {
-            return new DynamicResponse(false, MessageReference.create(FlexChat.class, "errors.channel_already_joined", new QuickMap<>("{CHANNEL}", getName()).getMap()));
-        }
-        return new DynamicResponse(true);
     }
 
     @Override
@@ -53,8 +48,15 @@ public class StandardChannel extends ConfigurableChannel {
     }
 
     @Override
-    public Collection<Chatter> getChatters(Chatter sender) {
-        return chatters;
+    protected void refreshChatters() {
+        Iterator<Chatter> iterator = chatters.iterator();
+        while (iterator.hasNext()) {
+            Chatter next = iterator.next();
+
+            if (next instanceof PlayerChatter && ((PlayerChatter) next).getPlayer() == null) {
+                iterator.remove();
+            }
+        }
     }
 
 }

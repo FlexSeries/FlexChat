@@ -4,6 +4,8 @@ import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexcore.events.PlayerJoinLoadedEvent;
 import me.st28.flexseries.flexcore.events.PlayerLeaveEvent;
 import me.st28.flexseries.flexcore.logging.LogHelper;
+import me.st28.flexseries.flexcore.messages.MessageReference;
+import me.st28.flexseries.flexcore.messages.ReplacementMap;
 import me.st28.flexseries.flexcore.players.PlayerManager;
 import me.st28.flexseries.flexcore.players.loading.PlayerLoadCycle;
 import me.st28.flexseries.flexcore.players.loading.PlayerLoader;
@@ -15,13 +17,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public final class ChatterManager extends FlexModule<FlexChat> implements PlayerLoader {
+public final class ChatterManager extends FlexModule<FlexChat> implements Listener, PlayerLoader {
 
     private final Map<String, Chatter> chatters = new HashMap<>();
 
@@ -34,6 +37,8 @@ public final class ChatterManager extends FlexModule<FlexChat> implements Player
     @Override
     protected void handleLoad() throws Exception {
         chatterDir = new File(plugin.getDataFolder() + File.separator + "chatters");
+
+        loadChatterData(new ConsoleChatter());
     }
 
     @Override
@@ -78,6 +83,7 @@ public final class ChatterManager extends FlexModule<FlexChat> implements Player
 
         chatter.data = new ChatterData(file);
         chatters.put(chatter.getIdentifier(), chatter);
+        chatter.data.refreshChannels();
 
         for (Channel channel : chatter.data.getChannels()) {
             if (!channel.getChatters(chatter).contains(chatter) && !channel.addChatter(chatter, true).isSuccess()) {
@@ -120,8 +126,13 @@ public final class ChatterManager extends FlexModule<FlexChat> implements Player
 
     @EventHandler
     public void onPlayerJoinLoaded(PlayerJoinLoadedEvent e) {
-        //TODO: send current channel
-        //e.addLoginMessage(FlexChat.class, "channel", );
+        Chatter chatter = getChatter(e.getPlayer());
+
+        Channel channel = chatter.getActiveChannel();
+
+        if (channel != null) {
+            e.addLoginMessage(FlexChat.class, "channel", MessageReference.create(FlexChat.class, "notices.login_channel", new ReplacementMap("{CHANNEL}", channel.getName()).put("{COLOR}", channel.getColor().toString()).getMap()));
+        }
     }
 
     @EventHandler
@@ -131,6 +142,9 @@ public final class ChatterManager extends FlexModule<FlexChat> implements Player
         if (chatter == null) return;
 
         chatter.data.save();
+        for (Channel channel : chatter.getChannels()) {
+            channel.removeChatter(chatter, true);
+        }
         chatters.remove(identifier);
     }
 
