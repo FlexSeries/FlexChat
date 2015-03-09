@@ -55,7 +55,7 @@ public final class CmdMessage extends FlexCommand<FlexChat> {
         senderChatter.sendMessage(MessageReference.createPlain(format.replace("{SENDER}", ChatColor.ITALIC + "me").replace("{RECEIVER}", targetChatter.getDisplayName()).replace("{MESSAGE}", message)));
         targetChatter.sendMessage(MessageReference.createPlain(format.replace("{SENDER}", senderChatter.getDisplayName()).replace("{RECEIVER}", ChatColor.ITALIC + "me").replace("{MESSAGE}", message)));
 
-        FlexChat.CHAT_LOGGER.log(Level.INFO, ChatColor.stripColor("[[-MSG-]] " + senderChatter + " TO " + targetChatter + " > " + message));
+        FlexChat.CHAT_LOGGER.log(Level.INFO, ChatColor.stripColor("[[-MSG-]] " + senderChatter.getName() + " TO " + targetChatter.getName() + " > " + message));
     }
 
 }
