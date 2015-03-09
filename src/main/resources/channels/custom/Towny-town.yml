@@ -1,5 +1,6 @@
 name: 'town'
 shortName: 't'
 color: 'AQUA'
+log format: '[{TOWNY-TOWN}] {NAME}: {MESSAGE}'
 formats:
   default: '&8[{CHCOLOR}{CHSHORTNAME}&8] &f{NAME}: {MESSAGE}'

@@ -1,0 +1,5 @@
+active symbol: '\u25B6'
+private message format: '&f[&7{SENDER} &f\u27A1 &7{RECEIVER}&f] &7{MESSAGE}'
+default channel: 'default'
+variable formats:
+  gray_brackets: '&8[{VARIABLE}&8]'
