@@ -1,9 +1,11 @@
-package me.st28.flexseries.flexchat.commands;
+package me.st28.flexseries.flexchat.commands.channel;
 
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.Channel;
+import me.st28.flexseries.flexchat.api.ChannelManager;
 import me.st28.flexseries.flexchat.api.Chatter;
-import me.st28.flexseries.flexchat.backend.ChannelManager;
+import me.st28.flexseries.flexchat.api.ChatterManager;
+import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexcore.commands.CommandArgument;
 import me.st28.flexseries.flexcore.commands.CommandUtils;
 import me.st28.flexseries.flexcore.commands.FlexCommand;
@@ -16,7 +18,7 @@ import org.bukkit.command.CommandSender;
 
 import java.util.*;
 
-public class SCmdChannelList extends FlexCommand<FlexChat> {
+public final class SCmdChannelList extends FlexCommand<FlexChat> {
 
     public SCmdChannelList(FlexChat plugin, FlexCommand<FlexChat> parent) {
         super(
@@ -30,12 +32,13 @@ public class SCmdChannelList extends FlexCommand<FlexChat> {
     }
 
     @Override
-    public void runCommand(CommandSender sender, String command, String label, String[] args) {
+    public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
         int page = CommandUtils.getPage(args, 0, false);
 
         ChannelManager channelManager = FlexPlugin.getRegisteredModule(ChannelManager.class);
+        ChatterManager chatterManager = FlexPlugin.getRegisteredModule(ChatterManager.class);
 
-        Chatter chatter = channelManager.getChatter(sender);
+        Chatter chatter = chatterManager.getChatter(sender);
 
         final List<Channel> channels = new ArrayList<>(channelManager.getChannels());
         final Channel activeChannel = chatter.getActiveChannel();
@@ -49,6 +52,8 @@ public class SCmdChannelList extends FlexCommand<FlexChat> {
         Collections.sort(channels, new Comparator<Channel>() {
             @Override
             public int compare(Channel o1, Channel o2) {
+                if (o1 == o2) return 0;
+
                 if (o2 == activeChannel) {
                     // If the other channel is active, it is automatically first.
                     return 1;
@@ -71,9 +76,12 @@ public class SCmdChannelList extends FlexCommand<FlexChat> {
         });
 
         // Remove channels that shouldn't be visible on the list command.
+
+        boolean canSenderBypass = PermissionNodes.CHANNEL_VIEW_BYPASS.isAllowed(sender);
+
         Iterator<Channel> it = channels.iterator();
         while (it.hasNext()) {
-            if (!it.next().isVisibleTo(sender)) it.remove();
+            if (!it.next().isVisibleTo(chatter) && !canSenderBypass) it.remove();
         }
 
         ListBuilder builder = new ListBuilder("page", "Channels", null, label);
@@ -84,8 +92,8 @@ public class SCmdChannelList extends FlexCommand<FlexChat> {
             String status;
             if (chatterChannels.contains(channel)) {
                 status = ChatColor.GREEN + "joined";
-            } else if (channel.getBanned().contains(identifier)) {
-                status = "" + ChatColor.DARK_RED + ChatColor.ITALIC + "banned";
+            /*} else if (channel.getBanned().contains(identifier)) {
+                status = "" + ChatColor.DARK_RED + ChatColor.ITALIC + "banned";*/
             } else {
                 status = ChatColor.RED + "not joined";
             }
@@ -96,7 +104,7 @@ public class SCmdChannelList extends FlexCommand<FlexChat> {
                     .put("{STATUS}", status)
                     .put("{CHATTERS}", Integer.toString(chatters))
                     .put("{S}", chatters == 1 ? "" : "s")
-                    .put("{ACTIVE}", channel == chatter.getActiveChannel() ? FlexPlugin.getRegisteredModule(ChannelManager.class).getActiveChannelSymbol() : "")
+                    .put("{ACTIVE}", channel == chatter.getActiveChannel() ? channelManager.getActiveSymbol() : "")
                     .getMap()
             );
         }

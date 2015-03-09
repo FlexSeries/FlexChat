@@ -1,9 +1,14 @@
 package me.st28.flexseries.flexchat.api;
 
-import me.st28.flexseries.flexchat.backend.ChannelManager;
+import me.st28.flexseries.flexchat.FlexChat;
+import me.st28.flexseries.flexchat.api.events.ChannelActiveSetEvent;
+import me.st28.flexseries.flexchat.api.events.ChannelJoinEvent;
+import me.st28.flexseries.flexchat.api.events.ChannelLeaveEvent;
 import me.st28.flexseries.flexcore.messages.MessageReference;
-import me.st28.flexseries.flexcore.plugins.FlexPlugin;
 import me.st28.flexseries.flexcore.utils.DynamicResponse;
+import me.st28.flexseries.flexcore.utils.QuickMap;
+import org.apache.commons.lang.Validate;
+import org.bukkit.Bukkit;
 
 import java.util.Collection;
 
@@ -12,16 +17,20 @@ import java.util.Collection;
  */
 public abstract class Chatter {
 
-    public final static String CONFIG_ACTIVE_CHANNEL = "activeChannel";
-    public final static String CONFIG_CHANNELS = "channels";
-
+    /**
+     * A unique identifier for the chatter.
+     */
     private final String identifier;
 
+    ChatterData data;
+
     public Chatter(String identifier) {
+        Validate.notNull(identifier, "Identifier cannot be null.");
+
         this.identifier = identifier;
     }
 
-    /**
+    /*
      * @return a unique identifier for the chatter.
      */
     public final String getIdentifier() {
@@ -29,42 +38,102 @@ public abstract class Chatter {
     }
 
     /**
-     * @return the chatter's active chat channel.
-     */
-    public final Channel getActiveChannel() {
-        return FlexPlugin.getRegisteredModule(ChannelManager.class).getChatterActiveChannel(this);
-    }
-
-    /**
-     * @return A DynamicResponse representing true if the active channel was successfully set.
-     */
-    public final DynamicResponse setActiveChannel(Channel channel) {
-        return FlexPlugin.getRegisteredModule(ChannelManager.class).setChatterActiveChannel(channel, this);
-    }
-
-    /**
-     * @return a collection of all of the joined channels for the chatter.
-     */
-    public final Collection<Channel> getChannels() {
-        return FlexPlugin.getRegisteredModule(ChannelManager.class).getChatterChannels(this);
-    }
-
-    /**
-     * @return the name of the chatter, to appear in chat messages.
+     * @return the name of the chatter.
      */
     public abstract String getName();
 
     /**
-     * @return the display name of the chatter.
+     * @return the name to display for the chatter instead of their normal name.<br />
+     *         Should never return null. If there isn't a display name set, should return the normal name.
      */
     public String getDisplayName() {
         return getName();
     }
 
-    public abstract void sendMessage(String message);
-
-    public void sendMessage(MessageReference message) {
-        sendMessage(message.getPlainMessage());
+    public final Channel getActiveChannel() {
+        return data.getActiveChannel();
     }
+
+    public final DynamicResponse setActiveChannel(Channel channel) {
+        if (channel == null) {
+            if (getActiveChannel() == null) {
+                return new DynamicResponse(false, MessageReference.create(FlexChat.class, "errors.channel_active_already_none"));
+            } else {
+                data.activeChannel = null;
+                return new DynamicResponse(true);
+            }
+        }
+
+        DynamicResponse response = null;
+        if (!this.getChannels().contains(channel)) {
+            response = addChannel(channel);
+            if (!response.isSuccess()) {
+                return response;
+            }
+        }
+
+        if (this.getActiveChannel() == channel) {
+            return new DynamicResponse(false, MessageReference.create(FlexChat.class, "errors.channel_active_already_set", new QuickMap<>("{CHANNEL}", channel.getName()).getMap()));
+        }
+
+        data.activeChannel = channel.getIdentifier();
+        Bukkit.getPluginManager().callEvent(new ChannelActiveSetEvent(channel, this));
+
+        if (response != null) {
+            return new DynamicResponse(true, response.getMessages()[0], MessageReference.create(FlexChat.class, "notices.channel_active_set", new QuickMap<>("{CHANNEL}", channel.getName()).put("{COLOR}", channel.getColor().toString()).getMap()));
+        } else {
+            return new DynamicResponse(true, MessageReference.create(FlexChat.class, "notices.channel_active_set", new QuickMap<>("{CHANNEL}", channel.getName()).put("{COLOR}", channel.getColor().toString()).getMap()));
+        }
+    }
+
+    public final Collection<Channel> getChannels() {
+        return data.getChannels();
+    }
+
+    public DynamicResponse addChannel(Channel channel) {
+        Validate.notNull(channel, "Channel cannot be null.");
+
+        DynamicResponse response = channel.addChatter(this, false);
+        if (!response.isSuccess()) {
+            return response;
+        }
+
+        data.channels.put(channel.getIdentifier(), System.currentTimeMillis());
+        Bukkit.getPluginManager().callEvent(new ChannelJoinEvent(channel, this));
+
+        return new DynamicResponse(true, MessageReference.create(FlexChat.class, "notices.channel_joined", new QuickMap<>("{CHANNEL}", channel.getName()).put("{COLOR}", channel.getColor().toString()).getMap()));
+    }
+
+    public DynamicResponse removeChannel(Channel channel) {
+        Validate.notNull(channel, "Channel cannot be null.");
+
+        DynamicResponse response = channel.removeChatter(this, false);
+        if (!response.isSuccess()) {
+            return response;
+        }
+
+        data.channels.remove(channel.getIdentifier());
+        Bukkit.getPluginManager().callEvent(new ChannelLeaveEvent(channel, this));
+
+        DynamicResponse activeResponse = null;
+        if (getActiveChannel() == channel) {
+            if (!data.channels.isEmpty()) {
+                activeResponse = setActiveChannel(data.getNextChannel());
+            } else {
+                setActiveChannel(null);
+            }
+        }
+
+        if (activeResponse != null && activeResponse.isSuccess()) {
+            return new DynamicResponse(true, MessageReference.create(FlexChat.class, "notices.channel_left", new QuickMap<>("{CHANNEL}", channel.getName()).put("{COLOR}", channel.getColor().toString()).getMap()), activeResponse.getMessages()[0]);
+        } else {
+            return new DynamicResponse(true, MessageReference.create(FlexChat.class, "notices.channel_left", new QuickMap<>("{CHANNEL}", channel.getName()).put("{COLOR}", channel.getColor().toString()).getMap()));
+        }
+    }
+
+    /**
+     * Sends a message to the chatter.
+     */
+    public abstract void sendMessage(MessageReference message);
 
 }

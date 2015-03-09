@@ -1,32 +1,37 @@
-package me.st28.flexseries.flexchat.backend.hooks;
+package me.st28.flexseries.flexchat.backend.towny;
 
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.Chatter;
-import me.st28.flexseries.flexchat.backend.ChannelManager;
-import me.st28.flexseries.flexchat.backend.FileChannel;
-import me.st28.flexseries.flexchat.backend.PlayerChatter;
+import me.st28.flexseries.flexchat.api.ChatterManager;
+import me.st28.flexseries.flexchat.api.PlayerChatter;
+import me.st28.flexseries.flexcore.FlexCore;
 import me.st28.flexseries.flexcore.messages.MessageReference;
 import me.st28.flexseries.flexcore.plugins.FlexPlugin;
 import me.st28.flexseries.flexcore.utils.DynamicResponse;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-public final class TownyTownChannel extends FileChannel {
+public final class TownyTownChannel extends TrackingConfigurableChannel {
 
-    public TownyTownChannel(String shortName, ChatColor color, Collection<String> banned, Map<String, String> formats) {
-        super("town", shortName, color, banned, formats);
+    public final static String IDENTIFIER = "Towny-town";
+
+    public TownyTownChannel() {
+        super(IDENTIFIER);
     }
 
     @Override
-    public Collection<Chatter> getRecipients(Chatter target) {
-        return getChatters(target);
+    public boolean isJoinableByCommand() {
+        return false;
+    }
+
+    @Override
+    public boolean isLeaveableByCommand() {
+        return false;
     }
 
     @Override
@@ -38,9 +43,9 @@ public final class TownyTownChannel extends FileChannel {
         try {
             List<Chatter> returnList = new ArrayList<>();
 
-            ChannelManager channelManager = FlexPlugin.getRegisteredModule(ChannelManager.class);
+            ChatterManager chatterManager = FlexPlugin.getRegisteredModule(ChatterManager.class);
             for (Player player : TownyUniverse.getOnlinePlayers(TownyUniverse.getDataSource().getResident(target.getName()).getTown())) {
-                returnList.add(channelManager.getChatter(player));
+                returnList.add(chatterManager.getChatter(player));
             }
 
             return returnList;
@@ -52,7 +57,12 @@ public final class TownyTownChannel extends FileChannel {
     @Override
     public DynamicResponse canChatterJoin(Chatter chatter) {
         if (!(chatter instanceof PlayerChatter)) {
-            return new DynamicResponse(false, MessageReference.createGeneral(FlexChat.class, "errors.must_be_player"));
+            return new DynamicResponse(false, MessageReference.createGeneral(FlexCore.class, "general.errors.must_be_player"));
+        }
+
+        DynamicResponse superResponse = super.canChatterJoin(chatter);
+        if (!superResponse.isSuccess()) {
+            return superResponse;
         }
 
         try {

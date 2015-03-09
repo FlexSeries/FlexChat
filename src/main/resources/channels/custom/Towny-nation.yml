@@ -1,5 +1,6 @@
 name: 'nation'
 shortName: 'n'
 color: 'GOLD'
+log format: '[{TOWNY-NATION}, {TOWNY-TOWN}] {NAME}: {MESSAGE}'
 formats:
   default: '&8[{CHCOLOR}{CHSHORTNAME}&8] &f{NAME}: {MESSAGE}'

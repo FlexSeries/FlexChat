@@ -14,6 +14,8 @@ commands:
     aliases: [channel, channels, ch]
   flexmessage:
     aliases: [message, msg, m, tell, t, whisper, whisp, w]
+  flexchatspy:
+    aliases: [chatspy, socialspy]
 
 permissions:
   ##########
@@ -21,10 +23,46 @@ permissions:
   ##########
   flexchat.admin:
     default: op
+    children:
+      flexchat.chat.color: true
+      flexchat.chat.format: true
+      flexchat.chat.magic: true
+      flexchat.chat.spy: true
+      flexchat.chat.spy.persistent: true
+      flexchat.channel.view.bypass: true
 
   flexchat.user:
     default: true
+    children:
+      flexchat.message: true
 
   #########
   # Nodes #
   #########
+  flexchat.chat.color:
+    description: 'Ability to use color codes in chat messages'
+    default: false
+  flexchat.chat.format:
+    description: 'Ability to use formatting codes in chat messages'
+    default: false
+  flexchat.chat.magic:
+    description: 'Ability to use the magic formatting code in chat messages'
+    default: false
+
+  flexchat.chat.spy.toggle:
+    description: 'Ability to toggle spy mode'
+    default: false
+  flexchat.chat.spy.toggle.other:
+    description: 'Ability to toggle other player''s spy mode'
+    default: false
+  flexchat.chat.spy.persistent:
+    description: 'Keep chat spy mode through server restarts'
+    default: false
+
+  flexchat.message:
+    description: 'Ability to use private messaging'
+    default: false
+
+  flexchat.channel.view.bypass:
+    description: 'Ability to view channels on the channel list command even if they don''t normally allow it'
+    default: false

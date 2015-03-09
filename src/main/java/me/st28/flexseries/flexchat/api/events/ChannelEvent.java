@@ -3,11 +3,8 @@ package me.st28.flexseries.flexchat.api.events;
 import me.st28.flexseries.flexchat.api.Channel;
 import me.st28.flexseries.flexchat.api.Chatter;
 import org.bukkit.event.Event;
-import org.bukkit.event.HandlerList;
 
-public class ChannelEvent extends Event {
-
-    private final static HandlerList handlerList = new HandlerList();
+public abstract class ChannelEvent extends Event {
 
     private final Channel channel;
     private final Chatter chatter;
@@ -29,15 +26,6 @@ public class ChannelEvent extends Event {
 
     public final Chatter getChatter() {
         return chatter;
-    }
-
-    @Override
-    public HandlerList getHandlers() {
-        return handlerList;
-    }
-
-    public static HandlerList getHandlerList() {
-        return handlerList;
     }
 
 }
