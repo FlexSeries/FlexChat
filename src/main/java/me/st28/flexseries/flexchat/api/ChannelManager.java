@@ -29,6 +29,7 @@ import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -46,6 +47,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public final class ChannelManager extends FlexModule<FlexChat> implements Listener {
+
+    public static String applyApplicableChatColors(CommandSender sender, String input) {
+        if (PermissionNodes.CHAT_COLOR.isAllowed(sender)) {
+            input = ChatColorUtils.colorizeString(input);
+        }
+
+        if (PermissionNodes.CHAT_FORMAT.isAllowed(sender)) {
+            input = ChatColorUtils.formatString(input);
+        }
+
+        if (PermissionNodes.CHAT_MAGIC.isAllowed(sender)) {
+            input = ChatColorUtils.magicfyString(input);
+        }
+        return input;
+    }
 
     public static enum VariableModifier {
 
@@ -72,8 +88,9 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
     public final static Pattern VARIABLE_MODIFIERS_PATTERN = Pattern.compile("(?i)\\{([a-z0-9-]+):([^}]+)}");
 
     /* Configuration values */
-    private String defaultChannel; // The identifier of the default channel
     private String activeSymbol; // The symbol to use on the list command to mark a channel as being the active channel.
+    private String privateMessageFormat; // The format to use for private messages.
+    private String defaultChannel; // The identifier of the default channel.
 
     /**
      * Registered {@link me.st28.flexseries.flexchat.api.ChatVariable}s.<br />
@@ -114,7 +131,7 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
     private File customChannelDir;
 
     public ChannelManager(FlexChat plugin) {
-        super(plugin, "channels", "Manages chat channels and player chatting");
+        super(plugin, "channels", "Manages chat channels and player chatting", false);
 
         registerChatVariable(new ChatVariable("NAME") {
             @Override
@@ -300,6 +317,7 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
         FileConfiguration config = getConfig();
         defaultChannel = config.getString("default channel");
         activeSymbol = StringEscapeUtils.unescapeJava(config.getString("active symbol", ">"));
+        privateMessageFormat = StringEscapeUtils.unescapeJava(config.getString("private message format", "&7{SENDER} &f\u27A1 &7{RECEIVER} &8> &7{MESSAGE}"));
 
         variableFormats.clear();
         ConfigurationSection formatSec = config.getConfigurationSection("variable formats");
@@ -315,6 +333,8 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
                 configurableChannels.add(entry.getKey());
             }
         }
+
+        //TODO: Register channel permissions
 
         // Load normal channels
         for (File file : channelDir.listFiles()) {
@@ -429,6 +449,13 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
     }
 
     /**
+     * @return the format to use for the private messaging command.
+     */
+    public String getPrivateMessageFormat() {
+        return privateMessageFormat;
+    }
+
+    /**
      * @return the default channel.<br />
      *         Null if no default channel is set or there is no channel matching the default channel identifier.
      */
@@ -479,26 +506,14 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
             return;
         }
 
-        if (!PermissionNodes.buildVariableNode(PermissionNodes.CHANNEL_CHAT, channel.getName().toLowerCase()).isAllowed(p)) {
+        if (!channel.hasOwnPermissions() && !PermissionNodes.buildVariableNode(PermissionNodes.CHANNEL_CHAT, channel.getName().toLowerCase()).isAllowed(p)) {
             MessageReference.create(FlexChat.class, "errors.channel_no_permission", new QuickMap<>("{VERB}", "chat in").put("{CHANNEL}", channel.getName()).getMap()).sendTo(p);
             e.setCancelled(true);
             return;
         }
 
         String format = handleReplacements(chatter, channel, ChatColor.translateAlternateColorCodes('&', channel.getChatFormat(chatter)));
-        String message = e.getMessage();
-
-        if (PermissionNodes.CHAT_COLOR.isAllowed(p)) {
-            message = ChatColorUtils.colorizeString(message);
-        }
-
-        if (PermissionNodes.CHAT_FORMAT.isAllowed(p)) {
-            message = ChatColorUtils.formatString(message);
-        }
-
-        if (PermissionNodes.CHAT_MAGIC.isAllowed(p)) {
-            message = ChatColorUtils.magicfyString(message);
-        }
+        String message = applyApplicableChatColors(p, e.getMessage());
 
         format = format.replace("{MESSAGE}", message);
 

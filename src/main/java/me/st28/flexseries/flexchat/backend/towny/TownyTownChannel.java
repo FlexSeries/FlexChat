@@ -60,6 +60,11 @@ public final class TownyTownChannel extends TrackingConfigurableChannel {
             return new DynamicResponse(false, MessageReference.createGeneral(FlexCore.class, "general.errors.must_be_player"));
         }
 
+        DynamicResponse superResponse = super.canChatterJoin(chatter);
+        if (!superResponse.isSuccess()) {
+            return superResponse;
+        }
+
         try {
             TownyUniverse.getDataSource().getResident(chatter.getName()).getTown();
             return new DynamicResponse(true);

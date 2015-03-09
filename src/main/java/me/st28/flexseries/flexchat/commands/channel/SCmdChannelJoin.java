@@ -1,4 +1,4 @@
-package me.st28.flexseries.flexchat.commands;
+package me.st28.flexseries.flexchat.commands.channel;
 
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.Channel;

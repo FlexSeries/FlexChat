@@ -1,4 +1,0 @@
-default channel: 'default'
-active symbol: '\u25B6'
-variable formats:
-  gray_brackets: '&8[{VARIABLE}&8]'

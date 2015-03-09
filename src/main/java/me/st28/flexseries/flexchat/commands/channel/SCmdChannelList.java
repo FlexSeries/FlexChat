@@ -1,10 +1,11 @@
-package me.st28.flexseries.flexchat.commands;
+package me.st28.flexseries.flexchat.commands.channel;
 
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.Channel;
 import me.st28.flexseries.flexchat.api.ChannelManager;
 import me.st28.flexseries.flexchat.api.Chatter;
 import me.st28.flexseries.flexchat.api.ChatterManager;
+import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexcore.commands.CommandArgument;
 import me.st28.flexseries.flexcore.commands.CommandUtils;
 import me.st28.flexseries.flexcore.commands.FlexCommand;
@@ -75,9 +76,12 @@ public final class SCmdChannelList extends FlexCommand<FlexChat> {
         });
 
         // Remove channels that shouldn't be visible on the list command.
+
+        boolean canSenderBypass = PermissionNodes.CHANNEL_VIEW_BYPASS.isAllowed(sender);
+
         Iterator<Channel> it = channels.iterator();
         while (it.hasNext()) {
-            if (!it.next().isVisibleTo(chatter)) it.remove();
+            if (!it.next().isVisibleTo(chatter) && !canSenderBypass) it.remove();
         }
 
         ListBuilder builder = new ListBuilder("page", "Channels", null, label);

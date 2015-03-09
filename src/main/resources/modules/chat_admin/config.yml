@@ -1,0 +1,10 @@
+spy output: '&4[&cSPY&4] &7{SENDER}&7: &f{COMMAND}'
+spy commands:
+  - '/flexmessage'
+  - '/t'
+  - '/tell'
+  - '/msg'
+  - '/m'
+  - '/whisper'
+  - '/whisp'
+  - '/w'

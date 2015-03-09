@@ -5,6 +5,8 @@ import me.st28.flexseries.flexcore.utils.StringUtils;
 import org.bukkit.permissions.Permissible;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public enum PermissionNodes implements PermissionNode {
 
@@ -12,10 +14,15 @@ public enum PermissionNodes implements PermissionNode {
     CHANNEL_JOIN,
     CHANNEL_LEAVE,
     CHANNEL_VIEW,
+    CHANNEL_VIEW_BYPASS,
 
     CHAT_COLOR,
     CHAT_FORMAT,
     CHAT_MAGIC,
+
+    CHAT_SPY_TOGGLE,
+    CHAT_SPY_TOGGLE_OTHER,
+    CHAT_SPY_PERSISTENT,
 
     MESSAGE;
 
@@ -37,7 +44,12 @@ public enum PermissionNodes implements PermissionNode {
 
     public static PermissionNode buildVariableNode(PermissionNodes mainPerm, String... variables) {
         final String node = mainPerm.node + "." + StringUtils.stringCollectionToString(Arrays.asList(variables), ".").toLowerCase();
-        return new PermissionNode() {
+
+        if (VARIABLE_NODES.containsKey(node)) {
+            return VARIABLE_NODES.get(node);
+        }
+
+        PermissionNode newNode = new PermissionNode() {
             @Override
             public boolean isAllowed(Permissible permissible) {
                 return permissible.hasPermission(node);
@@ -48,6 +60,11 @@ public enum PermissionNodes implements PermissionNode {
                 return node;
             }
         };
+
+        VARIABLE_NODES.put(node, newNode);
+        return newNode;
     }
+
+    private final static Map<String, PermissionNode> VARIABLE_NODES = new HashMap<>();
 
 }

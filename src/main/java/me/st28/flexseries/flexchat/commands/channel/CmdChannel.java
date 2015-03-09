@@ -1,4 +1,4 @@
-package me.st28.flexseries.flexchat.commands;
+package me.st28.flexseries.flexchat.commands.channel;
 
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.Channel;
@@ -43,7 +43,7 @@ public final class CmdChannel extends FlexCommand<FlexChat> {
             List<String> matched = new ArrayList<>();
 
             for (String name : channelNames) {
-                if (name.contains(inputName)) {
+                if (name.startsWith(inputName)) {
                     matched.add(name);
                 }
             }

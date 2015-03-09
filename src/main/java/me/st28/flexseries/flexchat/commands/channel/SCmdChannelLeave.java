@@ -1,9 +1,12 @@
-package me.st28.flexseries.flexchat.commands;
+package me.st28.flexseries.flexchat.commands.channel;
 
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.Channel;
 import me.st28.flexseries.flexchat.api.Chatter;
 import me.st28.flexseries.flexchat.api.ChatterManager;
+import me.st28.flexseries.flexchat.permissions.PermissionNodes;
+import me.st28.flexseries.flexchat.utils.ChatterUtils;
+import me.st28.flexseries.flexcore.FlexCore;
 import me.st28.flexseries.flexcore.commands.FlexCommand;
 import me.st28.flexseries.flexcore.commands.FlexCommandSettings;
 import me.st28.flexseries.flexcore.commands.exceptions.CommandInterruptedException;
@@ -36,6 +39,10 @@ public class SCmdChannelLeave extends FlexCommand<FlexChat> {
             throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_none"));
         } else if (!activeChannel.isLeaveableByCommand()) {
             throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_cannot_leave"));
+        }
+
+        if (!activeChannel.hasOwnPermissions() && ChatterUtils.isChatterAllowed(chatter, PermissionNodes.buildVariableNode(PermissionNodes.CHANNEL_LEAVE, activeChannel.getName()))) {
+            throw new CommandInterruptedException(MessageReference.create(FlexCore.class, "general.errors.no_permission"));
         }
 
         chatter.removeChannel(activeChannel).sendMessage(sender);

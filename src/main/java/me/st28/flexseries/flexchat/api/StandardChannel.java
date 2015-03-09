@@ -22,6 +22,11 @@ public class StandardChannel extends ConfigurableChannel {
         if (chatters.contains(chatter)) {
             return new DynamicResponse(false, MessageReference.create(FlexChat.class, "errors.channel_already_joined", new QuickMap<>("{CHANNEL}", getName()).getMap()));
         }
+
+        DynamicResponse superResponse = super.canChatterJoin(chatter);
+        if (!superResponse.isSuccess()) {
+            return superResponse;
+        }
         return new DynamicResponse(true);
     }
 

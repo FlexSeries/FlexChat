@@ -1,9 +1,10 @@
 package me.st28.flexseries.flexchat.api;
 
-import me.st28.flexseries.flexchat.FlexChat;
+import me.st28.flexseries.flexchat.permissions.PermissionNodes;
+import me.st28.flexseries.flexchat.utils.ChatterUtils;
+import me.st28.flexseries.flexcore.FlexCore;
 import me.st28.flexseries.flexcore.messages.MessageReference;
 import me.st28.flexseries.flexcore.utils.DynamicResponse;
-import me.st28.flexseries.flexcore.utils.QuickMap;
 import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
 
@@ -74,6 +75,9 @@ public abstract class Channel {
      * @return false if the channel shouldn't be visible to the specified chatter on the channel list command.
      */
     public boolean isVisibleTo(Chatter chatter) {
+        if (!hasOwnPermissions() && !ChatterUtils.isChatterAllowed(chatter, PermissionNodes.buildVariableNode(PermissionNodes.CHANNEL_VIEW, getName()))) {
+            return false;
+        }
         return true;
     }
 
@@ -81,11 +85,14 @@ public abstract class Channel {
      * Checks whether or not a chatter can join the channel.<br />
      * This method is essentially {@link #addChatter(Chatter, boolean)} without actually adding the chatter or changing anything.
      *
-     * @return a {@link me.st28.flexseries.flexcore.utils.DynamicResponse} representing whether or not a chatter can join.<br />
-     *         By default, channels are unjoinable.
+     * @return a {@link me.st28.flexseries.flexcore.utils.DynamicResponse} representing whether or not a chatter can join.
      */
     public DynamicResponse canChatterJoin(Chatter chatter) {
-        return new DynamicResponse(false, MessageReference.create(FlexChat.class, "errors.channel_join_unable", new QuickMap<>("{CHANNEL}", getName()).getMap()));
+        if (!hasOwnPermissions() && ChatterUtils.isChatterAllowed(chatter, PermissionNodes.buildVariableNode(PermissionNodes.CHANNEL_JOIN, getName()))) {
+            return new DynamicResponse(false, MessageReference.create(FlexCore.class, "general.errors.no_permission"));
+        }
+
+        return new DynamicResponse(true);
     }
 
     /**

@@ -31,7 +31,7 @@ public final class ChatterManager extends FlexModule<FlexChat> implements Listen
     File chatterDir;
 
     public ChatterManager(FlexChat plugin) {
-        super(plugin, "chatters", "Manages chatters", ChannelManager.class, PlayerManager.class);
+        super(plugin, "chatters", "Manages chatters", false, ChannelManager.class, PlayerManager.class);
     }
 
     @Override

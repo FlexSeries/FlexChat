@@ -23,7 +23,8 @@ notices:
   channel_chatter_unbanned: '{TAG}&2&o{CHATTER} &2&owas unbanned from channel {COLOR}&o{CHANNEL}&4&o.'
   channel_joined: '{TAG}&9Joined channel {COLOR}&o{CHANNEL}&9&o.'
   channel_left: '{TAG}&9Left channel {COLOR}&o{CHANNEL}&9&o.'
-  global_toggled: '{TAG}&9Global chat {STATE}&9.'
+  chat_spy_toggled: '{TAG}&9Chat spying {STATUS}&9.'
+  chat_spy_toggled_other: '{TAG}&9Chat spying {STATUS} &9for &6{PLAYER}&9.'
   login_channel: '{TAG}&9Currently chatting in {COLOR}&o{CHANNEL}&9.'
 
 hooks:
