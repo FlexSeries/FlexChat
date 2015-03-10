@@ -7,15 +7,14 @@ authors: [${project.authors}]
 website: ${project.url}
 main: ${project.mainClass}
 commands:
-  ###########################
-  # Plugin Library Commands #
-  ###########################
   flexchannel:
     aliases: [channel, channels, ch]
-  flexmessage:
-    aliases: [message, msg, m, tell, t, whisper, whisp, w]
   flexchatspy:
     aliases: [chatspy, socialspy]
+  flexmessage:
+    aliases: [message, msg, m, tell, t, whisper, whisp, w]
+  flexreply:
+    aliases: [reply, r]
 
 permissions:
   ##########

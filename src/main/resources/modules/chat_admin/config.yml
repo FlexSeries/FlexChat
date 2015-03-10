@@ -8,3 +8,5 @@ spy commands:
   - '/whisper'
   - '/whisp'
   - '/w'
+  - '/r'
+  - '/reply'

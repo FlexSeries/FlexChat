@@ -61,6 +61,10 @@ public final class ChatterManager extends FlexModule<FlexChat> implements Listen
 
     public void loadChatterData(Chatter chatter) {
         String identifier = chatter.getIdentifier();
+        if (chatters.containsKey(identifier)) {
+            return;
+        }
+
         YamlFileManager file = new YamlFileManager(chatterDir + File.separator + identifier + ".yml");
         FileConfiguration config = file.getConfig();
 
@@ -82,7 +86,7 @@ public final class ChatterManager extends FlexModule<FlexChat> implements Listen
         }
 
         chatter.data = new ChatterData(file);
-        chatters.put(chatter.getIdentifier(), chatter);
+        chatters.put(identifier, chatter);
         chatter.data.refreshChannels();
 
         for (Channel channel : chatter.data.getChannels()) {
