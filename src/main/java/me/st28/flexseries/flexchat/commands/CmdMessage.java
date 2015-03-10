@@ -4,6 +4,7 @@ import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.ChannelManager;
 import me.st28.flexseries.flexchat.api.Chatter;
 import me.st28.flexseries.flexchat.api.ChatterManager;
+import me.st28.flexseries.flexchat.api.PlayerChatter;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexcore.commands.CommandArgument;
 import me.st28.flexseries.flexcore.commands.CommandUtils;
@@ -16,11 +17,17 @@ import org.apache.logging.log4j.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public final class CmdMessage extends FlexCommand<FlexChat> {
+
+    //TODO: Better way of implementing this
+    Map<UUID, UUID> replies = new HashMap<>();
 
     public CmdMessage(FlexChat plugin) {
         super(
@@ -54,6 +61,14 @@ public final class CmdMessage extends FlexCommand<FlexChat> {
 
         senderChatter.sendMessage(MessageReference.createPlain(format.replace("{SENDER}", ChatColor.ITALIC + "me").replace("{RECEIVER}", targetChatter.getDisplayName()).replace("{MESSAGE}", message)));
         targetChatter.sendMessage(MessageReference.createPlain(format.replace("{SENDER}", senderChatter.getDisplayName()).replace("{RECEIVER}", ChatColor.ITALIC + "me").replace("{MESSAGE}", message)));
+
+        if (sender instanceof Player && targetChatter instanceof PlayerChatter) {
+            UUID senderUuid = ((Player) sender).getUniqueId();
+            UUID targetUuid = ((PlayerChatter) targetChatter).getPlayer().getUniqueId();
+
+            replies.put(senderUuid, targetUuid);
+            replies.put(targetUuid, senderUuid);
+        }
 
         FlexChat.CHAT_LOGGER.log(Level.INFO, ChatColor.stripColor("[[-MSG-]] " + senderChatter.getName() + " TO " + targetChatter.getName() + " > " + message));
     }

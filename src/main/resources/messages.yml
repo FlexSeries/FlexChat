@@ -14,6 +14,7 @@ errors:
   channel_not_joined: '&cYou are not in channel &6{CHANNEL}&c.'
   channel_player_banned: '&c{PLAYER} is already banned from channel &6{CHANNEL}&c.'
   channel_player_unbanned: '&c{PLAYER} is not banned from channel &6{CHANNEL}&c.'
+  message_no_reply: '&cYou do not currently have anyone you can reply to.'
 notices:
   tag: '&8[&9\u2709&8] '
   channel_active_set: '{TAG}&9&oNow chatting in {COLOR}&o{CHANNEL}&9&o.'
