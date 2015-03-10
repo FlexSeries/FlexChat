@@ -6,7 +6,7 @@
 
     <groupId>me.st28.flexseries</groupId>
     <artifactId>flexchat</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <name>FlexChat</name>
     <description>Powerful chat plugin for Bukkit</description>
     <url>http://stealthyone.com/</url>
