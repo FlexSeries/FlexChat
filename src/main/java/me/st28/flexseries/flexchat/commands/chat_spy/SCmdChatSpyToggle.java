@@ -2,9 +2,12 @@ package me.st28.flexseries.flexchat.commands.chat_spy;
 
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.backend.ChatAdminManager;
+import me.st28.flexseries.flexchat.permissions.PermissionNodes;
+import me.st28.flexseries.flexcore.FlexCore;
 import me.st28.flexseries.flexcore.commands.CommandArgument;
 import me.st28.flexseries.flexcore.commands.CommandUtils;
 import me.st28.flexseries.flexcore.commands.FlexCommand;
+import me.st28.flexseries.flexcore.commands.exceptions.CommandInterruptedException;
 import me.st28.flexseries.flexcore.messages.MessageReference;
 import me.st28.flexseries.flexcore.messages.ReplacementMap;
 import me.st28.flexseries.flexcore.plugins.FlexPlugin;
@@ -38,6 +41,16 @@ public final class SCmdChatSpyToggle extends FlexCommand<FlexChat> {
         }
 
         isSelf = sender instanceof Player && sender.getName().equalsIgnoreCase(target.getName());
+
+        if (!isSelf) {
+            if (!PermissionNodes.CHAT_SPY_TOGGLE_OTHER.isAllowed(sender)) {
+                throw new CommandInterruptedException(MessageReference.create(FlexCore.class, "general.errors.no_permission"));
+            }
+        } else {
+            if (!PermissionNodes.CHAT_SPY_TOGGLE.isAllowed(sender)) {
+                throw new CommandInterruptedException(MessageReference.create(FlexCore.class, "general.errors.no_permission"));
+            }
+        }
 
         String status = FlexPlugin.getRegisteredModule(ChatAdminManager.class).toggleChatSpyMode(target) ? (ChatColor.GREEN + "enabled") : (ChatColor.RED + "disabled");
 

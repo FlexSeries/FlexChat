@@ -7,9 +7,6 @@ authors: [${project.authors}]
 website: ${project.url}
 main: ${project.mainClass}
 commands:
-  ###########################
-  # Plugin Library Commands #
-  ###########################
   flexchannel:
     aliases: [channel, channels, ch]
   flexmessage:
