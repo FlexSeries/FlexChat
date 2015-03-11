@@ -87,6 +87,9 @@ public final class ChatterManager extends FlexModule<FlexChat> implements Listen
 
         chatter.data = new ChatterData(file);
         chatters.put(identifier, chatter);
+    }
+
+    private void refreshChatterChannels(Chatter chatter) {
         chatter.data.refreshChannels();
 
         for (Channel channel : chatter.data.getChannels()) {
@@ -131,7 +134,7 @@ public final class ChatterManager extends FlexModule<FlexChat> implements Listen
     @EventHandler
     public void onPlayerJoinLoaded(PlayerJoinLoadedEvent e) {
         Chatter chatter = getChatter(e.getPlayer());
-
+        refreshChatterChannels(chatter);
         Channel channel = chatter.getActiveChannel();
 
         if (channel != null) {

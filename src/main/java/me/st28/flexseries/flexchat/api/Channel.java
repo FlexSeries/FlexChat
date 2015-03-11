@@ -75,10 +75,7 @@ public abstract class Channel {
      * @return false if the channel shouldn't be visible to the specified chatter on the channel list command.
      */
     public boolean isVisibleTo(Chatter chatter) {
-        if (!hasOwnPermissions() && !ChatterUtils.isChatterAllowed(chatter, PermissionNodes.buildVariableNode(PermissionNodes.CHANNEL_VIEW, getName()))) {
-            return false;
-        }
-        return true;
+        return !(!hasOwnPermissions() && !ChatterUtils.isChatterAllowed(chatter, PermissionNodes.buildVariableNode(PermissionNodes.CHANNEL_VIEW, getName())));
     }
 
     /**
@@ -88,7 +85,7 @@ public abstract class Channel {
      * @return a {@link me.st28.flexseries.flexcore.utils.DynamicResponse} representing whether or not a chatter can join.
      */
     public DynamicResponse canChatterJoin(Chatter chatter) {
-        if (!hasOwnPermissions() && ChatterUtils.isChatterAllowed(chatter, PermissionNodes.buildVariableNode(PermissionNodes.CHANNEL_JOIN, getName()))) {
+        if (!hasOwnPermissions() && !ChatterUtils.isChatterAllowed(chatter, PermissionNodes.buildVariableNode(PermissionNodes.CHANNEL_JOIN, getName()))) {
             return new DynamicResponse(false, MessageReference.create(FlexCore.class, "general.errors.no_permission"));
         }
 
