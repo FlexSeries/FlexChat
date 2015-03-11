@@ -45,9 +45,11 @@ public abstract class ConfigurableChannel extends Channel {
         return data.getColor();
     }
 
+    //TODO: Rename to 'use permissions' or something else
     @Override
     public boolean hasOwnPermissions() {
-        return data.getOption("permissions", true);
+        //return data.getOption("permissions", false);
+        return false;
     }
 
     @Override
