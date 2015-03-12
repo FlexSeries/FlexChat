@@ -77,10 +77,8 @@ public final class ChatterManager extends FlexModule<FlexChat> implements Listen
             if (defChannel != null) {
                 String defIdentifier = defChannel.getIdentifier();
 
-                if (defChannel.addChatter(chatter, true).isSuccess()) {
-                    config.set("activeChannel", defIdentifier);
-                    config.set("channels." + defIdentifier, System.currentTimeMillis());
-                }
+                config.set("activeChannel", defIdentifier);
+                config.set("channels." + defIdentifier, System.currentTimeMillis());
             }
             file.save();
         }
