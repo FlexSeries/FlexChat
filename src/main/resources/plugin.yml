@@ -33,10 +33,12 @@ permissions:
       flexchat.chat.spy: true
       flexchat.chat.spy.persistent: true
       flexchat.channel.view.bypass: true
+      flexchat.ignore.bypass: true
 
   flexchat.user:
     default: true
     children:
+      flexchat.ignore: true
       flexchat.message: true
 
   #########
