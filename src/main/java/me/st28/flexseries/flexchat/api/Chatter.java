@@ -168,6 +168,10 @@ public abstract class Chatter {
         return data.getIgnored();
     }
 
+    public boolean isVisibleTo(Chatter chatter) {
+        return true;
+    }
+
     /**
      * Sends a message to the chatter.
      */

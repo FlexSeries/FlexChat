@@ -1,5 +1,7 @@
 package me.st28.flexseries.flexchat.api;
 
+import me.st28.flexseries.flexcore.hooks.HookManager;
+import me.st28.flexseries.flexcore.hooks.VanishNoPacketHook;
 import me.st28.flexseries.flexcore.messages.MessageReference;
 import me.st28.flexseries.flexcore.players.PlayerUUIDTracker;
 import me.st28.flexseries.flexcore.plugins.FlexPlugin;
@@ -33,6 +35,18 @@ public final class PlayerChatter extends Chatter {
     @Override
     public String getDisplayName() {
         return FlexPlugin.getRegisteredModule(PlayerUUIDTracker.class).getTopLevelName(uuid);
+    }
+
+    @Override
+    public boolean isVisibleTo(Chatter chatter) {
+        //TODO: Integrate with player options from core plugin once completed
+
+        try {
+            Player p = getPlayer();
+            return p != null && !FlexPlugin.getRegisteredModule(HookManager.class).getHook(VanishNoPacketHook.class).isPlayerVanished(p);
+        } catch (Exception ex) {
+            return true;
+        }
     }
 
     @Override
