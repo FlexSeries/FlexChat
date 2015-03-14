@@ -83,6 +83,7 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
 
     private final static Map<String, VariableModifier> VARIABLE_MODIFIERS = new HashMap<>();
 
+    public final static Pattern CHAT_COLOR_PATTERN = Pattern.compile("(?i)&[a-fl-okr0-9]");
     public final static Pattern CHANNEL_NAME_PATTERN = Pattern.compile("(?i)^[a-z][\\-_a-z0-9]*|^[0-9]+[\\-_a-z][\\-_a-z0-9]*");
     public final static Pattern VARIABLE_PATTERN = Pattern.compile("(?i)\\{([a-z0-9-]+)}");
     public final static Pattern VARIABLE_MODIFIERS_PATTERN = Pattern.compile("(?i)\\{([a-z0-9-]+):([^}]+)}");
@@ -514,6 +515,7 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
 
         String format = handleReplacements(chatter, channel, ChatColor.translateAlternateColorCodes('&', channel.getChatFormat(chatter)));
         String message = applyApplicableChatColors(p, e.getMessage());
+        message = CHAT_COLOR_PATTERN.matcher(message).replaceAll("");
 
         format = format.replace("{MESSAGE}", message);
 
