@@ -20,6 +20,11 @@ public final class ConsoleChatter extends Chatter {
     }
 
     @Override
+    public boolean isVisibleTo(Chatter chatter) {
+        return false;
+    }
+
+    @Override
     public void sendMessage(MessageReference message) {
         message.sendTo(Bukkit.getConsoleSender());
     }

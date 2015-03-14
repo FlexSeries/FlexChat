@@ -2,7 +2,6 @@ package me.st28.flexseries.flexchat.commands.channel;
 
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.Channel;
-import me.st28.flexseries.flexchat.api.ChannelManager;
 import me.st28.flexseries.flexchat.api.Chatter;
 import me.st28.flexseries.flexchat.api.ChatterManager;
 import me.st28.flexseries.flexcore.commands.CommandArgument;
@@ -38,7 +37,6 @@ public final class SCmdChannelInfo extends FlexCommand<FlexChat> {
 
     @Override
     public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
-        ChannelManager channelManager = FlexPlugin.getRegisteredModule(ChannelManager.class);
         ChatterManager chatterManager = FlexPlugin.getRegisteredModule(ChatterManager.class);
         Chatter chatter = chatterManager.getChatter(sender);
 
@@ -76,6 +74,16 @@ public final class SCmdChannelInfo extends FlexCommand<FlexChat> {
         ListBuilder builder = new ListBuilder("page_subtitle", "Channel", color + channel.getName(), label);
 
         List<Chatter> recipients = new ArrayList<>(channel.getChatters(chatter));
+
+        Iterator<Chatter> iterator = recipients.iterator();
+        while (iterator.hasNext()) {
+            Chatter next = iterator.next();
+
+            if (!next.isVisibleTo(chatter)) {
+                iterator.remove();
+            }
+        }
+
         Collections.sort(recipients, new Comparator<Chatter>() {
             @Override
             public int compare(Chatter o1, Chatter o2) {

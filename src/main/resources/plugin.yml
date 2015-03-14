@@ -11,6 +11,10 @@ commands:
     aliases: [channel, channels, ch]
   flexchatspy:
     aliases: [chatspy, socialspy]
+  flexignore:
+    aliases: [ignore, block]
+  flexunignore:
+    aliases: [unignore, unblock]
   flexmessage:
     aliases: [message, msg, m, tell, t, whisper, whisp, w]
   flexreply:
@@ -29,10 +33,12 @@ permissions:
       flexchat.chat.spy: true
       flexchat.chat.spy.persistent: true
       flexchat.channel.view.bypass: true
+      flexchat.ignore.bypass: true
 
   flexchat.user:
     default: true
     children:
+      flexchat.ignore: true
       flexchat.message: true
 
   #########
@@ -56,6 +62,13 @@ permissions:
     default: false
   flexchat.chat.spy.persistent:
     description: 'Keep chat spy mode through server restarts'
+    default: false
+
+  flexchat.ignore:
+    description: 'Ability to ignore another player and not receive messages from them'
+    default: false
+  flexchat.ignore.bypass:
+    description: 'Ability to bypass being ignored by another player'
     default: false
 
   flexchat.message:

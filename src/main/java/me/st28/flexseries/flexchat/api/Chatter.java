@@ -5,6 +5,7 @@ import me.st28.flexseries.flexchat.api.events.ChannelActiveSetEvent;
 import me.st28.flexseries.flexchat.api.events.ChannelJoinEvent;
 import me.st28.flexseries.flexchat.api.events.ChannelLeaveEvent;
 import me.st28.flexseries.flexcore.messages.MessageReference;
+import me.st28.flexseries.flexcore.messages.ReplacementMap;
 import me.st28.flexseries.flexcore.utils.DynamicResponse;
 import me.st28.flexseries.flexcore.utils.QuickMap;
 import org.apache.commons.lang.Validate;
@@ -129,6 +130,46 @@ public abstract class Chatter {
         } else {
             return new DynamicResponse(true, MessageReference.create(FlexChat.class, "notices.channel_left", new QuickMap<>("{CHANNEL}", channel.getName()).put("{COLOR}", channel.getColor().toString()).getMap()));
         }
+    }
+
+    public DynamicResponse addIgnored(Chatter chatter) {
+        Validate.notNull(chatter, "Chatter cannot be null.");
+        if (chatter == this) {
+            return new DynamicResponse(false, MessageReference.create(FlexChat.class, "errors.ignore_not_self"));
+        }
+
+        String identifier = chatter.getIdentifier();
+
+        if (data.ignored.contains(identifier)) {
+            return new DynamicResponse(false, MessageReference.create(FlexChat.class, "errors.ignore_exists", new ReplacementMap("{NAME}", chatter.getDisplayName()).getMap()));
+        }
+
+        data.ignored.add(identifier);
+        return new DynamicResponse(true, MessageReference.create(FlexChat.class, "notices.ignore_added", new ReplacementMap("{NAME}", chatter.getDisplayName()).getMap()));
+    }
+
+    public DynamicResponse removeIgnored(Chatter chatter) {
+        Validate.notNull(chatter, "Chatter cannot be null.");
+        if (chatter == this) {
+            return new DynamicResponse(false, MessageReference.create(FlexChat.class, "errors.ignore_not_self"));
+        }
+
+        String identifier = chatter.getIdentifier();
+
+        if (!data.ignored.contains(identifier)) {
+            return new DynamicResponse(false, MessageReference.create(FlexChat.class, "errors.ignore_not_exists", new ReplacementMap("{NAME}", chatter.getDisplayName()).getMap()));
+        }
+
+        data.ignored.remove(identifier);
+        return new DynamicResponse(true, MessageReference.create(FlexChat.class, "notices.ignore_removed", new ReplacementMap("{NAME}", chatter.getDisplayName()).getMap()));
+    }
+
+    public Collection<String> getIgnored() {
+        return data.getIgnored();
+    }
+
+    public boolean isVisibleTo(Chatter chatter) {
+        return true;
     }
 
     /**

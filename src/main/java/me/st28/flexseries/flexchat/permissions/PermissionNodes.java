@@ -24,6 +24,9 @@ public enum PermissionNodes implements PermissionNode {
     CHAT_SPY_TOGGLE_OTHER,
     CHAT_SPY_PERSISTENT,
 
+    IGNORE,
+    IGNORE_BYPASS,
+
     MESSAGE;
 
     private String node;

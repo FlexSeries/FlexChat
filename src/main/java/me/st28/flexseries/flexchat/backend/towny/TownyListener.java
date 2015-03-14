@@ -19,6 +19,7 @@ public final class TownyListener implements Listener {
         Channel townChannel = FlexPlugin.getRegisteredModule(ChannelManager.class).getChannel(TownyTownChannel.IDENTIFIER);
         if (townChannel != null) {
             Player p = Bukkit.getPlayer(e.getResident().getName());
+            if (p == null) return;
 
             Chatter chatter = FlexPlugin.getRegisteredModule(ChatterManager.class).getChatter(p);
             if (chatter != null) {
@@ -32,6 +33,7 @@ public final class TownyListener implements Listener {
         Channel townChannel = FlexPlugin.getRegisteredModule(ChannelManager.class).getChannel(TownyTownChannel.IDENTIFIER);
         if (townChannel != null) {
             Player p = Bukkit.getPlayer(e.getResident().getName());
+            if (p == null) return;
 
             Chatter chatter = FlexPlugin.getRegisteredModule(ChatterManager.class).getChatter(p);
             if (chatter != null && chatter.getChannels().contains(townChannel)) {

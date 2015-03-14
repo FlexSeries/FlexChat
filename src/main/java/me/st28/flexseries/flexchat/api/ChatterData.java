@@ -23,6 +23,11 @@ public final class ChatterData {
      */
     final Map<String, Long> channels = new HashMap<>();
 
+    /**
+     * A collection of ignored chatter identifiers.
+     */
+    final Set<String> ignored = new HashSet<>();
+
     ChatterData(YamlFileManager file) {
         this.file = file;
         FileConfiguration config = file.getConfig();
@@ -35,6 +40,8 @@ public final class ChatterData {
                 channels.put(identifier, channelSec.getLong(identifier));
             }
         }
+
+        ignored.addAll(config.getStringList("ignored"));
     }
 
     public final void refreshChannels() {
@@ -70,6 +77,8 @@ public final class ChatterData {
             channelSec.set(entry.getKey(), entry.getValue());
         }
 
+        config.set("ignored", new ArrayList<>(ignored));
+
         file.save();
     }
 
@@ -102,6 +111,10 @@ public final class ChatterData {
         } else {
             return ((List<Channel>) getChannels()).get(0);
         }
+    }
+
+    public Collection<String> getIgnored() {
+        return Collections.unmodifiableCollection(ignored);
     }
 
 }
