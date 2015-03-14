@@ -517,9 +517,14 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
 
         format = format.replace("{MESSAGE}", message);
 
+        String senderIdentifier = chatter.getIdentifier();
+        boolean isBypassingIgnore = PermissionNodes.IGNORE_BYPASS.isAllowed(p);
+
         MessageReference messageRef = MessageReference.createPlain(format);
         for (Chatter curChatter : channel.getRecipients(chatter)) {
-            curChatter.sendMessage(messageRef);
+            if (isBypassingIgnore || !curChatter.getIgnored().contains(senderIdentifier)) {
+                curChatter.sendMessage(messageRef);
+            }
         }
 
         FlexChat.CHAT_LOGGER.log(Level.INFO, "[[" + channel.getName() + "]] " + ChatColor.stripColor(handleReplacements(chatter, channel, channel.getLogFormat()).replace("{MESSAGE}", message)));
