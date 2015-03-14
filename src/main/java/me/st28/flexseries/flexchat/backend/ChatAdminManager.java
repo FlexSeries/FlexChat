@@ -21,8 +21,12 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.io.File;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class ChatAdminManager extends FlexModule<FlexChat> implements Listener {
+
+    public final static Pattern COMMAND_LABEL_PATTERN = Pattern.compile("(?i)^/([^ ]+)");
 
     private String spyOutput;
     private final List<String> spyCommands = new ArrayList<>();
@@ -120,11 +124,10 @@ public final class ChatAdminManager extends FlexModule<FlexChat> implements List
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerCommandPreProcess(PlayerCommandPreprocessEvent e) {
         String message = e.getMessage();
-
-        for (String string : spyCommands) {
-            if (message.toLowerCase().startsWith(string)) {
+        Matcher matcher = COMMAND_LABEL_PATTERN.matcher(message);
+        if (matcher.matches()) {
+            if (spyCommands.contains(matcher.group(1).toLowerCase())) {
                 sendSpyMessage(e.getPlayer().getName(), message);
-                return;
             }
         }
     }
