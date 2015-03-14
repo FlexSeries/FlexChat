@@ -11,6 +11,7 @@ import me.st28.flexseries.flexcore.commands.CommandUtils;
 import me.st28.flexseries.flexcore.commands.FlexCommand;
 import me.st28.flexseries.flexcore.commands.FlexCommandSettings;
 import me.st28.flexseries.flexcore.messages.MessageReference;
+import me.st28.flexseries.flexcore.messages.ReplacementMap;
 import me.st28.flexseries.flexcore.plugins.FlexPlugin;
 import me.st28.flexseries.flexcore.utils.StringUtils;
 import org.apache.logging.log4j.Level;
@@ -47,6 +48,7 @@ public final class CmdMessage extends FlexCommand<FlexChat> {
         ChatterManager chatterManager = FlexPlugin.getRegisteredModule(ChatterManager.class);
 
         Chatter senderChatter = chatterManager.getChatter(sender);
+        String senderIdentifier = senderChatter.getIdentifier();
 
         Chatter targetChatter = null;
 
@@ -54,6 +56,20 @@ public final class CmdMessage extends FlexCommand<FlexChat> {
             targetChatter = chatterManager.getChatter(Bukkit.getConsoleSender());
         } else {
             targetChatter = chatterManager.getChatter(CommandUtils.getTargetPlayer(sender, args[0], true));
+        }
+
+        String targetIdentifier = targetChatter.getIdentifier();
+
+        if (!PermissionNodes.IGNORE_BYPASS.isAllowed(sender)) {
+            if (senderChatter.getIgnored().contains(targetIdentifier)) {
+                MessageReference.create(FlexChat.class, "errors.ignore_cannot_message", new ReplacementMap("{NAME}", targetChatter.getDisplayName()).getMap());
+                return;
+            }
+
+            if (targetChatter.getIgnored().contains(senderIdentifier)) {
+                MessageReference.create(FlexChat.class, "errors.cannot_message_player", new ReplacementMap("{NAME}", targetChatter.getDisplayName()).getMap());
+                return;
+            }
         }
 
         String format = ChatColor.translateAlternateColorCodes('&', FlexPlugin.getRegisteredModule(ChannelManager.class).getPrivateMessageFormat());

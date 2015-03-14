@@ -98,12 +98,21 @@ public final class SCmdChannelList extends FlexCommand<FlexChat> {
                 status = ChatColor.RED + "not joined";
             }
 
-            int chatters = channel.getChatters(chatter).size();
+            Collection<Chatter> chatters = channel.getChatters(chatter);
+            Iterator<Chatter> iterator = chatters.iterator();
+            while (iterator.hasNext()) {
+                Chatter next = iterator.next();
+
+                if (!next.isVisibleTo(chatter)) {
+                    iterator.remove();
+                }
+            }
+
             builder.addMessage("chat_channel", new QuickMap<>("{CHANNEL}", channel.getName())
                     .put("{COLOR}", channel.getColor().toString())
                     .put("{STATUS}", status)
-                    .put("{CHATTERS}", Integer.toString(chatters))
-                    .put("{S}", chatters == 1 ? "" : "s")
+                    .put("{CHATTERS}", Integer.toString(chatters.size()))
+                    .put("{S}", chatters.size() == 1 ? "" : "s")
                     .put("{ACTIVE}", channel == chatter.getActiveChannel() ? channelManager.getActiveSymbol() : "")
                     .getMap()
             );
