@@ -7,6 +7,8 @@ import me.st28.flexseries.flexchat.commands.CmdMessage;
 import me.st28.flexseries.flexchat.commands.CmdReply;
 import me.st28.flexseries.flexchat.commands.channel.CmdChannel;
 import me.st28.flexseries.flexchat.commands.chat_spy.CmdChatSpy;
+import me.st28.flexseries.flexchat.commands.ignore.CmdIgnore;
+import me.st28.flexseries.flexchat.commands.ignore.CmdUnignore;
 import me.st28.flexseries.flexcore.commands.FlexCommandWrapper;
 import me.st28.flexseries.flexcore.plugins.FlexPlugin;
 import org.apache.logging.log4j.LogManager;
@@ -27,6 +29,9 @@ public final class FlexChat extends FlexPlugin {
     public void handlePluginEnable() {
         FlexCommandWrapper.registerCommand(this, "flexchannel", new CmdChannel(this));
         FlexCommandWrapper.registerCommand(this, "flexchatspy", new CmdChatSpy(this));
+
+        FlexCommandWrapper.registerCommand(this, "flexignore", new CmdIgnore(this));
+        FlexCommandWrapper.registerCommand(this, "flexunignore", new CmdUnignore(this));
 
         CmdMessage messageCommand = new CmdMessage(this);
         FlexCommandWrapper.registerCommand(this, "flexmessage", messageCommand);

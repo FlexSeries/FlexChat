@@ -14,6 +14,9 @@ errors:
   channel_not_joined: '&cYou are not in channel &6{CHANNEL}&c.'
   channel_player_banned: '&c{PLAYER} is already banned from channel &6{CHANNEL}&c.'
   channel_player_unbanned: '&c{PLAYER} is not banned from channel &6{CHANNEL}&c.'
+  ignore_exists: '&cYou have already ignored &6{NAME}&c.'
+  ignore_not_exists: '&cYou have not ignored &6{NAME}&c.'
+  ignore_not_self: '&cYou cannot ignore yourself.'
   message_no_reply: '&cYou do not currently have anyone you can reply to.'
 notices:
   tag: '&8[&9\u2709&8] '
@@ -26,6 +29,8 @@ notices:
   channel_left: '{TAG}&9Left channel {COLOR}&o{CHANNEL}&9&o.'
   chat_spy_toggled: '{TAG}&9Chat spying {STATUS}&9.'
   chat_spy_toggled_other: '{TAG}&9Chat spying {STATUS} &9for &6{PLAYER}&9.'
+  ignore_added: '{TAG}&9You are now ignoring &6{NAME}&9.'
+  ignore_removed: '{TAG}&9You are no longer ignoring &6{NAME}&9.'
   login_channel: '{TAG}&9Currently chatting in {COLOR}&o{CHANNEL}&9.'
 
 hooks:
