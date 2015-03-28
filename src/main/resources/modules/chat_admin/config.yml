@@ -5,6 +5,7 @@ spy commands:
   - '/tell'
   - '/msg'
   - '/m'
+  - '/pm'
   - '/whisper'
   - '/whisp'
   - '/w'
