@@ -16,7 +16,7 @@ commands:
   flexunignore:
     aliases: [unignore, unblock]
   flexmessage:
-    aliases: [message, msg, m, tell, t, whisper, whisp, w]
+    aliases: [message, msg, m, pm, tell, t, whisper, whisp, w]
   flexreply:
     aliases: [reply, r]
 
