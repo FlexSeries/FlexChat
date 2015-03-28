@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 
 public final class ChatAdminManager extends FlexModule<FlexChat> implements Listener {
 
-    public final static Pattern COMMAND_LABEL_PATTERN = Pattern.compile("(?i)^/([^ ]+)");
+    public final static Pattern COMMAND_LABEL_PATTERN = Pattern.compile("(?i)^(/[^ ]+).+");
 
     private String spyOutput;
     private final List<String> spyCommands = new ArrayList<>();

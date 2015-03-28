@@ -10,6 +10,8 @@ import java.util.Map;
 
 public enum PermissionNodes implements PermissionNode {
 
+    ADMIN,
+
     CHANNEL_CHAT,
     CHANNEL_JOIN,
     CHANNEL_LEAVE,

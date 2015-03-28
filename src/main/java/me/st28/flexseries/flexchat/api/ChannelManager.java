@@ -277,6 +277,21 @@ public final class ChannelManager extends FlexModule<FlexChat> implements Listen
                 }
             });
 
+            registerChatVariable(new ChatVariable("TOWNY-TOWNTAG") {
+                @Override
+                public String getReplacement(Chatter chatter, Channel channel) {
+                    if (!(chatter instanceof PlayerChatter)) {
+                        return null;
+                    }
+
+                    try {
+                        return TownyUniverse.getDataSource().getResident(chatter.getName()).getTown().getTag();
+                    } catch (NotRegisteredException ex) {
+                        return null;
+                    }
+                }
+            });
+
             registerChatVariable(new ChatVariable("TOWNY-NATION") {
                 @Override
                 public String getReplacement(Chatter chatter, Channel channel) {

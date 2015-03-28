@@ -16,7 +16,7 @@ commands:
   flexunignore:
     aliases: [unignore, unblock]
   flexmessage:
-    aliases: [message, msg, m, tell, t, whisper, whisp, w]
+    aliases: [message, msg, m, pm, tell, t, whisper, whisp, w]
   flexreply:
     aliases: [reply, r]
 
@@ -31,6 +31,8 @@ permissions:
       flexchat.chat.format: true
       flexchat.chat.magic: true
       flexchat.chat.spy: true
+      flexchat.chat.spy.toggle: true
+      flexchat.chat.spy.toggle.other: true
       flexchat.chat.spy.persistent: true
       flexchat.channel.view.bypass: true
       flexchat.ignore.bypass: true
