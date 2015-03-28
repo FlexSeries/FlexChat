@@ -46,7 +46,7 @@ public final class PlayerChatter extends Chatter {
             Player p = getPlayer();
 
             if (chatter instanceof PlayerChatter) {
-                if (PermissionNodes.CHAT_ADMIN.isAllowed(((PlayerChatter) chatter).getPlayer())) {
+                if (PermissionNodes.ADMIN.isAllowed(((PlayerChatter) chatter).getPlayer())) {
                     return true;
                 }
             }
