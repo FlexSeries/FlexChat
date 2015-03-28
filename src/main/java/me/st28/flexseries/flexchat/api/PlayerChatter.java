@@ -1,5 +1,6 @@
 package me.st28.flexseries.flexchat.api;
 
+import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexcore.hooks.HookManager;
 import me.st28.flexseries.flexcore.hooks.VanishNoPacketHook;
 import me.st28.flexseries.flexcore.messages.MessageReference;
@@ -43,6 +44,12 @@ public final class PlayerChatter extends Chatter {
 
         try {
             Player p = getPlayer();
+
+            if (chatter instanceof PlayerChatter) {
+                if (PermissionNodes.CHAT_ADMIN.isAllowed(((PlayerChatter) chatter).getPlayer())) {
+                    return true;
+                }
+            }
             return p != null && !FlexPlugin.getRegisteredModule(HookManager.class).getHook(VanishNoPacketHook.class).isPlayerVanished(p);
         } catch (Exception ex) {
             return true;
