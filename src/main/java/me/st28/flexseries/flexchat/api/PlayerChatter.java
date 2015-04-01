@@ -35,6 +35,10 @@ public final class PlayerChatter extends Chatter {
 
     @Override
     public String getDisplayName() {
+        Player player = getPlayer();
+        if (player != null && player.getDisplayName() != null) {
+            return player.getDisplayName();
+        }
         return FlexPlugin.getRegisteredModule(PlayerUUIDTracker.class).getTopLevelName(uuid);
     }
 
