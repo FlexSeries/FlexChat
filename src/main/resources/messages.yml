@@ -3,13 +3,13 @@ errors:
   cannot_message_player: '&cYou cannot message &6{NAME}&c.'
   channel_active_already_none: '&cYour active channel is already not set.'
   channel_active_already_set: '&cYour active channel is already set to &6{CHANNEL}&c.'
+  channel_active_not_set: '&cYou do not have an active channel set.'
   channel_already_joined: '&cYou are already in channel &6{CHANNEL}&c.'
   channel_banned: '&cYou are banned from channel &6{CHANNEL}&c.'
-  channel_cannot_join: '&cYou cannot join this channel with this command.'
+  channel_cannot_join: '&cYou cannot join this channel.'
   channel_cannot_leave: '&cYou cannot leave this channel with this command.'
   channel_join_unable: '&cYou cannot join channel &6{CHANNEL}&c.'
   channel_multiple_found: '&cMultiple channels matching ''&6{NAME}&c'' were found.'
-  channel_none: '&cYou do not have an active chat channel set.'
   channel_no_permission: '&cYou do not have permission to {VERB} channel &6{CHANNEL}&c.'
   channel_not_found: '&cChannel ''&6{NAME}&c'' not found.'
   channel_not_joined: '&cYou are not in channel &6{CHANNEL}&c.'
@@ -19,20 +19,22 @@ errors:
   ignore_not_exists: '&cYou have not ignored &6{NAME}&c.'
   ignore_not_self: '&cYou cannot ignore yourself.'
   message_no_reply: '&cYou do not currently have anyone you can reply to.'
+  unable_to_chat: '&cUnable to send chat message.'
 notices:
   tag: '&8[&9\u2709&8] '
+  channel_active_notice: '{TAG}&9Currently chatting in {COLOR}&o{CHANNEL}&9.'
   channel_active_set: '{TAG}&9&oNow chatting in {COLOR}&o{CHANNEL}&9&o.'
   channel_chatter_banned: '{TAG}&4&o{CHATTER} &4&owas banned from channel {COLOR}&o{CHANNEL}&4&o.'
-  channel_chatter_joined: '{TAG}&a&o{CHATTER} &a&ojoined channel {COLOR}&o{CHANNEL}&a&o.'
-  channel_chatter_left: '{TAG}&c&o{CHATTER} &c&oleft channel {COLOR}&o{CHANNEL}&c&o.'
   channel_chatter_unbanned: '{TAG}&2&o{CHATTER} &2&owas unbanned from channel {COLOR}&o{CHANNEL}&4&o.'
-  channel_joined: '{TAG}&9Joined channel {COLOR}&o{CHANNEL}&9&o.'
-  channel_left: '{TAG}&9Left channel {COLOR}&o{CHANNEL}&9&o.'
   chat_spy_toggled: '{TAG}&9Chat spying {STATUS}&9.'
   chat_spy_toggled_other: '{TAG}&9Chat spying {STATUS} &9for &6{PLAYER}&9.'
   ignore_added: '{TAG}&9You are now ignoring &6{NAME}&9.'
   ignore_removed: '{TAG}&9You are no longer ignoring &6{NAME}&9.'
-  login_channel: '{TAG}&9Currently chatting in {COLOR}&o{CHANNEL}&9.'
+
+alerts_channel:
+  tag: '&8[&9\u2709&8] '
+  chatter_joined: '{TAG}&a&o{CHATTER} &a&ojoined channel {COLOR}&o{CHANNEL}&a&o.'
+  chatter_left: '{TAG}&c&o{CHATTER} &c&oleft channel {COLOR}&o{CHANNEL}&c&o.'
 
 hooks:
   towny:

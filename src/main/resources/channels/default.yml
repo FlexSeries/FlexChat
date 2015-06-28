@@ -1,9 +1,11 @@
 name: 'default' # the full name of the channel
-short name: 'D' # the name to show in the default chat format
+tag: 'D' # the name to show in the default chat format
 color: 'WHITE' # the default color for the channel
+chat radius: 0 # 0 to disable local chat
+permissions: true # false to disable permission checking for this channel
 log format: '{NAME}: {MESSAGE}'
-options:
-  chat radius: 0 # 0 to disable local chat
-  permissions: true # false to disable permission checking for this channel
-formats:
-  default: '{CHCOLOR}{CHSHORTNAME:FORMAT=gray_brackets,BUFFER}&f{NAME}&8: {CHCOLOR}{MESSAGE}'
+formats: # [g:default] to use a global format
+  default: '{CHCOLOR}{CHSHORTNAME}&f{DISPNAME}&8: {CHCOLOR}{MESSAGE}'
+  moderator:
+    format: '{CHCOLOR}{CHSHORTNAME}&c{DISPNAME}&8: {CHCOLOR}{MESSAGE}'
+    inherit: true

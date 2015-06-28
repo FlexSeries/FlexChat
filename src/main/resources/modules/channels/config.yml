@@ -1,5 +1,9 @@
 active symbol: '\u25B6'
+list format: '&a{ACTIVE}{COLOR}{CHANNEL} &8({STATUS}&8)'
 private message format: '&f[&7{SENDER} &f\u27A1 &7{RECEIVER}&f] &7{MESSAGE}'
 default channel: 'default'
-variable formats:
-  gray_brackets: '&8[{VARIABLE}&8]'
+global formats: # [g:default]
+  default: '{CHCOLOR}[{CHTAG}]{PREFIX}{DISPNAME}{SUFFIX}&f: {MESSAGE}'
+  moderator:
+    format: '{CHCOLOR}[{CHTAG}]{PREFIX}&c{DISPNAME}{SUFFIX}&f: {MESSAGE}' # The group's format
+    inherit: true # True to check for inheritance

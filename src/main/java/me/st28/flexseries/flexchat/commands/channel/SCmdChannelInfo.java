@@ -1,43 +1,53 @@
+/**
+ * FlexChat - Licensed under the MIT License (MIT)
+ *
+ * Copyright (c) Stealth2800 <http://stealthyone.com/>
+ * Copyright (c) contributors <https://github.com/FlexSeries>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package me.st28.flexseries.flexchat.commands.channel;
 
 import me.st28.flexseries.flexchat.FlexChat;
-import me.st28.flexseries.flexchat.api.Channel;
-import me.st28.flexseries.flexchat.api.Chatter;
-import me.st28.flexseries.flexchat.api.ChatterManager;
-import me.st28.flexseries.flexcore.commands.CommandArgument;
-import me.st28.flexseries.flexcore.commands.CommandUtils;
-import me.st28.flexseries.flexcore.commands.FlexCommand;
-import me.st28.flexseries.flexcore.commands.FlexCommandSettings;
-import me.st28.flexseries.flexcore.commands.exceptions.CommandInterruptedException;
-import me.st28.flexseries.flexcore.lists.ListBuilder;
-import me.st28.flexseries.flexcore.messages.MessageReference;
-import me.st28.flexseries.flexcore.plugins.FlexPlugin;
-import me.st28.flexseries.flexcore.utils.ChatColorUtils;
-import me.st28.flexseries.flexcore.utils.StringConverter;
-import me.st28.flexseries.flexcore.utils.StringUtils;
-import org.bukkit.ChatColor;
+import me.st28.flexseries.flexchat.permissions.PermissionNodes;
+import me.st28.flexseries.flexcore.command.CommandArgument;
+import me.st28.flexseries.flexcore.command.FlexCommand;
+import me.st28.flexseries.flexcore.command.FlexCommandSettings;
+import me.st28.flexseries.flexcore.command.FlexSubcommand;
 import org.bukkit.command.CommandSender;
 
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.Collections;
+import java.util.Map;
 
-public final class SCmdChannelInfo extends FlexCommand<FlexChat> {
+//TODO: Implement
+public final class SCmdChannelInfo extends FlexSubcommand<FlexChat> {
 
-    public SCmdChannelInfo(FlexChat plugin, FlexCommand<FlexChat> parent) {
-        super(
-                plugin,
-                new String[]{"info"},
-                parent,
-                new FlexCommandSettings<FlexChat>()
-                        .description("View information about a channel"),
-                new CommandArgument("channel", false),
-                new CommandArgument("page", false)
+    public SCmdChannelInfo(FlexCommand<FlexChat> parent) {
+        super(parent, "info", Collections.singletonList(new CommandArgument("channel", true)), new FlexCommandSettings()
+                .description("View information about a channel")
+                .permission(PermissionNodes.INFO)
         );
     }
 
     @Override
     public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
-        ChatterManager chatterManager = FlexPlugin.getRegisteredModule(ChatterManager.class);
+        /*ChatterManager chatterManager = FlexPlugin.getRegisteredModule(ChatterManagerImpl.class);
         Chatter chatter = chatterManager.getChatter(sender);
 
         boolean pageSpecified = false;
@@ -91,7 +101,7 @@ public final class SCmdChannelInfo extends FlexCommand<FlexChat> {
             }
         });
 
-        /*List<String> banned;
+        *//*List<String> banned;
         try {
             banned = new ArrayList<>(channel.getBanned());
             Collections.sort(banned, new Comparator<String>() {
@@ -102,7 +112,7 @@ public final class SCmdChannelInfo extends FlexCommand<FlexChat> {
             });
         } catch (UnsupportedOperationException ex) {
             banned = null;
-        }*/
+        }*//*
 
         builder.addMessage("title", "Short Name", shortName);
         builder.addMessage("title", "Color", color + color.name());
@@ -116,9 +126,9 @@ public final class SCmdChannelInfo extends FlexCommand<FlexChat> {
             }
         }, ", "));
 
-        /*if (banned != null) {
+        *//*if (banned != null) {
             builder.addMessage("title", "Banned", banned.isEmpty() ? ("" + ChatColor.RED + ChatColor.ITALIC + "(none)") : StringUtils.stringCollectionToString(banned, ", "));
-        }*/
+        }*//*
 
         Map<String, String> customInfo = channel.getCustomData(chatter);
         if (customInfo != null) {
@@ -128,7 +138,7 @@ public final class SCmdChannelInfo extends FlexCommand<FlexChat> {
         }
 
         builder.enableNextPageNotice(label + " " + StringUtils.stringCollectionToString(Arrays.asList(args).subList(0, pageSpecified ? args.length - 1 : args.length)));
-        builder.sendTo(sender, page);
+        builder.sendTo(sender, page);*/
     }
 
 }

@@ -22,55 +22,33 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.st28.flexseries.flexchat.commands;
+package me.st28.flexseries.flexchat.commands.chatspy;
 
 import me.st28.flexseries.flexchat.FlexChat;
-import me.st28.flexseries.flexchat.permissions.PermissionNodes;
-import me.st28.flexseries.flexcore.command.CommandArgument;
 import me.st28.flexseries.flexcore.command.FlexCommand;
 import me.st28.flexseries.flexcore.command.FlexCommandSettings;
-import me.st28.flexseries.flexcore.command.exceptions.CommandInterruptedException;
-import me.st28.flexseries.flexcore.message.MessageReference;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Map;
 
-public final class CmdReply extends FlexCommand<FlexChat> {
+public final class CmdChatSpy extends FlexCommand<FlexChat> {
 
-    private CmdMessage messageCommand;
-
-    public CmdReply(FlexChat plugin, CmdMessage messageCommand) {
+    public CmdChatSpy(FlexChat plugin) {
         super(
-            plugin,
-            "reply",
-            Collections.singletonList(new CommandArgument("message", true)),
-            new FlexCommandSettings<FlexChat>()
-                .description("Reply to a private message")
-                .permission(PermissionNodes.MESSAGE)
-                .shouldFixArguments(false)
-                .setPlayerOnly(true)
+                plugin,
+                "chatspy",
+                null,
+                new FlexCommandSettings<FlexChat>()
+                    .defaultSubcommand("toggle")
+                    .setDummyCommand(true)
         );
-        this.messageCommand = messageCommand;
+
+        registerSubcommand(new SCmdChatSpyToggle(this));
     }
 
     @Override
     public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
-        UUID targetUuid = messageCommand.replies.get(((Player) sender).getUniqueId());
 
-        if (targetUuid == null || Bukkit.getPlayer(targetUuid) == null) {
-            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.message_no_reply"));
-        }
-
-        Player targetPlayer = Bukkit.getPlayer(targetUuid);
-
-        List<String> newArgs = new ArrayList<>();
-
-        newArgs.add(targetPlayer.getName());
-        Collections.addAll(newArgs, args);
-
-        messageCommand.runCommand(sender, "message ", "message", newArgs.toArray(new String[newArgs.size()]), parameters);
     }
 
 }
