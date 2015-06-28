@@ -37,8 +37,9 @@ import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.api.format.ChatFormat;
 import me.st28.flexseries.flexchat.api.format.StandardChatFormat;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
-import me.st28.flexseries.flexchat.hooks.towny.channels.TownyNationChannel;
-import me.st28.flexseries.flexchat.hooks.towny.channels.TownyTownChannel;
+import me.st28.flexseries.flexchat.hooks.towny.TownyListener;
+import me.st28.flexseries.flexchat.hooks.towny.TownyNationChannel;
+import me.st28.flexseries.flexchat.hooks.towny.TownyTownChannel;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexcore.events.PlayerJoinLoadedEvent;
 import me.st28.flexseries.flexcore.hook.HookManager;
@@ -52,6 +53,7 @@ import me.st28.flexseries.flexcore.plugin.FlexPlugin;
 import me.st28.flexseries.flexcore.plugin.exceptions.ModuleDisabledException;
 import me.st28.flexseries.flexcore.plugin.module.FlexModule;
 import me.st28.flexseries.flexcore.storage.flatfile.YamlFileManager;
+import me.st28.flexseries.flexcore.util.PluginUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
@@ -65,7 +67,9 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 public final class ChannelManagerImpl extends FlexModule<FlexChat> implements ChannelManager, Listener {
@@ -85,17 +89,25 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
     private final Set<String> loadedChannels = new HashSet<>();
     private final Map<String, Channel> channels = new HashMap<>();
 
+    private File customChannelDir;
+
     public ChannelManagerImpl(FlexChat plugin) {
         super(plugin, "channels", "Manages channels", true);
     }
 
     @Override
     protected void handleLoad() {
+        customChannelDir = new File(getDataFolder() + File.separator + "channels");
+        customChannelDir.mkdir();
+
         try {
             FlexPlugin.getRegisteredModule(HookManager.class).checkHookStatus(TownyHook.class);
 
-            registerChannel(new TownyTownChannel());
-            registerChannel(new TownyNationChannel());
+            TownyTownChannel townChannel = new TownyTownChannel();
+            TownyNationChannel nationChannel = new TownyNationChannel();
+
+            registerChannel(townChannel);
+            registerChannel(nationChannel);
 
             ChatFormat.registerChatVariable(new ChatVariable("TOWNY-TOWN") {
                 @Override
@@ -148,6 +160,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
                 }
             });
 
+            Bukkit.getPluginManager().registerEvents(new TownyListener(townChannel, nationChannel), plugin);
             LogHelper.info(this, "Optional features for Towny enabled.");
         } catch (HookDisabledException | ModuleDisabledException ex) {
             LogHelper.info(this, "Unable to register optional features for Towny because it isn't installed.");
@@ -156,6 +169,8 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
     @Override
     protected void handleReload() {
+        customChannelDir.mkdir();
+
         FileConfiguration config = getConfig();
 
         activeSymbol = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(config.getString("active symbol", "\u25B6")));
@@ -189,7 +204,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
         File channelDir = getDataFolder();
 
-        if (channelDir.listFiles().length == 0) {
+        if (channelDir.listFiles().length == 1) {
             LogHelper.info(this, "No channels found in the channels directory. Creating a default channel file.");
             plugin.saveResource("channels" + File.separator + "default.yml", true);
         }
@@ -222,6 +237,33 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
             registerPermissions(channel.getName());
         }
 
+        // Reload custom channels
+        for (Entry<String, Channel> entry : channels.entrySet()) {
+            if (loadedChannels.contains(entry.getKey())) {
+                continue;
+            }
+
+            String fileName = entry.getValue().getFileName() + ".yml";
+
+            YamlFileManager file = new YamlFileManager(customChannelDir + File.separator + fileName);
+            if (file.isEmpty()) {
+                String path = "channels/custom/" + fileName;
+                if (plugin.getResource(path) != null) {
+                    try {
+                        PluginUtils.saveFile(plugin, path, customChannelDir + File.separator + fileName);
+                    } catch (IOException ex) {
+                        LogHelper.warning(this, "An exception occurred while trying to copy the channel file for custom channel '" + identifier + "'", ex);
+                        continue;
+                    }
+                }
+            }
+
+            if (!file.isEmpty()) {
+                entry.getValue().reload(this, file.getConfig());
+            }
+        }
+
+        // Load default channel
         if (defaultChannel != null && !channels.containsKey(defaultChannel.toLowerCase())) {
             LogHelper.warning(this, "The default channel '" + defaultChannel + "' is not loaded.");
         }

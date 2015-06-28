@@ -37,7 +37,7 @@ public final class TownyTownChannel extends Channel {
     final Map<Integer, ChannelInstance> instances = new HashMap<>();
 
     public TownyTownChannel() {
-        super("Town");
+        super("Town", "towny-town");
     }
 
     @Override
