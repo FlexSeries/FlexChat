@@ -108,13 +108,6 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
             return;
         }
 
-        ChatFormat chatFormat = active.getChannel().getChatFormat(chatter);
-        if (chatFormat == null) {
-            e.setCancelled(true);
-            MessageReference.create(FlexChat.class, "errors.unable_to_chat").sendTo(player);
-            return;
-        }
-
         int radius = active.getChannel().getRadius();
 
         Set<Chatter> recipients = new HashSet<>();
