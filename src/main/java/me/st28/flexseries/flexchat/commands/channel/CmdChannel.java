@@ -114,7 +114,6 @@ public final class CmdChannel extends FlexCommand<FlexChat> {
 
             if (chatter.addInstance(instance)) {
                 instance.sendMessage(MessageReference.create(FlexChat.class, "alerts_channel.chatter_joined", new ReplacementMap("{CHATTER}", chatter.getName()).put("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()));
-                return;
             }
 
             if (chatter.setActiveInstance(instance)) {
