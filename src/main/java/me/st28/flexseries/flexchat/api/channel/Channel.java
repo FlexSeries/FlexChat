@@ -170,6 +170,19 @@ public abstract class Channel {
     public abstract Collection<ChannelInstance> getInstances();
 
     /**
+     * @return A {@link ChannelInstance} with the given name.
+     */
+    public ChannelInstance getInstance(String name) {
+        Validate.notNull(name, "Name cannot be null.");
+        for (ChannelInstance instance : getInstances()) {
+            if (instance.getDisplayName().equalsIgnoreCase(name) || instance.getLabel().equalsIgnoreCase("label")) {
+                return instance;
+            }
+        }
+        return null;
+    }
+
+    /**
      * @return The {@link ChannelInstance}s a particular {@link Chatter} belongs in.
      */
     public abstract List<ChannelInstance> getInstances(Chatter chatter);
