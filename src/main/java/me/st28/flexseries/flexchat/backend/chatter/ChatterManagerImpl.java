@@ -32,6 +32,7 @@ import me.st28.flexseries.flexchat.api.chatter.ChatterConsole;
 import me.st28.flexseries.flexchat.api.chatter.ChatterManager;
 import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
+import me.st28.flexseries.flexcore.events.PlayerLeaveEvent;
 import me.st28.flexseries.flexcore.logging.LogHelper;
 import me.st28.flexseries.flexcore.player.loading.PlayerLoadCycle;
 import me.st28.flexseries.flexcore.player.loading.PlayerLoader;
@@ -41,11 +42,13 @@ import me.st28.flexseries.flexcore.storage.flatfile.YamlFileManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
 import java.io.File;
 import java.util.*;
 
-public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterManager, PlayerLoader {
+public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterManager, Listener, PlayerLoader {
 
     private final Map<String, Chatter> chatters = new HashMap<>();
 
@@ -61,12 +64,16 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
     @Override
     protected void handleSave(boolean async) {
         for (Chatter chatter : chatters.values()) {
-            YamlFileManager file = new YamlFileManager(getDataFolder() + File.separator + chatter.getIdentifier() + ".yml");
-
-            chatter.save(file.getConfig());
-
-            file.save();
+            saveChatter(chatter);
         }
+    }
+
+    private void saveChatter(Chatter chatter) {
+        YamlFileManager file = new YamlFileManager(getDataFolder() + File.separator + chatter.getIdentifier() + ".yml");
+
+        chatter.save(file.getConfig());
+
+        file.save();
     }
 
     private void loadPlayerChatter(UUID uuid) {
@@ -124,6 +131,21 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
         } catch (Exception ex) {
             LogHelper.warning(this, "An exception occurred while loading player chatter '" + name + "'", ex);
             PlayerLoadCycle.setLoaderFailure(cycle, this);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerLeave(PlayerLeaveEvent e) {
+        UUID uuid = e.getPlayer().getUniqueId();
+
+        Chatter chatter = chatters.get(uuid.toString());
+        if (chatter != null) {
+            saveChatter(chatter);
+            chatters.remove(uuid.toString());
+
+            for (ChannelInstance instance : chatter.getInstances()) {
+                instance.removeChatter(chatter);
+            }
         }
     }
 
