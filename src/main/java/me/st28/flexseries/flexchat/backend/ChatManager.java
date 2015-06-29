@@ -25,6 +25,7 @@
 package me.st28.flexseries.flexchat.backend;
 
 import me.st28.flexseries.flexchat.FlexChat;
+import me.st28.flexseries.flexchat.api.ChannelChatEvent;
 import me.st28.flexseries.flexchat.api.FlexChatAPI;
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance;
 import me.st28.flexseries.flexchat.api.chatter.Chatter;
@@ -36,12 +37,16 @@ import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexcore.message.MessageReference;
 import me.st28.flexseries.flexcore.message.ReplacementMap;
 import me.st28.flexseries.flexcore.plugin.module.FlexModule;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public final class ChatManager extends FlexModule<FlexChat> implements Listener {
 
@@ -112,10 +117,10 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
 
         int radius = active.getChannel().getRadius();
 
+        Set<Chatter> recipients = new HashSet<>();
+
         if (radius <= 0) {
-            for (Chatter oChatter : active.getChatters()) {
-                oChatter.sendMessage(e.getFormat());
-            }
+            recipients.addAll(active.getChatters());
         } else {
             Location senderLoc = ((ChatterPlayer) chatter).getPlayer().getLocation();
             radius = (int) Math.pow(radius, 2D);
@@ -127,9 +132,15 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
                     }
                 }
 
-                oChatter.sendMessage(e.getFormat());
+                recipients.add(oChatter);
             }
         }
+
+        for (Chatter oChatter : recipients) {
+            oChatter.sendMessage(e.getFormat());
+        }
+
+        Bukkit.getPluginManager().callEvent(new ChannelChatEvent(active, chatter, recipients, e.getMessage()));
     }
 
 }
