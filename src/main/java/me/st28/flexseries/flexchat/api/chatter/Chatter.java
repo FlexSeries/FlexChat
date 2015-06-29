@@ -54,6 +54,9 @@ public abstract class Chatter {
         if (instanceSec != null) {
             for (String chName : instanceSec.getKeys(false)) {
                 Channel channel = channelManager.getChannel(chName);
+                if (channel == null) {
+                    continue;
+                }
 
                 Map<String, ChannelInstance> curInstances = new HashMap<>();
                 for (ChannelInstance instance : channel.getInstances(this)) {
@@ -154,7 +157,7 @@ public abstract class Chatter {
     public boolean addInstance(ChannelInstance instance) {
         Validate.notNull(instance, "Instance cannot be null.");
 
-        boolean result = instances.put(instance, System.currentTimeMillis()) != null;
+        boolean result = instances.put(instance, System.currentTimeMillis()) == null;
 
         if (!instance.containsChatter(this)) {
             instance.addChatter(this);
