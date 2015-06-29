@@ -97,7 +97,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
     @Override
     protected void handleLoad() {
-        customChannelDir = new File(getDataFolder() + File.separator + "channels");
+        customChannelDir = new File(getDataFolder() + File.separator + "custom");
         customChannelDir.mkdir();
 
         try {
@@ -237,6 +237,31 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
             registerPermissions(channel.getName());
         }
 
+        if (!firstReload) {
+            ChatterManagerImpl chatterManager = FlexPlugin.getRegisteredModule(ChatterManagerImpl.class);
+
+            for (String channel : loadedChannels) {
+                if (!newLoadedChannels.contains(channel)) {
+                    // Remove chatters from obsolete channel's instance(s)
+                    for (Chatter chatter : chatterManager.getChatters()) {
+                        for (ChannelInstance instance : chatter.getInstances()) {
+                            if (instance.getChannel().getName().equals(channel)) {
+                                chatter.removeInstance(instance);
+                            }
+                        }
+                    }
+
+                    // Remove permissions
+                    unregisterPermission(channel);
+                }
+            }
+
+            loadedChannels.clear();
+            loadedChannels.addAll(newLoadedChannels);
+        } else {
+            loadedChannels.addAll(newLoadedChannels);
+        }
+
         // Reload custom channels
         for (Entry<String, Channel> entry : channels.entrySet()) {
             if (loadedChannels.contains(entry.getKey())) {
@@ -268,30 +293,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
             LogHelper.warning(this, "The default channel '" + defaultChannel + "' is not loaded.");
         }
 
-        if (!firstReload) {
-            ChatterManagerImpl chatterManager = FlexPlugin.getRegisteredModule(ChatterManagerImpl.class);
-
-            for (String channel : loadedChannels) {
-                if (!newLoadedChannels.contains(channel)) {
-                    // Remove chatters from obsolete channel's instance(s)
-                    for (Chatter chatter : chatterManager.getChatters()) {
-                        for (ChannelInstance instance : chatter.getInstances()) {
-                            if (instance.getChannel().getName().equals(channel)) {
-                                chatter.removeInstance(instance);
-                            }
-                        }
-                    }
-
-                    // Remove permissions
-                    unregisterPermission(channel);
-                }
-            }
-
-            loadedChannels.clear();
-            loadedChannels.addAll(newLoadedChannels);
-        }
         firstReload = false;
-        //TODO: Unregister permissions for channels that were removed.
     }
 
     private void registerPermissions(String channelName) {

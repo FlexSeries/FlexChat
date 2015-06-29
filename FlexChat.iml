@@ -36,7 +36,8 @@
     <orderEntry type="library" name="Maven: com.comphenix.packetwrapper:PacketWrapper:1.8-R0.1" level="project" />
     <orderEntry type="library" name="Maven: com.comphenix.protocol:ProtocolLib:3.6.3-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: cglib:cglib-nodep:2.2.2" level="project" />
-    <orderEntry type="library" name="Maven: com.comphenix.executors:BukkitExecutors:1.1-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.comphenix.executors:BukkitExecutors:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: io.netty:netty-all:4.0.26.Final" level="project" />
     <orderEntry type="library" name="Maven: com.palmergames:towny:0.89.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.kitteh:VanishNoPacket:3.19.1" level="project" />
     <orderEntry type="library" name="Maven: net.milkbowl.vault:Vault:1.4.1" level="project" />
