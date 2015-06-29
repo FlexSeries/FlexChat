@@ -88,11 +88,17 @@ public class SCmdChannelLeave extends FlexSubcommand<FlexChat> {
         List<ChannelInstance> instances = channel.getInstances(chatter);
 
         if (instances.size() == 1) {
+            boolean isActive = instances.get(0) == chatter.getActiveInstance();
+
             if (chatter.removeInstance(instances.get(0))) {
                 MessageReference message = MessageReference.create(FlexChat.class, "alerts_channel.chatter_left", new ReplacementMap("{CHATTER}", chatter.getName()).put("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap());
                 instances.get(0).sendMessage(message);
                 chatter.sendMessage(message);
-                //TODO: Set next active channel
+
+                if (isActive && chatter.getActiveInstance() != null) {
+                    channel = chatter.getActiveInstance().getChannel();
+                    MessageReference.create(FlexChat.class, "notices.channel_active_set", new ReplacementMap("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()).sendTo(sender);
+                }
             } else {
                 throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_not_joined", new ReplacementMap("{CHANNEL}", channel.getName()).getMap()));
             }

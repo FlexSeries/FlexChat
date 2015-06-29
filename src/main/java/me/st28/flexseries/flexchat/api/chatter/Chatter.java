@@ -41,7 +41,7 @@ public abstract class Chatter {
     private final String identifier;
 
     private ChannelInstance activeInstance;
-    private final Set<ChannelInstance> instances = new HashSet<>();
+    private final Map<ChannelInstance, Long> instances = new HashMap<>();
 
     protected Chatter(String identifier) {
         this.identifier = identifier;
@@ -63,11 +63,11 @@ public abstract class Chatter {
                 if (instanceSec.isSet(chName) && !instanceSec.getStringList(chName).isEmpty()) {
                     for (String instanceLabel : instanceSec.getStringList(chName)) {
                         if (curInstances.containsKey(instanceLabel)) {
-                            instances.add(curInstances.get(instanceLabel));
+                            instances.put(curInstances.get(instanceLabel), System.currentTimeMillis());
                         }
                     }
                 } else if (curInstances.size() == 1) {
-                    instances.add(channel.getInstances(this).get(0));
+                    instances.put(channel.getInstances(this).get(0), System.currentTimeMillis());
                 }
             }
         }
@@ -95,19 +95,19 @@ public abstract class Chatter {
             }
         }
 
-        if (!this.instances.contains(activeInstance)) {
+        if (!this.instances.containsKey(activeInstance)) {
             activeInstance = null;
         }
 
         // Add to instances
-        for (ChannelInstance instance : this.instances) {
+        for (ChannelInstance instance : this.instances.keySet()) {
             instance.addChatter(this);
         }
     }
 
     public void save(ConfigurationSection config) {
         Map<String, List<String>> toSave = new HashMap<>();
-        for (ChannelInstance instance : instances) {
+        for (ChannelInstance instance : instances.keySet()) {
             String chName = instance.getChannel().getName();
 
             if (!toSave.containsKey(chName)) {
@@ -138,19 +138,23 @@ public abstract class Chatter {
         return getName();
     }
 
-    public Collection<ChannelInstance> getInstances() {
-        return Collections.unmodifiableCollection(instances);
+    public List<ChannelInstance> getInstances() {
+        List<ChannelInstance> list = new ArrayList<>(instances.keySet());
+
+        Collections.sort(list, (o1, o2) -> instances.get(o2).compareTo(instances.get(o1)));
+
+        return list;
     }
 
     public boolean isInInstance(ChannelInstance instance) {
         Validate.notNull(instance, "Instance cannot be null.");
-        return instances.contains(instance);
+        return instances.containsKey(instance);
     }
 
     public boolean addInstance(ChannelInstance instance) {
         Validate.notNull(instance, "Instance cannot be null.");
 
-        boolean result = instances.add(instance);
+        boolean result = instances.put(instance, System.currentTimeMillis()) != null;
 
         if (!instance.containsChatter(this)) {
             instance.addChatter(this);
@@ -162,7 +166,7 @@ public abstract class Chatter {
     public boolean removeInstance(ChannelInstance instance) {
         Validate.notNull(instance, "Instance cannot be null.");
 
-        boolean result = instances.remove(instance);
+        boolean result = instances.remove(instance) != null;
 
         if (instance.containsChatter(this)) {
             instance.removeChatter(this);
@@ -170,6 +174,12 @@ public abstract class Chatter {
 
         if (activeInstance == instance) {
             activeInstance = null;
+
+            if (!instances.isEmpty()) {
+                activeInstance = getInstances().get(0);
+
+                Channel channel = activeInstance.getChannel();
+            }
         }
 
         return result;
@@ -189,7 +199,7 @@ public abstract class Chatter {
             }
         }
 
-        if (!instances.contains(instance)
+        if (!instances.containsKey(instance)
                 || this.activeInstance == instance
                 || !instance.getChannel().getInstances(this).contains(instance)
         ) {
@@ -197,6 +207,7 @@ public abstract class Chatter {
         }
 
         this.activeInstance = instance;
+        instances.put(instance, System.currentTimeMillis());
         return true;
     }
 
