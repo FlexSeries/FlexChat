@@ -7,18 +7,18 @@ authors: [${project.authors}]
 website: ${project.url}
 main: ${project.mainClass}
 commands:
-  flexchannel:
-    aliases: [channel, channels, ch]
-  flexchatspy:
-    aliases: [chatspy, socialspy]
-  flexignore:
-    aliases: [ignore, block]
-  flexunignore:
-    aliases: [unignore, unblock]
-  flexmessage:
-    aliases: [message, msg, m, pm, tell, t, whisper, whisp, w]
-  flexreply:
-    aliases: [reply, r]
+  channel:
+    aliases: [channels, ch]
+  chatspy:
+    aliases: [socialspy]
+  ignore:
+    aliases: [block]
+  unignore:
+    aliases: [unblock]
+  message:
+    aliases: [msg, m, pm, tell, t, whisper, whisp, w]
+  reply:
+    aliases: [r]
 
 permissions:
   ##########
@@ -27,14 +27,12 @@ permissions:
   flexchat.admin:
     default: op
     children:
-      flexchat.chat.color: true
-      flexchat.chat.format: true
-      flexchat.chat.magic: true
-      flexchat.chat.spy: true
-      flexchat.chat.spy.toggle: true
-      flexchat.chat.spy.toggle.other: true
-      flexchat.chat.spy.persistent: true
-      flexchat.channel.view.bypass: true
+      flexchat.color: true
+      flexchat.format: true
+      flexchat.magic: true
+      flexchat.spy: true
+      flexchat.spy.persistent: true
+      flexchat.view.bypass: true
       flexchat.ignore.bypass: true
 
   flexchat.user:
@@ -46,24 +44,21 @@ permissions:
   #########
   # Nodes #
   #########
-  flexchat.chat.color:
+  flexchat.color:
     description: 'Ability to use color codes in chat messages'
     default: false
-  flexchat.chat.format:
+  flexchat.format:
     description: 'Ability to use formatting codes in chat messages'
     default: false
-  flexchat.chat.magic:
+  flexchat.magic:
     description: 'Ability to use the magic formatting code in chat messages'
     default: false
 
-  flexchat.chat.spy.toggle:
-    description: 'Ability to toggle spy mode'
+  flexchat.spy:
+    description: 'Ability to use spy mode'
     default: false
-  flexchat.chat.spy.toggle.other:
-    description: 'Ability to toggle other player''s spy mode'
-    default: false
-  flexchat.chat.spy.persistent:
-    description: 'Keep chat spy mode through server restarts'
+  flexchat.spy.persistent:
+    description: 'Keep chat spy settings through server restarts and logging off'
     default: false
 
   flexchat.ignore:
@@ -77,6 +72,6 @@ permissions:
     description: 'Ability to use private messaging'
     default: false
 
-  flexchat.channel.view.bypass:
+  flexchat.view.bypass:
     description: 'Ability to view channels on the channel list command even if they don''t normally allow it'
     default: false

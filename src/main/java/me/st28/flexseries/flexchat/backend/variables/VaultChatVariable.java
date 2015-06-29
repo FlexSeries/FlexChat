@@ -22,33 +22,25 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.st28.flexseries.flexchat.api;
+package me.st28.flexseries.flexchat.backend.variables;
 
-import me.st28.flexseries.flexchat.api.channel.Channel;
-import me.st28.flexseries.flexchat.api.chatter.Chatter;
+import me.st28.flexseries.flexchat.api.ChatVariable;
+import me.st28.flexseries.flexcore.hook.HookManager;
+import me.st28.flexseries.flexcore.hook.hooks.VaultHook;
+import me.st28.flexseries.flexcore.plugin.FlexPlugin;
 
-public abstract class ChatVariable {
+public abstract class VaultChatVariable extends ChatVariable {
 
-    private String variable;
-
-    public ChatVariable(String variable) {
-        this.variable = variable;
+    public VaultChatVariable(String variable) {
+        super(variable);
     }
 
-    public String getVariable() {
-        return variable;
+    protected VaultHook getVaultHook() {
+        try {
+            return FlexPlugin.getRegisteredModule(HookManager.class).getHook(VaultHook.class);
+        } catch (Exception ex) {
+            return null;
+        }
     }
-
-    public String getReplaceKey() {
-        return "{" + variable + "}";
-    }
-
-    /**
-     * Returns the replacement string for a particular chatter in a channel.
-     *
-     * @return The replacement string that will be used instead of the variable.<br />
-     *         Null if there is no replacement.
-     */
-    public abstract String getReplacement(Chatter chatter, Channel channel);
 
 }

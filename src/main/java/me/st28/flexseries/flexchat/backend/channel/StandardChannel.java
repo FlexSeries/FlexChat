@@ -22,33 +22,36 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.st28.flexseries.flexchat.api;
+package me.st28.flexseries.flexchat.backend.channel;
 
 import me.st28.flexseries.flexchat.api.channel.Channel;
+import me.st28.flexseries.flexchat.api.channel.ChannelInstance;
 import me.st28.flexseries.flexchat.api.chatter.Chatter;
 
-public abstract class ChatVariable {
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
-    private String variable;
+/**
+ * Represents a channel loaded by FlexChat.
+ */
+public class StandardChannel extends Channel {
 
-    public ChatVariable(String variable) {
-        this.variable = variable;
+    private ChannelInstance instance;
+
+    public StandardChannel(String name) {
+        super(name);
+        instance = new ChannelInstance(this, null);
     }
 
-    public String getVariable() {
-        return variable;
+    @Override
+    public Collection<ChannelInstance> getInstances() {
+        return Collections.singletonList(instance);
     }
 
-    public String getReplaceKey() {
-        return "{" + variable + "}";
+    @Override
+    public List<ChannelInstance> getInstances(Chatter chatter) {
+        return Collections.singletonList(instance);
     }
-
-    /**
-     * Returns the replacement string for a particular chatter in a channel.
-     *
-     * @return The replacement string that will be used instead of the variable.<br />
-     *         Null if there is no replacement.
-     */
-    public abstract String getReplacement(Chatter chatter, Channel channel);
 
 }

@@ -22,42 +22,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.st28.flexseries.flexchat;
+package me.st28.flexseries.flexchat.api;
 
-import me.st28.flexseries.flexchat.backend.chatadmin.ChatAdminManager;
-import me.st28.flexseries.flexchat.backend.ChatManager;
+import me.st28.flexseries.flexchat.api.channel.ChannelManager;
+import me.st28.flexseries.flexchat.api.chatter.ChatterManager;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
-import me.st28.flexseries.flexchat.commands.CmdMessage;
-import me.st28.flexseries.flexchat.commands.CmdReply;
-import me.st28.flexseries.flexchat.commands.channel.CmdChannel;
-import me.st28.flexseries.flexchat.commands.chatspy.CmdChatSpy;
-import me.st28.flexseries.flexcore.command.FlexCommandWrapper;
 import me.st28.flexseries.flexcore.plugin.FlexPlugin;
 
-public final class FlexChat extends FlexPlugin {
+public final class FlexChatAPI {
 
-    //public final static Logger CHAT_LOGGER = LogManager.getLogger(ChannelManager.class.getCanonicalName());
+    private FlexChatAPI() {}
 
-    @Override
-    public void handlePluginLoad() {
-        registerModule(new ChannelManagerImpl(this));
-        registerModule(new ChatterManagerImpl(this));
-        registerModule(new ChatManager(this));
-        registerModule(new ChatAdminManager(this));
+    public static ChannelManager getChannelManager() {
+        return FlexPlugin.getRegisteredModule(ChannelManagerImpl.class);
     }
 
-    @Override
-    public void handlePluginEnable() {
-        FlexCommandWrapper.registerCommand(this, new CmdChannel(this));
-        FlexCommandWrapper.registerCommand(this, new CmdChatSpy(this));
-
-        /*FlexCommandWrapper.registerCommand(this, "flexignore", new CmdIgnore(this));
-        FlexCommandWrapper.registerCommand(this, "flexunignore", new CmdUnignore(this));*/
-
-        CmdMessage messageCommand = new CmdMessage(this);
-        FlexCommandWrapper.registerCommand(this, messageCommand);
-        FlexCommandWrapper.registerCommand(this, new CmdReply(this, messageCommand));
+    public static ChatterManager getChatterManager() {
+        return FlexPlugin.getRegisteredModule(ChatterManagerImpl.class);
     }
 
 }

@@ -22,33 +22,48 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.st28.flexseries.flexchat.api;
+package me.st28.flexseries.flexchat.hooks.towny;
 
+import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownyUniverse;
 import me.st28.flexseries.flexchat.api.channel.Channel;
+import me.st28.flexseries.flexchat.api.channel.ChannelInstance;
 import me.st28.flexseries.flexchat.api.chatter.Chatter;
 
-public abstract class ChatVariable {
+import java.util.*;
 
-    private String variable;
+public final class TownyNationChannel extends Channel {
 
-    public ChatVariable(String variable) {
-        this.variable = variable;
+    final Map<Integer, ChannelInstance> instances = new HashMap<>();
+
+    public TownyNationChannel() {
+        super("Nation", "towny-nation");
     }
 
-    public String getVariable() {
-        return variable;
+    @Override
+    public Collection<ChannelInstance> getInstances() {
+        return Collections.unmodifiableCollection(instances.values());
     }
 
-    public String getReplaceKey() {
-        return "{" + variable + "}";
-    }
+    @Override
+    public List<ChannelInstance> getInstances(Chatter chatter) {
+        try {
+            Town town = TownyUniverse.getDataSource().getResident(chatter.getName()).getTown();
+            if (town == null) {
+                return null;
+            }
 
-    /**
-     * Returns the replacement string for a particular chatter in a channel.
-     *
-     * @return The replacement string that will be used instead of the variable.<br />
-     *         Null if there is no replacement.
-     */
-    public abstract String getReplacement(Chatter chatter, Channel channel);
+            int uid = town.getNation().getUID();
+
+            if (!instances.containsKey(uid)) {
+                instances.put(uid, new ChannelInstance(this, "nation-" + uid));
+            }
+
+            return Collections.singletonList(instances.get(uid));
+        } catch (NotRegisteredException ex) {
+            return null;
+        }
+    }
 
 }

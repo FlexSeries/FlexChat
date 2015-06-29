@@ -22,33 +22,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.st28.flexseries.flexchat.api;
+package me.st28.flexseries.flexchat.hooks.towny;
 
+import com.palmergames.bukkit.towny.object.Nation;
+import com.palmergames.bukkit.towny.object.TownyUniverse;
 import me.st28.flexseries.flexchat.api.channel.Channel;
-import me.st28.flexseries.flexchat.api.chatter.Chatter;
+import me.st28.flexseries.flexchat.api.channel.ChannelInstance;
 
-public abstract class ChatVariable {
+public final class TownyNationChannelInstance extends ChannelInstance {
 
-    private String variable;
+    private Nation nation;
 
-    public ChatVariable(String variable) {
-        this.variable = variable;
+    public TownyNationChannelInstance(Channel channel, int uid) {
+        super(channel, "nation-" + uid);
+
+        for (Nation nation : TownyUniverse.getDataSource().getNations()) {
+            if (nation.getUID() == uid) {
+                this.nation = nation;
+                break;
+            }
+        }
     }
 
-    public String getVariable() {
-        return variable;
+    @Override
+    public String getDisplayName() {
+        return nation.getName();
     }
-
-    public String getReplaceKey() {
-        return "{" + variable + "}";
-    }
-
-    /**
-     * Returns the replacement string for a particular chatter in a channel.
-     *
-     * @return The replacement string that will be used instead of the variable.<br />
-     *         Null if there is no replacement.
-     */
-    public abstract String getReplacement(Chatter chatter, Channel channel);
 
 }

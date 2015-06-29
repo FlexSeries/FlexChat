@@ -22,33 +22,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.st28.flexseries.flexchat.api;
+package me.st28.flexseries.flexchat.api.format;
 
+import me.st28.flexseries.flexchat.api.FlexChatAPI;
 import me.st28.flexseries.flexchat.api.channel.Channel;
 import me.st28.flexseries.flexchat.api.chatter.Chatter;
 
-public abstract class ChatVariable {
+public final class ReferencedChatFormat extends ChatFormat {
 
-    private String variable;
+    private String group;
 
-    public ChatVariable(String variable) {
-        this.variable = variable;
+    public ReferencedChatFormat(String group) {
+        this.group = group;
     }
 
-    public String getVariable() {
-        return variable;
+    @Override
+    public String getFormattedResult(Chatter chatter, Channel channel, String message) {
+        return FlexChatAPI.getChannelManager().getGlobalFormat(group).getFormattedResult(chatter, channel, message);
     }
-
-    public String getReplaceKey() {
-        return "{" + variable + "}";
-    }
-
-    /**
-     * Returns the replacement string for a particular chatter in a channel.
-     *
-     * @return The replacement string that will be used instead of the variable.<br />
-     *         Null if there is no replacement.
-     */
-    public abstract String getReplacement(Chatter chatter, Channel channel);
 
 }

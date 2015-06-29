@@ -22,33 +22,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.st28.flexseries.flexchat.api;
+package me.st28.flexseries.flexchat.api.chatter;
 
-import me.st28.flexseries.flexchat.api.channel.Channel;
-import me.st28.flexseries.flexchat.api.chatter.Chatter;
+import me.st28.flexseries.flexcore.message.MessageReference;
+import me.st28.flexseries.flexcore.permission.PermissionNode;
+import org.bukkit.Bukkit;
 
-public abstract class ChatVariable {
+public class ChatterConsole extends Chatter {
 
-    private String variable;
+    public static final String NAME = "Console";
 
-    public ChatVariable(String variable) {
-        this.variable = variable;
+    public ChatterConsole() {
+        super(NAME);
     }
 
-    public String getVariable() {
-        return variable;
+    @Override
+    public String getName() {
+        return NAME;
     }
 
-    public String getReplaceKey() {
-        return "{" + variable + "}";
+    @Override
+    public boolean hasPermission(PermissionNode permission) {
+        return true;
     }
 
-    /**
-     * Returns the replacement string for a particular chatter in a channel.
-     *
-     * @return The replacement string that will be used instead of the variable.<br />
-     *         Null if there is no replacement.
-     */
-    public abstract String getReplacement(Chatter chatter, Channel channel);
+    @Override
+    public void sendMessage(String message) {
+        Bukkit.getConsoleSender().sendMessage(message);
+    }
+
+    @Override
+    public void sendMessage(MessageReference message) {
+        message.sendTo(Bukkit.getConsoleSender());
+    }
 
 }

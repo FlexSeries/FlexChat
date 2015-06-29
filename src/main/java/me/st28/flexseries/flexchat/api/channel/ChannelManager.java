@@ -22,33 +22,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.st28.flexseries.flexchat.api;
+package me.st28.flexseries.flexchat.api.channel;
 
-import me.st28.flexseries.flexchat.api.channel.Channel;
-import me.st28.flexseries.flexchat.api.chatter.Chatter;
+import me.st28.flexseries.flexchat.api.format.ChatFormat;
 
-public abstract class ChatVariable {
-
-    private String variable;
-
-    public ChatVariable(String variable) {
-        this.variable = variable;
-    }
-
-    public String getVariable() {
-        return variable;
-    }
-
-    public String getReplaceKey() {
-        return "{" + variable + "}";
-    }
+/**
+ * Represents FlexChat's channel handler.
+ */
+public interface ChannelManager {
 
     /**
-     * Returns the replacement string for a particular chatter in a channel.
-     *
-     * @return The replacement string that will be used instead of the variable.<br />
-     *         Null if there is no replacement.
+     * @return A global format with the given group.
      */
-    public abstract String getReplacement(Chatter chatter, Channel channel);
+    ChatFormat getGlobalFormat(String group);
+
+    /**
+     * Registers a channel.
+     *
+     * @return True if the channel was successfully registered.<br />
+     *         False if another channel with the same name is already registered.
+     */
+    boolean registerChannel(Channel channel);
+
+    /**
+     * Unregisters a channel.
+     *
+     * @return True if the channel was successfully unregistered.<br />
+     *         False if the channel isn't registered under the manager.
+     */
+    boolean unregisterChannel(Channel channel);
+
+    /**
+     * Retrieves a {@link Channel} based on its name.
+     *
+     * @return A registered channel matching the given name.<br />
+     *         Null if there are no matched channels.
+     */
+    Channel getChannel(String name);
 
 }

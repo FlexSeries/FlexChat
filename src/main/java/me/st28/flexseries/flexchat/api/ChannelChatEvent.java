@@ -24,31 +24,53 @@
  */
 package me.st28.flexseries.flexchat.api;
 
-import me.st28.flexseries.flexchat.api.channel.Channel;
+import me.st28.flexseries.flexchat.api.channel.ChannelInstance;
 import me.st28.flexseries.flexchat.api.chatter.Chatter;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
 
-public abstract class ChatVariable {
+import java.util.Collection;
 
-    private String variable;
+public final class ChannelChatEvent extends Event {
 
-    public ChatVariable(String variable) {
-        this.variable = variable;
+    private static HandlerList handlerList = new HandlerList();
+
+    private ChannelInstance instance;
+    private Chatter sender;
+    private Collection<Chatter> recipients;
+
+    private String message;
+
+    public ChannelChatEvent(ChannelInstance instance, Chatter sender, Collection<Chatter> recipients, String message) {
+        this.instance = instance;
+        this.sender = sender;
+        this.recipients = recipients;
+        this.message = message;
     }
 
-    public String getVariable() {
-        return variable;
+    public ChannelInstance getChannelInstance() {
+        return instance;
     }
 
-    public String getReplaceKey() {
-        return "{" + variable + "}";
+    public Chatter getSender() {
+        return sender;
     }
 
-    /**
-     * Returns the replacement string for a particular chatter in a channel.
-     *
-     * @return The replacement string that will be used instead of the variable.<br />
-     *         Null if there is no replacement.
-     */
-    public abstract String getReplacement(Chatter chatter, Channel channel);
+    public Collection<Chatter> getRecipients() {
+        return recipients;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlerList;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return handlerList;
+    }
 
 }

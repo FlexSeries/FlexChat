@@ -22,33 +22,56 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.st28.flexseries.flexchat.api;
+package me.st28.flexseries.flexchat.api.chatter;
 
-import me.st28.flexseries.flexchat.api.channel.Channel;
-import me.st28.flexseries.flexchat.api.chatter.Chatter;
+import me.st28.flexseries.flexcore.message.MessageReference;
+import me.st28.flexseries.flexcore.permission.PermissionNode;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 
-public abstract class ChatVariable {
+import java.util.UUID;
 
-    private String variable;
+public class ChatterPlayer extends Chatter {
 
-    public ChatVariable(String variable) {
-        this.variable = variable;
+    private UUID uuid;
+
+    public ChatterPlayer(UUID uuid) {
+        super(uuid.toString());
+        this.uuid = uuid;
     }
 
-    public String getVariable() {
-        return variable;
+    public UUID getUuid() {
+        return uuid;
     }
 
-    public String getReplaceKey() {
-        return "{" + variable + "}";
+    public Player getPlayer() {
+        return Bukkit.getPlayer(uuid);
     }
 
-    /**
-     * Returns the replacement string for a particular chatter in a channel.
-     *
-     * @return The replacement string that will be used instead of the variable.<br />
-     *         Null if there is no replacement.
-     */
-    public abstract String getReplacement(Chatter chatter, Channel channel);
+    @Override
+    public String getName() {
+        return getPlayer().getName();
+    }
+
+    @Override
+    public String getDisplayName() {
+        String name = getPlayer().getDisplayName();
+        return name == null ? getName() : name;
+    }
+
+    @Override
+    public boolean hasPermission(PermissionNode permission) {
+        return permission.isAllowed(getPlayer());
+    }
+
+    @Override
+    public void sendMessage(String message) {
+        getPlayer().sendMessage(message);
+    }
+
+    @Override
+    public void sendMessage(MessageReference message) {
+        message.sendTo(getPlayer());
+    }
 
 }

@@ -22,33 +22,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.st28.flexseries.flexchat.api;
+package me.st28.flexseries.flexchat.commands.chatspy;
 
-import me.st28.flexseries.flexchat.api.channel.Channel;
-import me.st28.flexseries.flexchat.api.chatter.Chatter;
+import me.st28.flexseries.flexchat.FlexChat;
+import me.st28.flexseries.flexcore.command.FlexCommand;
+import me.st28.flexseries.flexcore.command.FlexCommandSettings;
+import org.bukkit.command.CommandSender;
 
-public abstract class ChatVariable {
+import java.util.Map;
 
-    private String variable;
+public final class CmdChatSpy extends FlexCommand<FlexChat> {
 
-    public ChatVariable(String variable) {
-        this.variable = variable;
+    public CmdChatSpy(FlexChat plugin) {
+        super(
+            plugin,
+            "chatspy",
+            null,
+            new FlexCommandSettings<FlexChat>()
+                .setDummyCommand(true)
+        );
+
+        registerSubcommand(new SCmdChatSpyAdd(this));
+        registerSubcommand(new SCmdChatSpyDisable(this));
+        registerSubcommand(new SCmdChatSpyEnable(this));
     }
 
-    public String getVariable() {
-        return variable;
-    }
-
-    public String getReplaceKey() {
-        return "{" + variable + "}";
-    }
-
-    /**
-     * Returns the replacement string for a particular chatter in a channel.
-     *
-     * @return The replacement string that will be used instead of the variable.<br />
-     *         Null if there is no replacement.
-     */
-    public abstract String getReplacement(Chatter chatter, Channel channel);
+    @Override
+    public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {}
 
 }
