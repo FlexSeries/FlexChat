@@ -41,8 +41,6 @@ public class ChannelInstance {
 
     private final Set<Chatter> chatters = new HashSet<>();
 
-    private final Set<Chatter> spies = new HashSet<>();
-
     public ChannelInstance(Channel channel, String label) {
         Validate.notNull(channel, "Channel cannot be null.");
 
@@ -105,46 +103,6 @@ public class ChannelInstance {
         Iterator<Chatter> iterator = chatters.iterator();
         while (iterator.hasNext()) {
             removeChatter(iterator.next());
-        }
-    }
-
-    public Collection<Chatter> getSpies() {
-        return Collections.unmodifiableCollection(spies);
-    }
-
-    public boolean containsSpy(Chatter chatter) {
-        Validate.notNull(chatter, "Chatter cannot be null.");
-        return spies.contains(chatter);
-    }
-
-    public boolean addSpy(Chatter chatter) {
-        Validate.notNull(chatter, "Chatter cannot be null.");
-
-        boolean result = spies.add(chatter);
-
-        if (!chatter.isSpying(this)) {
-            chatter.addSpyInstance(this);
-        }
-
-        return result;
-    }
-
-    public boolean removeSpy(Chatter chatter) {
-        Validate.notNull(chatter, "Chatter cannot be null.");
-
-        boolean result = spies.remove(chatter);
-
-        if (chatter.isSpying(this)) {
-            chatter.removeSpyInstance(this);
-        }
-
-        return result;
-    }
-
-    public void removeAllSpies() {
-        Iterator<Chatter> iterator = spies.iterator();
-        while (iterator.hasNext()) {
-            removeSpy(iterator.next());
         }
     }
 

@@ -8,6 +8,7 @@ errors:
   channel_banned: '&cYou are banned from channel &6{CHANNEL}&c.'
   channel_cannot_join: '&cYou cannot join this channel.'
   channel_cannot_leave: '&cYou cannot leave this channel with this command.'
+  channel_instance_not_found: '&cChannel instance ''&6{NAME}&c'' in channel &6{NAME} &cnot found.'
   channel_join_unable: '&cYou cannot join channel &6{CHANNEL}&c.'
   channel_multiple_found: '&cMultiple channels matching ''&6{NAME}&c'' were found.'
   channel_no_permission: '&cYou do not have permission to {VERB} channel &6{CHANNEL}&c.'
@@ -19,6 +20,10 @@ errors:
   ignore_not_exists: '&cYou have not ignored &6{NAME}&c.'
   ignore_not_self: '&cYou cannot ignore yourself.'
   message_no_reply: '&cYou do not currently have anyone you can reply to.'
+  spy_already_enabled: '&cYou already have chat spy enabled.'
+  spy_already_disabled: '&cYou already have chat spy disabled.'
+  spy_channel_already_added: '&cYou are already spying on channel &6{CHANNEL}&c.'
+  spy_instance_already_added: '&cYou are already spying on instance &6{INSTANCE}&c of channel &6{CHANNEL}&c.'
   unable_to_chat: '&cUnable to send chat message.'
 notices:
   tag: '&8[&9\u2709&8] '
@@ -30,6 +35,12 @@ notices:
   chat_spy_toggled_other: '{TAG}&9Chat spying {STATUS} &9for &6{PLAYER}&9.'
   ignore_added: '{TAG}&9You are now ignoring &6{NAME}&9.'
   ignore_removed: '{TAG}&9You are no longer ignoring &6{NAME}&9.'
+  spy_disabled: '{TAG}&9Chat spying &cdisabled&9.'
+  spy_enabled: '{TAG}&9Chat spying &aenabled&9.'
+  spy_channel_added: '{TAG}&9Now spying on channel &6{CHANNEL}&9.'
+  spy_channel_removed: '{TAG}&9No longer spying on channel &6{CHANNEL}&9.'
+  spy_instance_added: '{TAG}&9Now spying on instance &6{INSTANCE}&9 of channel &6{CHANNEL}&9.'
+  spy_instance_removed: '{TAG}&9No longer spying on instance &6{INSTANCE}&9 of channel &6{CHANNEL}&9.'
 
 alerts_channel:
   tag: '&8[&9\u2709&8] '

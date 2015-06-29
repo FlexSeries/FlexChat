@@ -25,29 +25,37 @@
 package me.st28.flexseries.flexchat.commands.chatspy;
 
 import me.st28.flexseries.flexchat.FlexChat;
+import me.st28.flexseries.flexchat.backend.chatadmin.ChatAdminManager;
+import me.st28.flexseries.flexchat.backend.chatadmin.SpySettings;
+import me.st28.flexseries.flexcore.command.CommandUtils;
 import me.st28.flexseries.flexcore.command.FlexCommand;
 import me.st28.flexseries.flexcore.command.FlexCommandSettings;
+import me.st28.flexseries.flexcore.command.FlexSubcommand;
+import me.st28.flexseries.flexcore.command.exceptions.CommandInterruptedException;
+import me.st28.flexseries.flexcore.message.MessageReference;
+import me.st28.flexseries.flexcore.plugin.FlexPlugin;
 import org.bukkit.command.CommandSender;
 
 import java.util.Map;
 
-public final class CmdChatSpy extends FlexCommand<FlexChat> {
+public final class SCmdChatSpyDisable extends FlexSubcommand<FlexChat> {
 
-    public CmdChatSpy(FlexChat plugin) {
-        super(
-            plugin,
-            "chatspy",
-            null,
-            new FlexCommandSettings<FlexChat>()
-                .setDummyCommand(true)
+    public SCmdChatSpyDisable(FlexCommand<FlexChat> parent) {
+        super(parent, "disable", null, new FlexCommandSettings<>()
+            .description("Disables chat spying")
+            .setPlayerOnly(true)
         );
-
-        registerSubcommand(new SCmdChatSpyAdd(this));
-        registerSubcommand(new SCmdChatSpyDisable(this));
-        registerSubcommand(new SCmdChatSpyEnable(this));
     }
 
     @Override
-    public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {}
+    public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
+        SpySettings settings = FlexPlugin.getRegisteredModule(ChatAdminManager.class).getSpySettings(CommandUtils.getSenderUuid(sender));
+
+        if (settings.setEnabled(false)) {
+            MessageReference.create(FlexChat.class, "notices.spy_disabled").sendTo(sender);
+        } else {
+            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.spy_already_disabled"));
+        }
+    }
 
 }

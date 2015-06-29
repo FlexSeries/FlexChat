@@ -50,8 +50,7 @@ public enum PermissionNodes implements PermissionNode {
     FORMAT,
     MAGIC,
 
-    SPY_TOGGLE,
-    SPY_TOGGLE_OTHER,
+    SPY,
     SPY_PERSISTENT,
 
     INFO,

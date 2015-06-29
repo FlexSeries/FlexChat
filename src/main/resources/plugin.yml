@@ -31,8 +31,6 @@ permissions:
       flexchat.format: true
       flexchat.magic: true
       flexchat.spy: true
-      flexchat.spy.toggle: true
-      flexchat.spy.toggle.other: true
       flexchat.spy.persistent: true
       flexchat.view.bypass: true
       flexchat.ignore.bypass: true
@@ -56,14 +54,11 @@ permissions:
     description: 'Ability to use the magic formatting code in chat messages'
     default: false
 
-  flexchat.spy.toggle:
-    description: 'Ability to toggle spy mode'
-    default: false
-  flexchat.spy.toggle.other:
-    description: 'Ability to toggle other player''s spy mode'
+  flexchat.spy:
+    description: 'Ability to use spy mode'
     default: false
   flexchat.spy.persistent:
-    description: 'Keep chat spy mode through server restarts'
+    description: 'Keep chat spy settings through server restarts and logging off'
     default: false
 
   flexchat.ignore:

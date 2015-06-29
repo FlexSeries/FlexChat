@@ -24,7 +24,7 @@
  */
 package me.st28.flexseries.flexchat;
 
-import me.st28.flexseries.flexchat.backend.ChatAdminManager;
+import me.st28.flexseries.flexchat.backend.chatadmin.ChatAdminManager;
 import me.st28.flexseries.flexchat.backend.ChatManager;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;

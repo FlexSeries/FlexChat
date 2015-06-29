@@ -43,8 +43,6 @@ public abstract class Chatter {
     private ChannelInstance activeInstance;
     private final Set<ChannelInstance> instances = new HashSet<>();
 
-    private final Set<ChannelInstance> spying = new HashSet<>();
-
     protected Chatter(String identifier) {
         this.identifier = identifier;
     }
@@ -200,35 +198,6 @@ public abstract class Chatter {
 
         this.activeInstance = instance;
         return true;
-    }
-
-    public boolean isSpying(ChannelInstance instance) {
-        Validate.notNull(instance, "Instance cannot be null.");
-        return spying.contains(instance);
-    }
-
-    public boolean addSpyInstance(ChannelInstance instance) {
-        Validate.notNull(instance, "Instance cannot be null.");
-
-        boolean result = spying.add(instance);
-
-        if (!instance.containsSpy(this)) {
-            instance.addSpy(this);
-        }
-
-        return result;
-    }
-
-    public boolean removeSpyInstance(ChannelInstance instance) {
-        Validate.notNull(instance, "Instance cannot be null.");
-
-        boolean result = spying.remove(instance);
-
-        if (instance.containsSpy(this)) {
-            instance.removeSpy(this);
-        }
-
-        return result;
     }
 
     public abstract boolean hasPermission(PermissionNode permission);
