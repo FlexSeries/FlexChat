@@ -217,9 +217,11 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
                 LogHelper.warning(this, "Invalid channel file '" + file.getName() + "': no name defined");
                 continue;
             }
+            name = name.toLowerCase();
 
             if (channels.containsKey(name)) {
                 channels.get(name).reload(this, yaml.getConfig());
+                newLoadedChannels.add(name);
                 continue;
             }
 
@@ -232,9 +234,12 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
                 continue;
             }
 
-            newLoadedChannels.add(name.toLowerCase());
-            channels.put(name.toLowerCase(), channel);
-            registerPermissions(channel.getName());
+            newLoadedChannels.add(name);
+            channels.put(name, channel);
+
+            if (!loadedChannels.contains(name)) {
+                registerPermissions(name);
+            }
         }
 
         if (!firstReload) {
@@ -357,7 +362,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
     }
 
     public Channel getDefaultChannel() {
-        return channels.get(defaultChannel);
+        return channels.get(defaultChannel.toLowerCase());
     }
 
     /**
@@ -370,7 +375,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
     @Override
     public Channel getChannel(String name) {
         Validate.notNull(name, "Name cannot be null.");
-        return channels.get(name);
+        return channels.get(name.toLowerCase());
     }
 
     @EventHandler
