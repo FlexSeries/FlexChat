@@ -299,11 +299,11 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         channelName = channelName.toLowerCase();
         PluginManager pluginManager = Bukkit.getPluginManager();
 
-        pluginManager.addPermission(new Permission(PermissionNodes.buildVariableNode(PermissionNodes.AUTOJOIN, channelName).getNode(), PermissionDefault.OP));
+        pluginManager.addPermission(new Permission(PermissionNodes.buildVariableNode(PermissionNodes.AUTOJOIN, channelName).getNode(), PermissionDefault.FALSE));
         pluginManager.addPermission(new Permission(PermissionNodes.buildVariableNode(PermissionNodes.JOIN, channelName).getNode(), PermissionDefault.OP));
         pluginManager.addPermission(new Permission(PermissionNodes.buildVariableNode(PermissionNodes.LEAVE, channelName).getNode(), PermissionDefault.OP));
         pluginManager.addPermission(new Permission(PermissionNodes.buildVariableNode(PermissionNodes.CHAT, channelName).getNode(), PermissionDefault.OP));
-        pluginManager.addPermission(new Permission(PermissionNodes.buildVariableNode(PermissionNodes.VIEW, channelName).getNode(), PermissionDefault.OP));
+        pluginManager.addPermission(new Permission(PermissionNodes.buildVariableNode(PermissionNodes.VIEW, channelName).getNode(), PermissionDefault.TRUE));
     }
 
     private void unregisterPermission(String channelName) {
