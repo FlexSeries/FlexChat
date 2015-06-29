@@ -3,7 +3,7 @@ list format: '&a{ACTIVE}{COLOR}{CHANNEL} &8({STATUS}&8)'
 private message format: '&f[&7{SENDER} &f\u27A1 &7{RECEIVER}&f] &7{MESSAGE}'
 default channel: 'default'
 global formats: # [g:default]
-  default: '{CHCOLOR}[{CHTAG}]{PREFIX}{DISPNAME}{SUFFIX}&f: {MESSAGE}'
+  default: '{CHCOLOR}[{CHTAG}] {PREFIX}{DISPNAME}{SUFFIX}&8: {CHCOLOR}{MESSAGE}'
   moderator:
-    format: '{CHCOLOR}[{CHTAG}]{PREFIX}&c{DISPNAME}{SUFFIX}&f: {MESSAGE}' # The group's format
+    format: '{CHCOLOR}[{CHTAG}] {PREFIX}&c{DISPNAME}{SUFFIX}&8: {CHCOLOR}{MESSAGE}' # The group's format
     inherit: true # True to check for inheritance
