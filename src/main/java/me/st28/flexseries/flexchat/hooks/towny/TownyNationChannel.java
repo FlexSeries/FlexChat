@@ -57,7 +57,7 @@ public final class TownyNationChannel extends Channel {
             int uid = town.getNation().getUID();
 
             if (!instances.containsKey(uid)) {
-                instances.put(uid, new ChannelInstance(this, "nation-" + uid));
+                instances.put(uid, new TownyNationChannelInstance(this, uid));
             }
 
             return Collections.singletonList(instances.get(uid));
