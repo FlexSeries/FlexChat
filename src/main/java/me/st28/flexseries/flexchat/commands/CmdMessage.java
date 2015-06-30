@@ -35,6 +35,7 @@ import me.st28.flexseries.flexcore.command.CommandArgument;
 import me.st28.flexseries.flexcore.command.CommandUtils;
 import me.st28.flexseries.flexcore.command.FlexCommand;
 import me.st28.flexseries.flexcore.command.FlexCommandSettings;
+import me.st28.flexseries.flexcore.command.exceptions.CommandInterruptedException;
 import me.st28.flexseries.flexcore.message.MessageReference;
 import me.st28.flexseries.flexcore.message.ReplacementMap;
 import me.st28.flexseries.flexcore.player.PlayerData;
@@ -79,6 +80,10 @@ public final class CmdMessage extends FlexCommand<FlexChat> {
             targetChatter = chatterManager.getChatter(Bukkit.getConsoleSender());
         } else {
             targetChatter = chatterManager.getChatter(CommandUtils.getTargetPlayer(sender, args[0], true));
+        }
+
+        if (targetChatter == null) {
+            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.chatter_not_found", new ReplacementMap("{NAME}", args[0]).getMap()));
         }
 
         String targetIdentifier = targetChatter.getIdentifier();

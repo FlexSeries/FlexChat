@@ -16,6 +16,7 @@ errors:
   channel_not_joined: '&cYou are not in channel &6{CHANNEL}&c.'
   channel_player_banned: '&c{PLAYER} is already banned from channel &6{CHANNEL}&c.'
   channel_player_unbanned: '&c{PLAYER} is not banned from channel &6{CHANNEL}&c.'
+  chatter_not_found: '&cUnable to find player ''&6{NAME}&c''.'
   ignore_exists: '&cYou have already ignored &6{NAME}&c.'
   ignore_not_exists: '&cYou have not ignored &6{NAME}&c.'
   ignore_not_self: '&cYou cannot ignore yourself.'

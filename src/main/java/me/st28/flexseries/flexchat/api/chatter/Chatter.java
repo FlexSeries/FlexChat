@@ -59,8 +59,10 @@ public abstract class Chatter {
                 }
 
                 Map<String, ChannelInstance> curInstances = new HashMap<>();
-                for (ChannelInstance instance : channel.getInstances(this)) {
-                    curInstances.put(instance.getLabel(), instance);
+                if (channel.getInstances() != null) {
+                    for (ChannelInstance instance : channel.getInstances(this)) {
+                        curInstances.put(instance.getLabel(), instance);
+                    }
                 }
 
                 if (instanceSec.isSet(chName) && !instanceSec.getStringList(chName).isEmpty()) {
