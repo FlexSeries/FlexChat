@@ -103,7 +103,7 @@ public final class CmdChannel extends FlexCommand<FlexChat> {
 
         List<ChannelInstance> instances = channel.getInstances(chatter);
 
-        if (instances.isEmpty()) {
+        if (instances == null || instances.isEmpty()) {
             throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_cannot_join"));
         } else if (instances.size() == 1) {
             ChannelInstance instance = instances.get(0);

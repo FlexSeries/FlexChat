@@ -87,7 +87,7 @@ public class SCmdChannelLeave extends FlexSubcommand<FlexChat> {
 
         List<ChannelInstance> instances = channel.getInstances(chatter);
 
-        if (instances.size() == 1) {
+        if (instances != null && instances.size() == 1) {
             boolean isActive = instances.get(0) == chatter.getActiveInstance();
 
             if (chatter.removeInstance(instances.get(0))) {
