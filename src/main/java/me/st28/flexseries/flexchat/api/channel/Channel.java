@@ -62,6 +62,9 @@ public abstract class Channel {
         Validate.notNull(name, "Name cannot be null.");
         this.name = name;
         this.fileName = fileName;
+
+        color = ChatColor.WHITE;
+        radius = 0;
     }
 
     public void reload(ChannelManagerImpl channelManager, ConfigurationSection config) {
