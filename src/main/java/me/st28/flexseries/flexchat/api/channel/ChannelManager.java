@@ -26,6 +26,8 @@ package me.st28.flexseries.flexchat.api.channel;
 
 import me.st28.flexseries.flexchat.api.format.ChatFormat;
 
+import java.io.InputStream;
+
 /**
  * Represents FlexChat's channel handler.
  */
@@ -43,6 +45,13 @@ public interface ChannelManager {
      *         False if another channel with the same name is already registered.
      */
     boolean registerChannel(Channel channel);
+
+    /**
+     * Registers a channel with a default configuration file.
+     *
+     * @see #registerChannel(Channel)
+     */
+    boolean registerChannel(Channel channel, InputStream defaultConfig);
 
     /**
      * Unregisters a channel.

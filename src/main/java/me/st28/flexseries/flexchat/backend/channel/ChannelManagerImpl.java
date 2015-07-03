@@ -60,6 +60,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.permissions.Permission;
@@ -68,6 +69,8 @@ import org.bukkit.plugin.PluginManager;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
@@ -341,12 +344,33 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
     @Override
     public boolean registerChannel(Channel channel) {
+        return registerChannel(channel, null);
+    }
+
+    @Override
+    public boolean registerChannel(Channel channel, InputStream defaultConfig) {
         Validate.notNull(channel, "Channel cannot be null.");
         String name = channel.getName().toLowerCase();
         if (channels.containsKey(name)) {
             return false;
         }
+
         channels.put(name, channel);
+
+        YamlFileManager file = new YamlFileManager(customChannelDir + File.separator + channel.getFileName() + ".yml");
+        if (defaultConfig != null) {
+
+            FileConfiguration config = file.getConfig();
+
+            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultConfig));
+
+            config.addDefaults(defConfig);
+            config.options().copyDefaults(true);
+            file.save();
+        }
+
+        file.reload();
+        channel.reload(this, file.getConfig());
         return true;
     }
 
