@@ -1,5 +1,5 @@
-name: 'town'
-short name: 't'
+name: 'Town'
+tag: 'T'
 color: 'AQUA'
 log format: '[{TOWNY-TOWN}] {NAME}: {MESSAGE}'
 formats:
