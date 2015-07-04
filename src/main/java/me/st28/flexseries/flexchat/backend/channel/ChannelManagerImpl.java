@@ -371,6 +371,8 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
         file.reload();
         channel.reload(this, file.getConfig());
+
+        LogHelper.info(this, "Registered channel '" + channel.getName() + "' (" + channel.getClass().getCanonicalName() + ")");
         return true;
     }
 
