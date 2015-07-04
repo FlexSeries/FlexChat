@@ -103,7 +103,7 @@ public final class SCmdChannelList extends FlexSubcommand<FlexChat> {
         // Remove channels that shouldn't be visible on the list command.
         boolean canSenderBypass = PermissionNodes.VIEW_BYPASS.isAllowed(sender);
 
-        ListBuilder builder = new ListBuilder("page", "Channels", null, label);
+        ListBuilder builder = new ListBuilder("page", "Chat Channels", null, label);
 
         Set<Channel> chatterChannels = chatter.getInstances().stream().map(ChannelInstance::getChannel).collect(Collectors.toSet());
         for (Channel channel : channels) {
