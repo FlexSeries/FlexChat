@@ -90,12 +90,14 @@ public abstract class Chatter {
         }
 
         List<ChannelInstance> instances = channel.getInstances(this);
-        if (actInstName == null && instances.size() == 1) {
-            activeInstance = instances.get(0);
-        } else if (actInstName != null) {
-            for (ChannelInstance instance : instances) {
-                if (instance.getLabel().equals(actInstName)) {
-                    activeInstance = instance;
+        if (instances != null) {
+            if (actInstName == null && instances.size() == 1) {
+                activeInstance = instances.get(0);
+            } else if (actInstName != null) {
+                for (ChannelInstance instance : instances) {
+                    if (instance.getLabel().equals(actInstName)) {
+                        activeInstance = instance;
+                    }
                 }
             }
         }
