@@ -181,6 +181,6 @@ public abstract class ChatFormat {
         return true;
     }
 
-    public abstract String getFormattedResult(Chatter chatter, Channel channel, String message);
+    public abstract String getFormattedResult(Chatter chatter, Channel channel);
 
 }

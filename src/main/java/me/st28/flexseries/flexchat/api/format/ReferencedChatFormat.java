@@ -37,8 +37,8 @@ public final class ReferencedChatFormat extends ChatFormat {
     }
 
     @Override
-    public String getFormattedResult(Chatter chatter, Channel channel, String message) {
-        return FlexChatAPI.getChannelManager().getGlobalFormat(group).getFormattedResult(chatter, channel, message);
+    public String getFormattedResult(Chatter chatter, Channel channel) {
+        return FlexChatAPI.getChannelManager().getGlobalFormat(group).getFormattedResult(chatter, channel);
     }
 
 }

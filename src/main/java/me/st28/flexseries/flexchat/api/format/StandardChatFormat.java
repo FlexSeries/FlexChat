@@ -50,7 +50,7 @@ public final class StandardChatFormat extends ChatFormat {
     }
 
     @Override
-    public String getFormattedResult(Chatter chatter, Channel channel, String message) {
+    public String getFormattedResult(Chatter chatter, Channel channel) {
         String returnFormat = format;
 
         // Replacements
@@ -71,9 +71,7 @@ public final class StandardChatFormat extends ChatFormat {
 
         returnFormat = ChatColor.translateAlternateColorCodes('&', returnFormat);
 
-        message = ChatFormat.applyApplicableChatColors(chatter, message);
-
-        return returnFormat.replace("{MESSAGE}", message);
+        return returnFormat;
     }
 
 }

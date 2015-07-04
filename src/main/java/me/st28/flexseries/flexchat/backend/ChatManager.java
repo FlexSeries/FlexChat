@@ -85,7 +85,7 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
             return;
         }
 
-        e.setFormat(chatFormat.getFormattedResult(chatter, active.getChannel(), e.getMessage()));
+        e.setFormat(chatFormat.getFormattedResult(chatter, active.getChannel()));
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
@@ -129,8 +129,10 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
             }
         }
 
+        String sendMessage = e.getFormat().replace("{MESSAGE}", ChatFormat.applyApplicableChatColors(chatter, e.getMessage()));
+
         for (Chatter oChatter : recipients) {
-            oChatter.sendMessage(e.getFormat());
+            oChatter.sendMessage(sendMessage);
         }
 
         Bukkit.getPluginManager().callEvent(new ChannelChatEvent(active, chatter, recipients, e.getMessage()));
