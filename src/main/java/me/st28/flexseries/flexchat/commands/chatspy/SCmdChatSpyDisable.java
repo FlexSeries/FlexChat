@@ -27,6 +27,7 @@ package me.st28.flexseries.flexchat.commands.chatspy;
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.backend.chatadmin.ChatAdminManager;
 import me.st28.flexseries.flexchat.backend.chatadmin.SpySettings;
+import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexcore.command.CommandUtils;
 import me.st28.flexseries.flexcore.command.FlexCommand;
 import me.st28.flexseries.flexcore.command.FlexCommandSettings;
@@ -42,6 +43,7 @@ public final class SCmdChatSpyDisable extends FlexSubcommand<FlexChat> {
 
     public SCmdChatSpyDisable(FlexCommand<FlexChat> parent) {
         super(parent, "disable", null, new FlexCommandSettings<>()
+            .permission(PermissionNodes.SPY)
             .description("Disables chat spying")
             .setPlayerOnly(true)
         );
