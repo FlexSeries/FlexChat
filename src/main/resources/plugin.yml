@@ -12,9 +12,9 @@ commands:
   chatspy:
     aliases: [socialspy]
   ignore:
-    aliases: [block]
+    aliases: [fignore, block]
   unignore:
-    aliases: [unblock]
+    aliases: [funignore, unblock]
   message:
     aliases: [msg, m, pm, tell, t, whisper, whisp, w]
   reply:

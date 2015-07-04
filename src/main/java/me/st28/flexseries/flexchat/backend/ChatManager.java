@@ -36,6 +36,9 @@ import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexcore.message.MessageReference;
 import me.st28.flexseries.flexcore.message.ReplacementMap;
+import me.st28.flexseries.flexcore.player.PlayerData;
+import me.st28.flexseries.flexcore.player.PlayerManager;
+import me.st28.flexseries.flexcore.plugin.FlexPlugin;
 import me.st28.flexseries.flexcore.plugin.module.FlexModule;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -46,6 +49,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public final class ChatManager extends FlexModule<FlexChat> implements Listener {
@@ -121,6 +125,12 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
             for (Chatter oChatter : active.getChatters()) {
                 if (oChatter instanceof ChatterPlayer) {
                     if (((ChatterPlayer) oChatter).getPlayer().getLocation().distanceSquared(senderLoc) > radius) {
+                        continue;
+                    }
+
+                    PlayerData data = FlexPlugin.getRegisteredModule(PlayerManager.class).getPlayerData(((ChatterPlayer) oChatter).getUuid());
+                    List<String> ignored = data.getCustomData("ignored", List.class);
+                    if (ignored != null && !chatter.hasPermission(PermissionNodes.IGNORE_BYPASS) && ignored.contains(chatter.getIdentifier())) {
                         continue;
                     }
                 }
