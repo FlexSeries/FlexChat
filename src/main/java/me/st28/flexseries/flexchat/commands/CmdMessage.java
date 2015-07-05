@@ -101,7 +101,7 @@ public final class CmdMessage extends FlexCommand<FlexChat> {
                 }
 
                 List<String> oIgnored = (List<String>) FlexPlugin.getRegisteredModule(PlayerManager.class).getPlayerData(uuid).getCustomData("ignored", List.class);
-                if (oIgnored.contains(senderIdentifier)) {
+                if (oIgnored != null && oIgnored.contains(senderIdentifier)) {
                     MessageReference.create(FlexChat.class, "errors.cannot_message_player", new ReplacementMap("{NAME}", targetChatter.getDisplayName()).getMap());
                     return;
                 }
