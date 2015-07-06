@@ -25,7 +25,9 @@ errors:
   spy_already_enabled: '&cYou already have chat spy enabled.'
   spy_already_disabled: '&cYou already have chat spy disabled.'
   spy_channel_already_added: '&cYou are already spying on channel &6{CHANNEL}&c.'
+  spy_channel_already_removed: '&cYou aren''t spying on channel &6{CHANNEL}&c.'
   spy_instance_already_added: '&cYou are already spying on instance &6{INSTANCE}&c of channel &6{CHANNEL}&c.'
+  spy_instance_already_removed: '&cYou aren''t spying on instance &6{INSTANCE}&c of channel &6{CHANNEL}&c.'
   unable_to_chat: '&cUnable to send chat message.'
 notices:
   tag: '&8[&9\u2709&8] '

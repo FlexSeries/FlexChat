@@ -45,6 +45,7 @@ public final class CmdChatSpy extends FlexCommand<FlexChat> {
         registerSubcommand(new SCmdChatSpyAdd(this));
         registerSubcommand(new SCmdChatSpyDisable(this));
         registerSubcommand(new SCmdChatSpyEnable(this));
+        registerSubcommand(new SCmdChatSpyRemove(this));
     }
 
     @Override
