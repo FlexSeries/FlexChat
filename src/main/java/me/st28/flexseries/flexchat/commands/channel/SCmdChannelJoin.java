@@ -40,14 +40,14 @@ import me.st28.flexseries.flexcore.message.ReplacementMap;
 import me.st28.flexseries.flexcore.plugin.FlexPlugin;
 import org.bukkit.command.CommandSender;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public final class SCmdChannelJoin extends FlexSubcommand<FlexChat> {
 
     public SCmdChannelJoin(FlexCommand<FlexChat> parent) {
-        super(parent, "join", Collections.singletonList(new CommandArgument("channel", true)), new FlexCommandSettings().description("Join a channel"));
+        super(parent, "join", Arrays.asList(new CommandArgument("channel", true), new CommandArgument("instance", false)), new FlexCommandSettings().description("Join a channel"));
     }
 
     @Override
@@ -65,14 +65,33 @@ public final class SCmdChannelJoin extends FlexSubcommand<FlexChat> {
 
         if (instances == null || instances.isEmpty()) {
             throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_cannot_join"));
-        } else if (instances.size() == 1) {
-            ChannelInstance instance = instances.get(0);
+        }
 
-            if (chatter.addInstance(instance)) {
-                instance.sendMessage(MessageReference.create(FlexChat.class, "alerts_channel.chatter_joined", new ReplacementMap("{CHATTER}", chatter.getName()).put("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()));
-            } else {
-                throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_already_joined", new ReplacementMap("{CHANNEL}", channel.getName()).getMap()));
+        ChannelInstance instance;
+
+        if (instances.size() == 1) {
+            instance = instances.get(0);
+        } else if (args.length < 2) {
+            throw new CommandInterruptedException(MessageReference.createPlain(buildUsage(sender)));
+        } else {
+            instance = channel.getInstance(args[1]);
+
+            // TODO: Make it so admins can join any channel.
+            if (!instances.contains(instance)) {
+                instance = null;
             }
+        }
+
+        if (instance == null) {
+            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_instance_not_found", new ReplacementMap("{NAME}", args[1]).put("{CHANNEL}", channel.getName()).getMap()));
+        }
+
+        if (!chatter.isInInstance(instance) && !chatter.hasPermission(PermissionNodes.buildVariableNode(PermissionNodes.JOIN, channel.getName()))) {
+            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_no_permission", new ReplacementMap("{VERB}", "join").put("{CHANNEL}", channel.getName()).getMap()));
+        }
+
+        if (chatter.addInstance(instance)) {
+            instance.sendMessage(MessageReference.create(FlexChat.class, "alerts_channel.chatter_joined", new ReplacementMap("{CHATTER}", chatter.getName()).put("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()));
         }
     }
 

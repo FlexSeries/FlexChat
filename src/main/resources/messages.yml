@@ -8,7 +8,7 @@ errors:
   channel_banned: '&cYou are banned from channel &6{CHANNEL}&c.'
   channel_cannot_join: '&cYou cannot join this channel.'
   channel_cannot_leave: '&cYou cannot leave this channel with this command.'
-  channel_instance_not_found: '&cChannel instance ''&6{NAME}&c'' in channel &6{NAME} &cnot found.'
+  channel_instance_not_found: '&cChannel instance ''&6{NAME}&c'' in channel &6{CHANNEL} &cnot found.'
   channel_join_unable: '&cYou cannot join channel &6{CHANNEL}&c.'
   channel_multiple_found: '&cMultiple channels matching ''&6{NAME}&c'' were found.'
   channel_no_permission: '&cYou do not have permission to {VERB} channel &6{CHANNEL}&c.'

@@ -79,7 +79,7 @@ public final class CmdChannel extends FlexCommand<FlexChat> {
         super(
                 plugin,
                 "channel",
-                Collections.singletonList(new CommandArgument("channel", true)),
+                Arrays.asList(new CommandArgument("channel", true), new CommandArgument("instance", false)),
                 new FlexCommandSettings<FlexChat>()
                         .description("Quick channel switcher")
                         .defaultSubcommand("list")
@@ -105,22 +105,39 @@ public final class CmdChannel extends FlexCommand<FlexChat> {
 
         if (instances == null || instances.isEmpty()) {
             throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_cannot_join"));
-        } else if (instances.size() == 1) {
-            ChannelInstance instance = instances.get(0);
+        }
 
-            if (!chatter.isInInstance(instance) && !chatter.hasPermission(PermissionNodes.buildVariableNode(PermissionNodes.JOIN, channel.getName()))) {
-                throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_no_permission", new ReplacementMap("{VERB}", "join").put("{CHANNEL}", channel.getName()).getMap()));
-            }
+        ChannelInstance instance;
 
-            if (chatter.addInstance(instance)) {
-                instance.sendMessage(MessageReference.create(FlexChat.class, "alerts_channel.chatter_joined", new ReplacementMap("{CHATTER}", chatter.getName()).put("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()));
-            }
+        if (instances.size() == 1) {
+            instance = instances.get(0);
+        } else if (args.length < 2) {
+            throw new CommandInterruptedException(MessageReference.createPlain(buildUsage(sender)));
+        } else {
+            instance = channel.getInstance(args[1]);
 
-            if (chatter.setActiveInstance(instance)) {
-                MessageReference.create(FlexChat.class, "notices.channel_active_set", new ReplacementMap("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()).sendTo(sender);
-            } else {
-                throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_active_already_set", new ReplacementMap("{CHANNEL}", channel.getName()).getMap()));
+            // TODO: Make it so admins can join any channel.
+            if (!instances.contains(instance)) {
+                instance = null;
             }
+        }
+
+        if (instance == null) {
+            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_instance_not_found", new ReplacementMap("{NAME}", args[1]).put("{CHANNEL}", channel.getName()).getMap()));
+        }
+
+        if (!chatter.isInInstance(instance) && !chatter.hasPermission(PermissionNodes.buildVariableNode(PermissionNodes.JOIN, channel.getName()))) {
+            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_no_permission", new ReplacementMap("{VERB}", "join").put("{CHANNEL}", channel.getName()).getMap()));
+        }
+
+        if (chatter.addInstance(instance)) {
+            instance.sendMessage(MessageReference.create(FlexChat.class, "alerts_channel.chatter_joined", new ReplacementMap("{CHATTER}", chatter.getName()).put("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()));
+        }
+
+        if (chatter.setActiveInstance(instance)) {
+            MessageReference.create(FlexChat.class, "notices.channel_active_set", new ReplacementMap("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()).sendTo(sender);
+        } else {
+            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_active_already_set", new ReplacementMap("{CHANNEL}", channel.getName()).getMap()));
         }
     }
 
