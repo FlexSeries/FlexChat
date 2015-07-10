@@ -45,16 +45,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-//TODO: Leave specified channel
 public class SCmdChannelLeave extends FlexSubcommand<FlexChat> {
 
     public SCmdChannelLeave(FlexCommand<FlexChat> parent) {
         super(
-                parent,
-                "leave",
-                Arrays.asList(new CommandArgument("channel", false), new CommandArgument("instance", false)),
-                new FlexCommandSettings<FlexChat>()
-                        .description("Leaves currently active channel or a specified channel")
+            parent,
+            "leave",
+            Arrays.asList(new CommandArgument("channel", false), new CommandArgument("instance", false)),
+            new FlexCommandSettings<FlexChat>().description("Leaves currently active channel or a specified channel")
         );
     }
 
