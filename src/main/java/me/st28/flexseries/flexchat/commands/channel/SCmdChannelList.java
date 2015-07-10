@@ -41,6 +41,7 @@ import org.bukkit.command.CommandSender;
 import java.util.*;
 import java.util.stream.Collectors;
 
+// TODO: Show multiple instances of a channel if multiple instances are joined
 public final class SCmdChannelList extends FlexSubcommand<FlexChat> {
 
     public SCmdChannelList(FlexCommand<FlexChat> parent) {
@@ -107,7 +108,7 @@ public final class SCmdChannelList extends FlexSubcommand<FlexChat> {
 
         Set<Channel> chatterChannels = chatter.getInstances().stream().map(ChannelInstance::getChannel).collect(Collectors.toSet());
         for (Channel channel : channels) {
-            if (!canSenderBypass && !PermissionNodes.buildVariableNode(PermissionNodes.VIEW, channel.getName()).isAllowed(sender)) {
+            if (!canSenderBypass && !PermissionNodes.buildVariableNode(PermissionNodes.VIEW, channel.getName()).isAllowed(sender) && activeChannel == channel) {
                 continue;
             }
 
