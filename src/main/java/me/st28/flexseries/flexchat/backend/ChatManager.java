@@ -49,6 +49,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -127,15 +128,20 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
                     if (((ChatterPlayer) oChatter).getPlayer().getLocation().distanceSquared(senderLoc) > radius) {
                         continue;
                     }
-
-                    PlayerData data = FlexPlugin.getRegisteredModule(PlayerManager.class).getPlayerData(((ChatterPlayer) oChatter).getUuid());
-                    List<String> ignored = data.getCustomData("ignored", List.class);
-                    if (ignored != null && !chatter.hasPermission(PermissionNodes.IGNORE_BYPASS) && ignored.contains(chatter.getIdentifier())) {
-                        continue;
-                    }
                 }
 
                 recipients.add(oChatter);
+            }
+        }
+
+        Iterator<Chatter> iterator = recipients.iterator();
+        while (iterator.hasNext()) {
+            Chatter oChatter = iterator.next();
+
+            PlayerData data = FlexPlugin.getRegisteredModule(PlayerManager.class).getPlayerData(((ChatterPlayer) oChatter).getUuid());
+            List<String> ignored = data.getCustomData("ignored", List.class);
+            if (ignored != null && !chatter.hasPermission(PermissionNodes.IGNORE_BYPASS) && ignored.contains(chatter.getIdentifier())) {
+                iterator.remove();
             }
         }
 
