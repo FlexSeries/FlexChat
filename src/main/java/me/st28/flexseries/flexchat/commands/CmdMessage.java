@@ -30,6 +30,7 @@ import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.api.format.ChatFormat;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
+import me.st28.flexseries.flexchat.logging.ChatLogHelper;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexcore.command.CommandArgument;
 import me.st28.flexseries.flexcore.command.CommandUtils;
@@ -122,7 +123,7 @@ public final class CmdMessage extends FlexCommand<FlexChat> {
             replies.put(targetUuid, senderUuid);
         }
 
-        //FlexChat.CHAT_LOGGER.log(Level.INFO, ChatColor.stripColor("[[-MSG-]] " + senderChatter.getName() + " TO " + targetChatter.getName() + " > " + message));
+        ChatLogHelper.log(ChatColor.stripColor("[[-MSG-]] " + senderChatter.getName() + " TO " + targetChatter.getName() + " > " + message));
     }
 
 }

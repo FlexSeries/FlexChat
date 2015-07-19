@@ -33,6 +33,7 @@ import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.api.format.ChatFormat;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
+import me.st28.flexseries.flexchat.logging.ChatLogHelper;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexcore.message.MessageReference;
 import me.st28.flexseries.flexcore.message.ReplacementMap;
@@ -41,6 +42,7 @@ import me.st28.flexseries.flexcore.player.PlayerManager;
 import me.st28.flexseries.flexcore.plugin.FlexPlugin;
 import me.st28.flexseries.flexcore.plugin.module.FlexModule;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -152,6 +154,17 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
         }
 
         Bukkit.getPluginManager().callEvent(new ChannelChatEvent(active, chatter, recipients, e.getMessage()));
+
+        String logName;
+
+        if (active.getLabel() == null) {
+            logName = active.getChannel().getName();
+        } else {
+            logName = active.getChannel().getName() + ":" + active.getDisplayName();
+        }
+
+        //ChatLogHelper.log("[[" + logName + "]] " + chatter.getName() + ": " + e.getMessage());
+        ChatLogHelper.log(ChatColor.stripColor(e.getFormat().replace("{MESSAGE}", e.getMessage())), logName);
     }
 
 }

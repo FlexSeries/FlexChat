@@ -24,22 +24,22 @@
  */
 package me.st28.flexseries.flexchat;
 
-import me.st28.flexseries.flexchat.backend.chatadmin.ChatAdminManager;
 import me.st28.flexseries.flexchat.backend.ChatManager;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
+import me.st28.flexseries.flexchat.backend.chatadmin.ChatAdminManager;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
-import me.st28.flexseries.flexchat.commands.ignore.CmdIgnore;
 import me.st28.flexseries.flexchat.commands.CmdMessage;
 import me.st28.flexseries.flexchat.commands.CmdReply;
 import me.st28.flexseries.flexchat.commands.channel.CmdChannel;
 import me.st28.flexseries.flexchat.commands.chatspy.CmdChatSpy;
+import me.st28.flexseries.flexchat.commands.ignore.CmdIgnore;
 import me.st28.flexseries.flexchat.commands.ignore.CmdUnignore;
+import me.st28.flexseries.flexchat.logging.ChatLogHelper;
 import me.st28.flexseries.flexcore.command.FlexCommandWrapper;
 import me.st28.flexseries.flexcore.plugin.FlexPlugin;
+import org.bukkit.configuration.file.FileConfiguration;
 
 public final class FlexChat extends FlexPlugin {
-
-    //public final static Logger CHAT_LOGGER = LogManager.getLogger(ChannelManager.class.getCanonicalName());
 
     @Override
     public void handlePluginLoad() {
@@ -51,6 +51,7 @@ public final class FlexChat extends FlexPlugin {
 
     @Override
     public void handlePluginEnable() {
+        // Setup commands
         FlexCommandWrapper.registerCommand(this, new CmdChannel(this));
         FlexCommandWrapper.registerCommand(this, new CmdChatSpy(this));
         FlexCommandWrapper.registerCommand(this, new CmdIgnore(this));
@@ -59,6 +60,14 @@ public final class FlexChat extends FlexPlugin {
         CmdMessage messageCommand = new CmdMessage(this);
         FlexCommandWrapper.registerCommand(this, messageCommand);
         FlexCommandWrapper.registerCommand(this, new CmdReply(this, messageCommand));
+
+        // Setup logger
+        ChatLogHelper.init(this);
+    }
+
+    @Override
+    public void handleConfigReload(FileConfiguration config) {
+        ChatLogHelper.reload(config);
     }
 
 }
