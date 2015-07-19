@@ -34,12 +34,14 @@ permissions:
       flexchat.spy.persistent: true
       flexchat.view.bypass: true
       flexchat.ignore.bypass: true
+      flexchat.who.other: true
 
   flexchat.user:
     default: true
     children:
       flexchat.ignore: true
       flexchat.message: true
+      flexchat.who: true
 
   #########
   # Nodes #
@@ -74,4 +76,11 @@ permissions:
 
   flexchat.view.bypass:
     description: 'Ability to view channels on the channel list command even if they don''t normally allow it'
+    default: false
+
+  flexchat.who:
+    description: 'Ability to view who is in a channel'
+    default: false
+  flexchat.who.other:
+    description: 'Ability to view who is in a channel even if you are not in the channel'
     default: false

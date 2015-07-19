@@ -58,7 +58,10 @@ public enum PermissionNodes implements PermissionNode {
     IGNORE,
     IGNORE_BYPASS,
 
-    MESSAGE;
+    MESSAGE,
+
+    WHO,
+    WHO_OTHER;
 
     private String node;
 
