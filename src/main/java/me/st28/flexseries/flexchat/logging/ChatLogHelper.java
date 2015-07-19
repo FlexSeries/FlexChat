@@ -67,7 +67,7 @@ public final class ChatLogHelper {
     }
 
     public static void reload(FileConfiguration config) {
-        logToBukkit = config.getBoolean("log to bukkit", true);
+        logToBukkit = config.getBoolean("logging.log to bukkit", true);
     }
 
     public static void log(String message) {
