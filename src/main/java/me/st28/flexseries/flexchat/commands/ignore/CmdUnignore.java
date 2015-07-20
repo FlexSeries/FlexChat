@@ -35,14 +35,11 @@ import me.st28.flexseries.flexcore.message.MessageReference;
 import me.st28.flexseries.flexcore.message.ReplacementMap;
 import me.st28.flexseries.flexcore.player.PlayerData;
 import me.st28.flexseries.flexcore.player.PlayerManager;
+import me.st28.flexseries.flexcore.player.PlayerProfile;
 import me.st28.flexseries.flexcore.plugin.FlexPlugin;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public final class CmdUnignore extends FlexCommand<FlexChat> {
 
@@ -55,7 +52,7 @@ public final class CmdUnignore extends FlexCommand<FlexChat> {
 
     @Override
     public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
-        Player target = CommandUtils.getTargetPlayer(sender, args[0], true);
+        UUID target = CommandUtils.getPlayerUuid(sender, args[0], true, false, false);
 
         PlayerData data = FlexPlugin.getRegisteredModule(PlayerManager.class).getPlayerData(CommandUtils.getSenderUuid(sender));
         List<String> ignored = data.getCustomData("ignored", List.class);
@@ -64,14 +61,15 @@ public final class CmdUnignore extends FlexCommand<FlexChat> {
             data.setCustomData("ignored", ignored);
         }
 
-        String targetIdentifier = target.getUniqueId().toString();
+        String targetName = new PlayerProfile(target).getName();
+        String targetIdentifier = target.toString();
 
         if (!ignored.contains(targetIdentifier)) {
-            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.ignore_not_exists", new ReplacementMap("{NAME}", target.getName()).getMap()));
+            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.ignore_not_exists", new ReplacementMap("{NAME}", targetName).getMap()));
         }
 
         ignored.remove(targetIdentifier);
-        MessageReference.create(FlexChat.class, "notices.ignore_removed", new ReplacementMap("{NAME}", target.getName()).getMap()).sendTo(sender);
+        MessageReference.create(FlexChat.class, "notices.ignore_removed", new ReplacementMap("{NAME}", targetName).getMap()).sendTo(sender);
     }
 
 }
