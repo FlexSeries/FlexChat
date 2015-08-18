@@ -127,7 +127,12 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
 
             for (Chatter oChatter : active.getChatters()) {
                 if (oChatter instanceof ChatterPlayer) {
-                    if (((ChatterPlayer) oChatter).getPlayer().getLocation().distanceSquared(senderLoc) > radius) {
+                    try {
+                        if (((ChatterPlayer) oChatter).getPlayer().getLocation().distanceSquared(senderLoc) > radius) {
+                            continue;
+                        }
+                    } catch (IllegalArgumentException ex) {
+                        // Different worlds.
                         continue;
                     }
                 }
