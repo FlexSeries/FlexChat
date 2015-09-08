@@ -1,7 +1,7 @@
 name: ${project.name}
 version: ${project.version}
 description: '${project.description}'
-depend: [FlexCore]
+depend: [FlexLib]
 softdepend: []
 authors: [${project.authors}]
 website: ${project.url}

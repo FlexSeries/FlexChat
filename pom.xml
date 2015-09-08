@@ -51,8 +51,8 @@
     <dependencies>
         <dependency>
             <groupId>me.st28.flexseries</groupId>
-            <artifactId>flexcore</artifactId>
-            <version>5.0.0-SNAPSHOT</version>
+            <artifactId>flexlib</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
