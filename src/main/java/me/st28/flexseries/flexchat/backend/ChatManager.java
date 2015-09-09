@@ -35,12 +35,15 @@ import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
 import me.st28.flexseries.flexchat.logging.ChatLogHelper;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
-import me.st28.flexseries.flexcore.message.MessageReference;
-import me.st28.flexseries.flexcore.message.ReplacementMap;
-import me.st28.flexseries.flexcore.player.PlayerData;
-import me.st28.flexseries.flexcore.player.PlayerManager;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
-import me.st28.flexseries.flexcore.plugin.module.FlexModule;
+import me.st28.flexseries.flexlib.message.MessageManager;
+import me.st28.flexseries.flexlib.message.ReplacementMap;
+import me.st28.flexseries.flexlib.message.reference.MessageReference;
+import me.st28.flexseries.flexlib.player.PlayerManager;
+import me.st28.flexseries.flexlib.player.data.PlayerData;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import me.st28.flexseries.flexlib.plugin.module.FlexModule;
+import me.st28.flexseries.flexlib.plugin.module.ModuleDescriptor;
+import me.st28.flexseries.flexlib.plugin.module.ModuleReference;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -50,15 +53,21 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public final class ChatManager extends FlexModule<FlexChat> implements Listener {
 
     public ChatManager(FlexChat plugin) {
-        super(plugin, "chat", "Manages chat", false, ChannelManagerImpl.class, ChatterManagerImpl.class);
+        super(
+                plugin,
+                "chat",
+                "Manages chat",
+                new ModuleDescriptor()
+                        .setGlobal(true)
+                        .setSmartLoad(false)
+                        .addHardDependency(new ModuleReference("FlexChat", "channels"))
+                        .addHardDependency(new ModuleReference("FlexChat", "chatters"))
+        );
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
@@ -68,27 +77,27 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
         Chatter chatter = FlexChatAPI.getChatterManager().getChatter(player);
         if (chatter == null) {
             e.setCancelled(true);
-            MessageReference.create(FlexChat.class, "errors.unable_to_chat").sendTo(player);
+            MessageManager.getMessage(FlexChat.class, "errors.unable_to_chat").sendTo(player);
             return;
         }
 
         ChannelInstance active = chatter.getActiveInstance();
         if (active == null) {
             e.setCancelled(true);
-            MessageReference.create(FlexChat.class, "errors.channel_active_not_set").sendTo(player);
+            MessageManager.getMessage(FlexChat.class, "errors.channel_active_not_set").sendTo(player);
             return;
         }
 
         if (!chatter.hasPermission(PermissionNodes.buildVariableNode(PermissionNodes.CHAT, active.getChannel().getName()))) {
             e.setCancelled(true);
-            MessageReference.create(FlexChat.class, "errors.channel_no_permission", new ReplacementMap("{VERB}", "chat in").put("{CHANNEL}", active.getChannel().getName()).getMap()).sendTo(player);
+            MessageManager.getMessage(FlexChat.class, "errors.channel_no_permission", new ReplacementMap("{VERB}", "chat in").put("{CHANNEL}", active.getChannel().getName()).getMap()).sendTo(player);
             return;
         }
 
         ChatFormat chatFormat = active.getChannel().getChatFormat(chatter);
         if (chatFormat == null) {
             e.setCancelled(true);
-            MessageReference.create(FlexChat.class, "errors.unable_to_chat").sendTo(player);
+            MessageManager.getMessage(FlexChat.class, "errors.unable_to_chat").sendTo(player);
             return;
         }
 
@@ -104,14 +113,14 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
         Chatter chatter = FlexChatAPI.getChatterManager().getChatter(player);
         if (chatter == null) {
             e.setCancelled(true);
-            MessageReference.create(FlexChat.class, "errors.unable_to_chat").sendTo(player);
+            MessageManager.getMessage(FlexChat.class, "errors.unable_to_chat").sendTo(player);
             return;
         }
 
         ChannelInstance active = chatter.getActiveInstance();
         if (active == null) {
             e.setCancelled(true);
-            MessageReference.create(FlexChat.class, "errors.channel_active_not_set").sendTo(player);
+            MessageManager.getMessage(FlexChat.class, "errors.channel_active_not_set").sendTo(player);
             return;
         }
 
@@ -145,7 +154,7 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
         while (iterator.hasNext()) {
             Chatter oChatter = iterator.next();
 
-            PlayerData data = FlexPlugin.getRegisteredModule(PlayerManager.class).getPlayerData(((ChatterPlayer) oChatter).getUuid());
+            PlayerData data = FlexPlugin.getGlobalModule(PlayerManager.class).getPlayerData(((ChatterPlayer) oChatter).getUuid());
             List<String> ignored = data.getCustomData("ignored", List.class);
             if (ignored != null && !chatter.hasPermission(PermissionNodes.IGNORE_BYPASS) && ignored.contains(chatter.getIdentifier())) {
                 iterator.remove();
@@ -168,7 +177,6 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
             logName = active.getChannel().getName() + ":" + active.getDisplayName();
         }
 
-        //ChatLogHelper.log("[[" + logName + "]] " + chatter.getName() + ": " + e.getMessage());
         ChatLogHelper.log(ChatColor.stripColor(e.getFormat().replace("{MESSAGE}", e.getMessage())), logName);
     }
 

@@ -24,8 +24,8 @@
  */
 package me.st28.flexseries.flexchat.permissions;
 
-import me.st28.flexseries.flexcore.permission.PermissionNode;
-import me.st28.flexseries.flexcore.util.StringUtils;
+import me.st28.flexseries.flexlib.permission.PermissionNode;
+import me.st28.flexseries.flexlib.utils.StringUtils;
 import org.bukkit.permissions.Permissible;
 
 import java.util.Arrays;
@@ -74,29 +74,14 @@ public enum PermissionNodes implements PermissionNode {
         return node;
     }
 
-    @Override
-    public boolean isAllowed(Permissible permissible) {
-        return permissible.hasPermission(node);
-    }
-
     public static PermissionNode buildVariableNode(PermissionNodes mainPerm, String... variables) {
-        final String node = mainPerm.node + "." + StringUtils.stringCollectionToString(Arrays.asList(variables), ".").toLowerCase();
+        final String node = mainPerm.node + "." + StringUtils.collectionToString(Arrays.asList(variables), ".").toLowerCase();
 
         if (VARIABLE_NODES.containsKey(node)) {
             return VARIABLE_NODES.get(node);
         }
 
-        PermissionNode newNode = new PermissionNode() {
-            @Override
-            public boolean isAllowed(Permissible permissible) {
-                return permissible.hasPermission(node);
-            }
-
-            @Override
-            public String getNode() {
-                return node;
-            }
-        };
+        PermissionNode newNode = () -> node;
 
         VARIABLE_NODES.put(node, newNode);
         return newNode;

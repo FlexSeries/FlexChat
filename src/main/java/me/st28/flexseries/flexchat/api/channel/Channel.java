@@ -29,17 +29,17 @@ import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.api.format.ChatFormat;
 import me.st28.flexseries.flexchat.api.format.ReferencedChatFormat;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
-import me.st28.flexseries.flexcore.hook.HookManager;
-import me.st28.flexseries.flexcore.hook.hooks.VaultHook;
-import me.st28.flexseries.flexcore.logging.LogHelper;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
-import me.st28.flexseries.flexcore.util.StringUtils;
+import me.st28.flexseries.flexlib.hook.HookManager;
+import me.st28.flexseries.flexlib.hook.defaults.VaultHook;
+import me.st28.flexseries.flexlib.log.LogHelper;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public abstract class Channel {
 
@@ -145,16 +145,13 @@ public abstract class Channel {
 
         VaultHook vault;
         try {
-            vault = FlexPlugin.getRegisteredModule(HookManager.class).getHook(VaultHook.class);
+            vault = FlexPlugin.getGlobalModule(HookManager.class).getHook(VaultHook.class);
         } catch (Exception ex) {
             // Vault not loaded successfully.
             return getChatFormat((String) null);
         }
 
-        List<String> playerGroups = StringUtils.collectionToStringList(
-                Arrays.asList(vault.getPermission().getPlayerGroups(null, ((ChatterPlayer) chatter).getPlayer())),
-                String::toLowerCase
-        );
+        List<String> playerGroups = Arrays.asList(vault.getPermission().getPlayerGroups(null, ((ChatterPlayer) chatter).getPlayer())).stream().map(String::toLowerCase).collect(Collectors.toList());
 
         for (Entry<String, ChatFormat> entry : formats.entrySet()) {
             if (playerGroups.contains(entry.getKey())) {

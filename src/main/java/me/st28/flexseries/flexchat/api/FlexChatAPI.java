@@ -28,18 +28,18 @@ import me.st28.flexseries.flexchat.api.channel.ChannelManager;
 import me.st28.flexseries.flexchat.api.chatter.ChatterManager;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 
 public final class FlexChatAPI {
 
     private FlexChatAPI() {}
 
     public static ChannelManager getChannelManager() {
-        return FlexPlugin.getRegisteredModule(ChannelManagerImpl.class);
+        return FlexPlugin.getGlobalModule(ChannelManagerImpl.class);
     }
 
     public static ChatterManager getChatterManager() {
-        return FlexPlugin.getRegisteredModule(ChatterManagerImpl.class);
+        return FlexPlugin.getGlobalModule(ChatterManagerImpl.class);
     }
 
 }

@@ -25,7 +25,7 @@
 package me.st28.flexseries.flexchat.logging;
 
 import me.st28.flexseries.flexchat.FlexChat;
-import me.st28.flexseries.flexcore.logging.LogHelper;
+import me.st28.flexseries.flexlib.log.LogHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 

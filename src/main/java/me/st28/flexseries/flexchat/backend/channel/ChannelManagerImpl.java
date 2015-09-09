@@ -41,19 +41,17 @@ import me.st28.flexseries.flexchat.hooks.towny.TownyListener;
 import me.st28.flexseries.flexchat.hooks.towny.TownyNationChannel;
 import me.st28.flexseries.flexchat.hooks.towny.TownyTownChannel;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
-import me.st28.flexseries.flexcore.events.PlayerJoinLoadedEvent;
-import me.st28.flexseries.flexcore.hook.HookManager;
-import me.st28.flexseries.flexcore.hook.exceptions.HookDisabledException;
-import me.st28.flexseries.flexcore.hook.hooks.TownyHook;
-import me.st28.flexseries.flexcore.list.ListManager;
-import me.st28.flexseries.flexcore.logging.LogHelper;
-import me.st28.flexseries.flexcore.message.MessageReference;
-import me.st28.flexseries.flexcore.message.ReplacementMap;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
-import me.st28.flexseries.flexcore.plugin.exceptions.ModuleDisabledException;
-import me.st28.flexseries.flexcore.plugin.module.FlexModule;
-import me.st28.flexseries.flexcore.storage.flatfile.YamlFileManager;
-import me.st28.flexseries.flexcore.util.PluginUtils;
+import me.st28.flexseries.flexlib.log.LogHelper;
+import me.st28.flexseries.flexlib.message.MessageManager;
+import me.st28.flexseries.flexlib.message.ReplacementMap;
+import me.st28.flexseries.flexlib.message.list.ListManager;
+import me.st28.flexseries.flexlib.player.PlayerExtendedJoinEvent;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import me.st28.flexseries.flexlib.plugin.module.FlexModule;
+import me.st28.flexseries.flexlib.plugin.module.ModuleDescriptor;
+import me.st28.flexseries.flexlib.plugin.module.ModuleDisabledException;
+import me.st28.flexseries.flexlib.storage.flatfile.YamlFileManager;
+import me.st28.flexseries.flexlib.utils.PluginUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
@@ -95,79 +93,84 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
     private File customChannelDir;
 
     public ChannelManagerImpl(FlexChat plugin) {
-        super(plugin, "channels", "Manages channels", true);
+        super(plugin, "channels", "Manages channels", new ModuleDescriptor().setGlobal(true).setSmartLoad(false));
     }
 
     @Override
-    protected void handleLoad() {
+    protected void handleEnable() {
         customChannelDir = new File(getDataFolder() + File.separator + "custom");
         customChannelDir.mkdir();
 
-        try {
-            FlexPlugin.getRegisteredModule(HookManager.class).checkHookStatus(TownyHook.class);
-
-            TownyTownChannel townChannel = new TownyTownChannel();
-            TownyNationChannel nationChannel = new TownyNationChannel();
-
-            registerChannel(townChannel);
-            registerChannel(nationChannel);
-
-            ChatFormat.registerChatVariable(new ChatVariable("TOWNY-TOWN") {
-                @Override
-                public String getReplacement(Chatter chatter, Channel channel) {
-                    if (!(chatter instanceof ChatterPlayer)) {
-                        return null;
-                    }
-
-                    try {
-                        return TownyUniverse.getDataSource().getResident(chatter.getName()).getTown().getName();
-                    } catch (NotRegisteredException ex) {
-                        return null;
-                    }
-                }
-            });
-
-            ChatFormat.registerChatVariable(new ChatVariable("TOWNY-TOWNTAG") {
-                @Override
-                public String getReplacement(Chatter chatter, Channel channel) {
-                    if (!(chatter instanceof ChatterPlayer)) {
-                        return null;
-                    }
-
-                    try {
-                        return TownyUniverse.getDataSource().getResident(chatter.getName()).getTown().getTag();
-                    } catch (NotRegisteredException ex) {
-                        return null;
-                    }
-                }
-            });
-
-            ChatFormat.registerChatVariable(new ChatVariable("TOWNY-NATION") {
-                @Override
-                public String getReplacement(Chatter chatter, Channel channel) {
-                    if (!(chatter instanceof ChatterPlayer)) {
-                        return null;
-                    }
-
-                    try {
-                        Town town = TownyUniverse.getDataSource().getResident(chatter.getName()).getTown();
-
-                        try {
-                            return town.getNation().getName();
-                        } catch (NotRegisteredException ex) {
-                            return null;
-                        }
-                    } catch (NotRegisteredException ex) {
-                        return null;
-                    }
-                }
-            });
-
-            Bukkit.getPluginManager().registerEvents(new TownyListener(townChannel, nationChannel), plugin);
-            LogHelper.info(this, "Optional features for Towny enabled.");
-        } catch (HookDisabledException | ModuleDisabledException ex) {
+        if (!setupHookTowny()) {
             LogHelper.info(this, "Unable to register optional features for Towny because it isn't installed.");
         }
+    }
+
+    private boolean setupHookTowny() {
+        if (Bukkit.getPluginManager().getPlugin("Towny") == null) {
+            return false;
+        }
+
+        TownyTownChannel townChannel = new TownyTownChannel();
+        TownyNationChannel nationChannel = new TownyNationChannel();
+
+        registerChannel(townChannel);
+        registerChannel(nationChannel);
+
+        ChatFormat.registerChatVariable(new ChatVariable("TOWNY-TOWN") {
+            @Override
+            public String getReplacement(Chatter chatter, Channel channel) {
+                if (!(chatter instanceof ChatterPlayer)) {
+                    return null;
+                }
+
+                try {
+                    return TownyUniverse.getDataSource().getResident(chatter.getName()).getTown().getName();
+                } catch (NotRegisteredException ex) {
+                    return null;
+                }
+            }
+        });
+
+        ChatFormat.registerChatVariable(new ChatVariable("TOWNY-TOWNTAG") {
+            @Override
+            public String getReplacement(Chatter chatter, Channel channel) {
+                if (!(chatter instanceof ChatterPlayer)) {
+                    return null;
+                }
+
+                try {
+                    return TownyUniverse.getDataSource().getResident(chatter.getName()).getTown().getTag();
+                } catch (NotRegisteredException ex) {
+                    return null;
+                }
+            }
+        });
+
+        ChatFormat.registerChatVariable(new ChatVariable("TOWNY-NATION") {
+            @Override
+            public String getReplacement(Chatter chatter, Channel channel) {
+                if (!(chatter instanceof ChatterPlayer)) {
+                    return null;
+                }
+
+                try {
+                    Town town = TownyUniverse.getDataSource().getResident(chatter.getName()).getTown();
+
+                    try {
+                        return town.getNation().getName();
+                    } catch (NotRegisteredException ex) {
+                        return null;
+                    }
+                } catch (NotRegisteredException ex) {
+                    return null;
+                }
+            }
+        });
+
+        Bukkit.getPluginManager().registerEvents(new TownyListener(townChannel, nationChannel), plugin);
+        LogHelper.info(this, "Optional features for Towny enabled.");
+        return true;
     }
 
     @Override
@@ -177,7 +180,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         FileConfiguration config = getConfig();
 
         activeSymbol = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(config.getString("active symbol", "\u25B6")));
-        FlexPlugin.getRegisteredModule(ListManager.class).createElementFormat("flexchat_channel", "&a{ACTIVE}{COLOR}{CHANNEL} &8({STATUS}&8)");
+        FlexPlugin.getGlobalModule(ListManager.class).createElementFormat("flexchat_channel", "&a{ACTIVE}{COLOR}{CHANNEL} &8({STATUS}&8)");
 
         messageFormat = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(config.getString("private message format", "&f[&7{SENDER} &f\u27A1 &7{RECEIVER}&f] &7{MESSAGE}")));
 
@@ -246,7 +249,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         }
 
         if (!firstReload) {
-            ChatterManagerImpl chatterManager = FlexPlugin.getRegisteredModule(ChatterManagerImpl.class);
+            ChatterManagerImpl chatterManager = FlexPlugin.getGlobalModule(ChatterManagerImpl.class);
 
             for (String channel : loadedChannels) {
                 if (!newLoadedChannels.contains(channel)) {
@@ -285,7 +288,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
                     try {
                         PluginUtils.saveFile(plugin, path, customChannelDir + File.separator + fileName);
                     } catch (IOException ex) {
-                        LogHelper.warning(this, "An exception occurred while trying to copy the channel file for custom channel '" + identifier + "'", ex);
+                        LogHelper.warning(this, "An exception occurred while trying to copy the channel file for custom channel '" + entry.getValue().getName() + "'", ex);
                         continue;
                     }
                 }
@@ -405,8 +408,8 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
     }
 
     @EventHandler
-    public void onPlayerJoinLoaded(PlayerJoinLoadedEvent e) {
-        Chatter chatter = FlexPlugin.getRegisteredModule(ChatterManagerImpl.class).getChatter(e.getPlayer());
+    public void onPlayerJoinLoaded(PlayerExtendedJoinEvent e) {
+        Chatter chatter = FlexPlugin.getGlobalModule(ChatterManagerImpl.class).getChatter(e.getPlayer());
         if (chatter == null) {
             return;
         }
@@ -437,7 +440,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         active = chatter.getActiveInstance();
         if (active != null) {
             Channel channel = active.getChannel();
-            e.addLoginMessage(FlexChat.class, "channel", MessageReference.create(FlexChat.class, "notices.channel_active_notice", new ReplacementMap("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()));
+            e.addLoginMessage(FlexChat.class, "channel", MessageManager.getMessage(FlexChat.class, "notices.channel_active_notice", new ReplacementMap("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()));
         }
     }
 

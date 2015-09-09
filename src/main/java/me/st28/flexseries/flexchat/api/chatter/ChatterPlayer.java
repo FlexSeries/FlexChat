@@ -24,8 +24,8 @@
  */
 package me.st28.flexseries.flexchat.api.chatter;
 
-import me.st28.flexseries.flexcore.message.MessageReference;
-import me.st28.flexseries.flexcore.permission.PermissionNode;
+import me.st28.flexseries.flexlib.message.reference.MessageReference;
+import me.st28.flexseries.flexlib.permission.PermissionNode;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
