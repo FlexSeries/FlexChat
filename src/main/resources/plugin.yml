@@ -8,17 +8,23 @@ website: ${project.url}
 main: ${project.mainClass}
 commands:
   channel:
-    aliases: [channels, ch]
+    description: 'Base channel command and quick channel switcher'
+    aliases: [fchannel, channels, ch]
   chatspy:
-    aliases: [socialspy]
+    description: 'Base chat spy command'
+    aliases: [fchatspy, socialspy]
   ignore:
+    description: 'Ignore a player'
     aliases: [fignore, block]
   unignore:
+    description: 'Unignore a player'
     aliases: [funignore, unblock]
   message:
-    aliases: [msg, m, pm, tell, t, whisper, whisp, w]
+    description: 'Private message a player'
+    aliases: [fmessage, msg, m, pm, tell, t, whisper, whisp, w]
   reply:
-    aliases: [r]
+    description: 'Quick reply to the last player messaged'
+    aliases: [fr, r]
 
 permissions:
   ##########
