@@ -26,7 +26,6 @@ package me.st28.flexseries.flexchat.backend.chatadmin;
 
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.ChannelChatEvent;
-import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexlib.player.PlayerExtendedJoinEvent;
@@ -38,7 +37,6 @@ import me.st28.flexseries.flexlib.plugin.module.FlexModule;
 import me.st28.flexseries.flexlib.plugin.module.ModuleDescriptor;
 import me.st28.flexseries.flexlib.plugin.module.ModuleReference;
 import me.st28.flexseries.flexlib.storage.flatfile.YamlFileManager;
-import me.st28.flexseries.flexlib.utils.StringUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
@@ -103,8 +101,7 @@ public class ChatAdminManager extends FlexModule<FlexChat> implements Listener, 
         instanceOutput = StringEscapeUtils.unescapeJava(config.getString("channel spy.instance format", "&4[&cSPY&4] &8[&7{CHANNEL}&8:&7{INSTANCE}&8] &7{SENDER}&7: &f{MESSAGE}"));
 
         spyCommands.clear();
-        spyCommands.addAll(config.getStringList("command spy.commands"));
-        spyCommands.stream().forEach(String::toLowerCase);
+        spyCommands.addAll(config.getStringList("command spy.commands").stream().map(String::toLowerCase).collect(Collectors.toList()));
     }
 
     @Override
