@@ -27,101 +27,85 @@ package me.st28.flexseries.flexchat.commands;
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.chatter.Chatter;
 import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
-import me.st28.flexseries.flexchat.api.format.ChatFormat;
-import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
+import me.st28.flexseries.flexchat.backend.format.FormatManager;
+import me.st28.flexseries.flexchat.commands.arguments.ChatterArgument;
 import me.st28.flexseries.flexchat.logging.ChatLogHelper;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
-import me.st28.flexseries.flexcore.command.CommandArgument;
-import me.st28.flexseries.flexcore.command.CommandUtils;
-import me.st28.flexseries.flexcore.command.FlexCommand;
-import me.st28.flexseries.flexcore.command.FlexCommandSettings;
-import me.st28.flexseries.flexcore.command.exceptions.CommandInterruptedException;
-import me.st28.flexseries.flexcore.message.MessageReference;
-import me.st28.flexseries.flexcore.message.ReplacementMap;
-import me.st28.flexseries.flexcore.player.PlayerData;
-import me.st28.flexseries.flexcore.player.PlayerManager;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
-import me.st28.flexseries.flexcore.util.StringUtils;
-import org.bukkit.Bukkit;
+import me.st28.flexseries.flexlib.command.CommandContext;
+import me.st28.flexseries.flexlib.command.CommandDescriptor;
+import me.st28.flexseries.flexlib.command.CommandInterruptedException;
+import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptReason;
+import me.st28.flexseries.flexlib.command.FlexCommand;
+import me.st28.flexseries.flexlib.command.argument.StringArgument;
+import me.st28.flexseries.flexlib.message.MessageManager;
+import me.st28.flexseries.flexlib.message.ReplacementMap;
+import me.st28.flexseries.flexlib.message.reference.PlainMessageReference;
+import me.st28.flexseries.flexlib.player.PlayerManager;
+import me.st28.flexseries.flexlib.player.data.PlayerData;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public final class CmdMessage extends FlexCommand<FlexChat> {
 
-    //TODO: Better way of implementing this
-    Map<UUID, UUID> replies = new HashMap<>();
+    Map<String, String> replies = new HashMap<>();
 
     public CmdMessage(FlexChat plugin) {
-        super(
-            plugin,
-            "message",
-            Arrays.asList(new CommandArgument("player", true), new CommandArgument("message", true)),
-            new FlexCommandSettings<FlexChat>()
-                .description("Send a private message")
-                .permission(PermissionNodes.MESSAGE)
-                .shouldFixArguments(false)
-        );
+        super(plugin, new CommandDescriptor("message").permission(PermissionNodes.MESSAGE));
+
+        addArgument(new ChatterArgument("player", true));
+        addArgument(new StringArgument("message", true));
     }
 
     @Override
-    public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
-        ChannelManagerImpl channelManager = FlexPlugin.getRegisteredModule(ChannelManagerImpl.class);
-        ChatterManagerImpl chatterManager = FlexPlugin.getRegisteredModule(ChatterManagerImpl.class);
+    public void handleExecute(CommandContext context) {
+        FormatManager formatManager = FlexPlugin.getGlobalModule(FormatManager.class);
 
-        Chatter senderChatter = chatterManager.getChatter(sender);
-        String senderIdentifier = senderChatter.getIdentifier();
+        Chatter sender = FlexPlugin.getGlobalModule(ChatterManagerImpl.class).getChatter(context.getSender());
+        Chatter target = context.getGlobalObject("player", Chatter.class);
 
-        Chatter targetChatter;
+        String message = formatManager.formatMessage(sender, context.getGlobalObject("message", String.class));
 
-        if (args[0].equalsIgnoreCase("console")) {
-            targetChatter = chatterManager.getChatter(Bukkit.getConsoleSender());
-        } else {
-            targetChatter = chatterManager.getChatter(CommandUtils.getTargetPlayer(sender, args[0], true));
-        }
+        String senderIdentifier = sender.getIdentifier();
+        String targetIdentifier = target.getIdentifier();
 
-        if (targetChatter == null) {
-            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.chatter_not_found", new ReplacementMap("{NAME}", args[0]).getMap()));
-        }
+        if (sender instanceof Player && !sender.hasPermission(PermissionNodes.IGNORE_BYPASS) && target instanceof ChatterPlayer) {
+            final PlayerManager playerManager = FlexPlugin.getGlobalModule(PlayerManager.class);
 
-        String targetIdentifier = targetChatter.getIdentifier();
-
-        if (sender instanceof Player && !PermissionNodes.IGNORE_BYPASS.isAllowed(sender) && targetChatter instanceof ChatterPlayer) {
-            PlayerData data = FlexPlugin.getRegisteredModule(PlayerManager.class).getPlayerData(CommandUtils.getSenderUuid(sender));
-            UUID uuid = ((ChatterPlayer) targetChatter).getUuid();
+            PlayerData data = playerManager.getPlayerData(((Player) sender).getUniqueId());
+            UUID uuid = ((ChatterPlayer) target).getUuid();
 
             List<String> ignored = (List<String>) data.getCustomData("ignored", List.class);
 
             if (ignored != null) {
                 if (ignored.contains(targetIdentifier)) {
-                    throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.cannot_message_player", new ReplacementMap("{NAME}", targetChatter.getDisplayName()).getMap()));
+                    throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.cannot_message_player", new ReplacementMap("{NAME}", target.getDisplayName()).getMap()));
                 }
 
-                List<String> oIgnored = (List<String>) FlexPlugin.getRegisteredModule(PlayerManager.class).getPlayerData(uuid).getCustomData("ignored", List.class);
+                List<String> oIgnored = (List<String>) playerManager.getPlayerData(uuid).getCustomData("ignored", List.class);
                 if (oIgnored != null && oIgnored.contains(senderIdentifier)) {
-                    throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.cannot_message_player", new ReplacementMap("{NAME}", targetChatter.getDisplayName()).getMap()));
+                    throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.cannot_message_player", new ReplacementMap("{NAME}", target.getDisplayName()).getMap()));
                 }
             }
         }
 
-        String format = ChatColor.translateAlternateColorCodes('&', channelManager.getMessageFormat());
-        String message = ChatFormat.applyApplicableChatColors(senderChatter, StringUtils.stringCollectionToString(Arrays.asList(args).subList(1, args.length)));
+        // Send message
+        sender.sendMessage(new PlainMessageReference(message.replace("{SENDER}", ChatColor.ITALIC + "me").replace("{RECEIVER}", target.getDisplayName())));
+        target.sendMessage(new PlainMessageReference((message.replace("{SENDER}", sender.getDisplayName()).replace("{RECEIVER}", ChatColor.ITALIC + "me"))));
 
-        senderChatter.sendMessage(MessageReference.createPlain(format.replace("{SENDER}", ChatColor.ITALIC + "me").replace("{RECEIVER}", targetChatter.getDisplayName()).replace("{MESSAGE}", message)));
-        targetChatter.sendMessage(MessageReference.createPlain(format.replace("{SENDER}", senderChatter.getDisplayName()).replace("{RECEIVER}", ChatColor.ITALIC + "me").replace("{MESSAGE}", message)));
+        // Set reply reference
+        replies.put(senderIdentifier, targetIdentifier);
+        replies.put(targetIdentifier, senderIdentifier);
 
-        if (sender instanceof Player && targetChatter instanceof ChatterPlayer) {
-            UUID senderUuid = ((Player) sender).getUniqueId();
-            UUID targetUuid = ((ChatterPlayer) targetChatter).getPlayer().getUniqueId();
-
-            replies.put(senderUuid, targetUuid);
-            replies.put(targetUuid, senderUuid);
-        }
-
-        ChatLogHelper.log(ChatColor.stripColor("[[-MSG-]] " + senderChatter.getName() + " TO " + targetChatter.getName() + " > " + message));
+        // Log message
+        ChatLogHelper.log(ChatColor.stripColor("[[-MSG-]] " + sender.getName() + " TO " + target.getName() + " > " + message));
     }
+
 
 }
