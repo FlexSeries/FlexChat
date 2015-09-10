@@ -34,6 +34,7 @@ import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexlib.log.LogHelper;
 import me.st28.flexseries.flexlib.player.PlayerExtendedLeaveEvent;
+import me.st28.flexseries.flexlib.player.data.DataProviderDescriptor;
 import me.st28.flexseries.flexlib.player.data.PlayerData;
 import me.st28.flexseries.flexlib.player.data.PlayerDataProvider;
 import me.st28.flexseries.flexlib.player.data.PlayerLoader;
@@ -62,6 +63,8 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
     @Override
     protected void handleEnable() {
         chatters.put(ChatterConsole.NAME, new ChatterConsole());
+
+        registerPlayerDataProvider(new DataProviderDescriptor().addHardDependency(new ModuleReference("FlexLib", "uuid_tracker")));
     }
 
     @Override
