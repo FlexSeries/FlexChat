@@ -25,7 +25,7 @@
 package me.st28.flexseries.flexchat.api.channel;
 
 import me.st28.flexseries.flexchat.api.chatter.Chatter;
-import me.st28.flexseries.flexcore.message.MessageReference;
+import me.st28.flexseries.flexlib.message.reference.MessageReference;
 import org.apache.commons.lang.Validate;
 
 import java.util.*;

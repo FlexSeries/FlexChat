@@ -26,16 +26,17 @@ package me.st28.flexseries.flexchat.backend.chatadmin;
 
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.ChannelChatEvent;
-import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
-import me.st28.flexseries.flexcore.events.PlayerJoinLoadedEvent;
-import me.st28.flexseries.flexcore.player.loading.PlayerLoadCycle;
-import me.st28.flexseries.flexcore.player.loading.PlayerLoader;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
-import me.st28.flexseries.flexcore.plugin.module.FlexModule;
-import me.st28.flexseries.flexcore.storage.flatfile.YamlFileManager;
-import me.st28.flexseries.flexcore.util.StringUtils;
+import me.st28.flexseries.flexlib.player.PlayerExtendedJoinEvent;
+import me.st28.flexseries.flexlib.player.data.PlayerData;
+import me.st28.flexseries.flexlib.player.data.PlayerDataProvider;
+import me.st28.flexseries.flexlib.player.data.PlayerLoader;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import me.st28.flexseries.flexlib.plugin.module.FlexModule;
+import me.st28.flexseries.flexlib.plugin.module.ModuleDescriptor;
+import me.st28.flexseries.flexlib.plugin.module.ModuleReference;
+import me.st28.flexseries.flexlib.storage.flatfile.YamlFileManager;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Bukkit;
@@ -53,8 +54,9 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-public class ChatAdminManager extends FlexModule<FlexChat> implements Listener, PlayerLoader {
+public class ChatAdminManager extends FlexModule<FlexChat> implements Listener, PlayerDataProvider {
 
     public final static Pattern COMMAND_LABEL_PATTERN = Pattern.compile("(?i)^(/[^ ]+).+");
 
@@ -68,11 +70,19 @@ public class ChatAdminManager extends FlexModule<FlexChat> implements Listener, 
     private YamlFileManager spyFile;
 
     public ChatAdminManager(FlexChat plugin) {
-        super(plugin, "chat_admin", "Manages chat administration features", true, ChannelManagerImpl.class);
+        super(
+                plugin,
+                "chat_admin",
+                "Manages chat administration features",
+                new ModuleDescriptor()
+                        .setGlobal(true)
+                        .setSmartLoad(false)
+                        .addHardDependency(new ModuleReference("FlexChat", "channels"))
+        );
     }
 
     @Override
-    protected void handleLoad() {
+    protected void handleEnable() {
         spyFile = new YamlFileManager(getDataFolder() + File.separator + "chatSpies.yml");
     }
 
@@ -91,7 +101,7 @@ public class ChatAdminManager extends FlexModule<FlexChat> implements Listener, 
         instanceOutput = StringEscapeUtils.unescapeJava(config.getString("channel spy.instance format", "&4[&cSPY&4] &8[&7{CHANNEL}&8:&7{INSTANCE}&8] &7{SENDER}&7: &f{MESSAGE}"));
 
         spyCommands.clear();
-        spyCommands.addAll(StringUtils.collectionToStringList(config.getStringList("command spy.commands"), String::toLowerCase));
+        spyCommands.addAll(config.getStringList("command spy.commands").stream().map(String::toLowerCase).collect(Collectors.toList()));
     }
 
     @Override
@@ -140,7 +150,7 @@ public class ChatAdminManager extends FlexModule<FlexChat> implements Listener, 
     }
 
     @EventHandler
-    public void onPlayerJoinLoaded(PlayerJoinLoadedEvent e) {
+    public void onPlayerJoinLoaded(PlayerExtendedJoinEvent e) {
         UUID uuid = e.getPlayer().getUniqueId();
         if (!PermissionNodes.SPY_PERSISTENT.isAllowed(e.getPlayer())) {
             spies.remove(uuid);
@@ -176,7 +186,7 @@ public class ChatAdminManager extends FlexModule<FlexChat> implements Listener, 
 
         sendMessage = ChatColor.translateAlternateColorCodes('&', sendMessage.replace("{SENDER}", e.getSender().getName()).replace("{CHANNEL}", e.getChannelInstance().getChannel().getName())).replace("{MESSAGE}", e.getMessage());
 
-        ChatterManagerImpl chatterManager = FlexPlugin.getRegisteredModule(ChatterManagerImpl.class);
+        ChatterManagerImpl chatterManager = FlexPlugin.getGlobalModule(ChatterManagerImpl.class);
 
         for (Player spy : getOnlineSpies()) {
             if (isSpyEnabled(spy.getUniqueId()) && getSpySettings(spy.getUniqueId()).containsInstance(e.getChannelInstance())) {
@@ -188,9 +198,8 @@ public class ChatAdminManager extends FlexModule<FlexChat> implements Listener, 
     }
 
     @Override
-    public void loadPlayer(UUID uuid, String name, PlayerLoadCycle cycle) {
+    public void loadPlayer(PlayerLoader loader, PlayerData data, UUID uuid, String name) {
         loadPlayer(uuid);
-        PlayerLoadCycle.setLoaderSuccess(cycle, this);
     }
 
 }

@@ -22,46 +22,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.st28.flexseries.flexchat.commands;
+package me.st28.flexseries.flexchat.commands.arguments;
 
-import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.chatter.Chatter;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
-import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexlib.command.CommandContext;
-import me.st28.flexseries.flexlib.command.CommandDescriptor;
-import me.st28.flexseries.flexlib.command.CommandInterruptedException;
-import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptReason;
-import me.st28.flexseries.flexlib.command.FlexCommand;
-import me.st28.flexseries.flexlib.command.argument.StringArgument;
-import me.st28.flexseries.flexlib.message.MessageManager;
+import me.st28.flexseries.flexlib.command.argument.PlayerArgument;
+import me.st28.flexseries.flexlib.player.PlayerReference;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import org.bukkit.Bukkit;
 
-public final class CmdReply extends FlexCommand<FlexChat> {
+public class ChatterArgument extends PlayerArgument {
 
-    private CmdMessage messageCommand;
+    public ChatterArgument(String name, boolean isRequired) {
+        super(name, isRequired);
 
-    public CmdReply(FlexChat plugin, CmdMessage messageCommand) {
-        super(plugin, new CommandDescriptor("reply").permission(PermissionNodes.MESSAGE));
-
-        this.messageCommand = messageCommand;
-
-        addArgument(new StringArgument("message", true));
+        onlineOnly(true);
     }
 
     @Override
-    public void handleExecute(CommandContext context) {
+    public Object parseInput(CommandContext context, String input) {
         ChatterManagerImpl chatterManager = FlexPlugin.getGlobalModule(ChatterManagerImpl.class);
-        Chatter sender = chatterManager.getChatter(context.getSender());
 
-        Chatter target = chatterManager.getChatter(messageCommand.replies.get(sender.getIdentifier()));
+        Chatter targetChatter;
 
-        if (target == null) {
-            throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.message_no_reply"));
+        if (input.equalsIgnoreCase("console")) {
+            targetChatter = chatterManager.getChatter(Bukkit.getConsoleSender());
+        } else {
+            PlayerReference ref = (PlayerReference) super.parseInput(context, input);
+
+            targetChatter = chatterManager.getChatter(ref.getPlayer());
         }
 
-        context.addGlobalObject("player", target);
-        messageCommand.handleExecute(context);
+        return targetChatter;
     }
 
 }

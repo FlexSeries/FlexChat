@@ -27,9 +27,9 @@ package me.st28.flexseries.flexchat.api.chatter;
 import me.st28.flexseries.flexchat.api.channel.Channel;
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
-import me.st28.flexseries.flexcore.message.MessageReference;
-import me.st28.flexseries.flexcore.permission.PermissionNode;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
+import me.st28.flexseries.flexlib.message.reference.MessageReference;
+import me.st28.flexseries.flexlib.permission.PermissionNode;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.apache.commons.lang.Validate;
 import org.bukkit.configuration.ConfigurationSection;
 
@@ -48,7 +48,7 @@ public abstract class Chatter {
     }
 
     public void load(ConfigurationSection config) {
-        ChannelManagerImpl channelManager = FlexPlugin.getRegisteredModule(ChannelManagerImpl.class);
+        ChannelManagerImpl channelManager = FlexPlugin.getGlobalModule(ChannelManagerImpl.class);
 
         ConfigurationSection instanceSec = config.getConfigurationSection("instances");
         if (instanceSec != null) {

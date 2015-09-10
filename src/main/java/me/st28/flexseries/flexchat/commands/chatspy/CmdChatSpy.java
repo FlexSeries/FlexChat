@@ -25,30 +25,20 @@
 package me.st28.flexseries.flexchat.commands.chatspy;
 
 import me.st28.flexseries.flexchat.FlexChat;
-import me.st28.flexseries.flexcore.command.FlexCommand;
-import me.st28.flexseries.flexcore.command.FlexCommandSettings;
-import org.bukkit.command.CommandSender;
+import me.st28.flexseries.flexchat.permissions.PermissionNodes;
+import me.st28.flexseries.flexlib.command.CommandDescriptor;
+import me.st28.flexseries.flexlib.command.DummyCommand;
 
-import java.util.Map;
-
-public final class CmdChatSpy extends FlexCommand<FlexChat> {
+public final class CmdChatSpy extends DummyCommand<FlexChat> {
 
     public CmdChatSpy(FlexChat plugin) {
-        super(
-            plugin,
-            "chatspy",
-            null,
-            new FlexCommandSettings<FlexChat>()
-                .setDummyCommand(true)
-        );
+        super(plugin, new CommandDescriptor("chatspy").permission(PermissionNodes.SPY));
 
+        // TODO: Add list command
         registerSubcommand(new SCmdChatSpyAdd(this));
         registerSubcommand(new SCmdChatSpyDisable(this));
         registerSubcommand(new SCmdChatSpyEnable(this));
         registerSubcommand(new SCmdChatSpyRemove(this));
     }
-
-    @Override
-    public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {}
 
 }

@@ -32,13 +32,17 @@ import me.st28.flexseries.flexchat.api.chatter.ChatterConsole;
 import me.st28.flexseries.flexchat.api.chatter.ChatterManager;
 import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
-import me.st28.flexseries.flexcore.events.PlayerLeaveEvent;
-import me.st28.flexseries.flexcore.logging.LogHelper;
-import me.st28.flexseries.flexcore.player.loading.PlayerLoadCycle;
-import me.st28.flexseries.flexcore.player.loading.PlayerLoader;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
-import me.st28.flexseries.flexcore.plugin.module.FlexModule;
-import me.st28.flexseries.flexcore.storage.flatfile.YamlFileManager;
+import me.st28.flexseries.flexlib.log.LogHelper;
+import me.st28.flexseries.flexlib.player.PlayerExtendedLeaveEvent;
+import me.st28.flexseries.flexlib.player.data.DataProviderDescriptor;
+import me.st28.flexseries.flexlib.player.data.PlayerData;
+import me.st28.flexseries.flexlib.player.data.PlayerDataProvider;
+import me.st28.flexseries.flexlib.player.data.PlayerLoader;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import me.st28.flexseries.flexlib.plugin.module.FlexModule;
+import me.st28.flexseries.flexlib.plugin.module.ModuleDescriptor;
+import me.st28.flexseries.flexlib.plugin.module.ModuleReference;
+import me.st28.flexseries.flexlib.storage.flatfile.YamlFileManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -48,17 +52,19 @@ import org.bukkit.event.Listener;
 import java.io.File;
 import java.util.*;
 
-public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterManager, Listener, PlayerLoader {
+public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterManager, Listener, PlayerDataProvider {
 
     private final Map<String, Chatter> chatters = new HashMap<>();
 
     public ChatterManagerImpl(FlexChat plugin) {
-        super(plugin, "chatters", "Manages chatter data", true, ChannelManagerImpl.class);
+        super(plugin, "chatters", "Manages chatter data", new ModuleDescriptor().setGlobal(true).setSmartLoad(false).addHardDependency(new ModuleReference("FlexChat", "channels")));
     }
 
     @Override
-    protected void handleLoad() {
+    protected void handleEnable() {
         chatters.put(ChatterConsole.NAME, new ChatterConsole());
+
+        registerPlayerDataProvider(new DataProviderDescriptor().addHardDependency(new ModuleReference("FlexLib", "uuid_tracker")));
     }
 
     @Override
@@ -88,7 +94,7 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
         if (file.isEmpty()) {
             LogHelper.debug(this, "Creating chatter file for '" + uuid.toString() + "'");
 
-            Channel defaultChannel = FlexPlugin.getRegisteredModule(ChannelManagerImpl.class).getDefaultChannel();
+            Channel defaultChannel = FlexPlugin.getGlobalModule(ChannelManagerImpl.class).getDefaultChannel();
 
             if (defaultChannel != null) {
                 FileConfiguration config = file.getConfig();
@@ -124,20 +130,12 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
     }
 
     @Override
-    public void loadPlayer(UUID uuid, String name, PlayerLoadCycle cycle) {
-        try {
-            loadPlayerChatter(uuid);
-            PlayerLoadCycle.setLoaderSuccess(cycle, this);
-        } catch (Exception ex) {
-            LogHelper.warning(this, "An exception occurred while loading player chatter '" + name + "'", ex);
-            PlayerLoadCycle.setLoaderFailure(cycle, this);
-        }
+    public void loadPlayer(PlayerLoader loader, PlayerData data, UUID uuid, String name) {
+        loadPlayerChatter(uuid);
     }
 
-    @EventHandler
-    public void onPlayerLeave(PlayerLeaveEvent e) {
-        UUID uuid = e.getPlayer().getUniqueId();
-
+    @Override
+    public void savePlayer(PlayerLoader loader, PlayerData data, UUID uuid, String name) {
         Chatter chatter = chatters.get(uuid.toString());
         if (chatter != null) {
             saveChatter(chatter);

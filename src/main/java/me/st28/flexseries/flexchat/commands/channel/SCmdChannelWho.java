@@ -31,94 +31,49 @@ import me.st28.flexseries.flexchat.api.chatter.Chatter;
 import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
+import me.st28.flexseries.flexchat.commands.arguments.ChannelArgument;
+import me.st28.flexseries.flexchat.commands.arguments.ChannelInstanceArgument;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
-import me.st28.flexseries.flexcore.command.CommandArgument;
-import me.st28.flexseries.flexcore.command.FlexCommand;
-import me.st28.flexseries.flexcore.command.FlexCommandSettings;
-import me.st28.flexseries.flexcore.command.FlexSubcommand;
-import me.st28.flexseries.flexcore.command.exceptions.CommandInterruptedException;
-import me.st28.flexseries.flexcore.list.ListBuilder;
-import me.st28.flexseries.flexcore.message.MessageReference;
-import me.st28.flexseries.flexcore.message.ReplacementMap;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
-import me.st28.flexseries.flexcore.util.StringUtils;
+import me.st28.flexseries.flexlib.command.*;
+import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptReason;
+import me.st28.flexseries.flexlib.message.MessageManager;
+import me.st28.flexseries.flexlib.message.ReplacementMap;
+import me.st28.flexseries.flexlib.message.list.ListBuilder;
+import me.st28.flexseries.flexlib.message.reference.MessageReference;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import me.st28.flexseries.flexlib.utils.StringConverter;
+import me.st28.flexseries.flexlib.utils.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
-public final class SCmdChannelWho extends FlexSubcommand<FlexChat> {
+public final class SCmdChannelWho extends Subcommand<FlexChat> {
 
-    public SCmdChannelWho(FlexCommand<FlexChat> parent) {
-        super(
-                parent,
-                "who",
-                Arrays.asList(
-                        new CommandArgument("channel", false),
-                        new CommandArgument("instance", false)
-                ),
-                new FlexCommandSettings()
-                        .permission(PermissionNodes.WHO)
-                        .description("View who is in a channel")
-        );
+    public SCmdChannelWho(AbstractCommand<FlexChat> parent) {
+        super(parent, new CommandDescriptor("who").description("View chatters in a channel").permission(PermissionNodes.WHO));
+
+        addArgument(new ChannelArgument("channel", false));
+        addArgument(new ChannelInstanceArgument("instance", false, "channel"));
     }
 
     @Override
-    public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
-        ChannelManagerImpl channelManager = FlexPlugin.getRegisteredModule(ChannelManagerImpl.class);
-        ChatterManagerImpl chatterManager = FlexPlugin.getRegisteredModule(ChatterManagerImpl.class);
-        Chatter chatter = chatterManager.getChatter(sender);
+    public void handleExecute(CommandContext context) {
+        ChannelInstance instance = context.getGlobalObject("instance", ChannelInstance.class);
+        Channel channel = instance.getChannel();
 
-        Channel channel = null;
-        if (args.length > 0) {
-            channel = channelManager.getChannel(args[0]);
-            if (channel == null) {
-                throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_not_found", new ReplacementMap("{NAME}", args[0]).getMap()));
-            }
-        } else {
-            ChannelInstance activeInstance = chatter.getActiveInstance();
-            if (activeInstance != null) {
-                channel = activeInstance.getChannel();
-            }
-        }
+        Chatter sender = FlexPlugin.getGlobalModule(ChatterManagerImpl.class).getChatter(context.getSender());
 
-        if (channel == null) {
-            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_active_not_set"));
-        }
-
-        if (!chatter.hasPermission(PermissionNodes.buildVariableNode(PermissionNodes.LEAVE, channel.getName()))) {
-            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_no_permission", new ReplacementMap("{VERB}", "leave").put("{CHANNEL}", channel.getName()).getMap()));
-        }
-
-        List<ChannelInstance> instances = channel.getInstances(chatter);
-
-        if (instances == null || instances.isEmpty() && !PermissionNodes.WHO_OTHER.isAllowed(sender)) {
-            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_not_joined", new ReplacementMap("{CHANNEL}", channel.getName()).getMap()));
-        }
-
-        ChannelInstance instance;
-
-        if (instances.size() == 1) {
-            instance = instances.get(0);
-        } else if (args.length < 2) {
-            throw new CommandInterruptedException(MessageReference.createPlain(buildUsage(sender)));
-        } else {
-            instance = channel.getInstance(args[1]);
-
-            if (!instances.contains(instance)) {
-                instance = null;
-            }
-        }
-
-        if (instance == null) {
-            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.channel_instance_not_found", new ReplacementMap("{NAME}", args[1]).put("{CHANNEL}", channel.getName()).getMap()));
+        if (!instance.getChatters().contains(sender) && !sender.hasPermission(PermissionNodes.WHO_OTHER)) {
+            throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.channel_not_joined", new ReplacementMap("{CHANNEL}", channel.getName()).getMap()));
         }
 
         List<Chatter> chatters = new ArrayList<>(instance.getChatters());
 
-        if (chatter instanceof ChatterPlayer) {
-            Player player = ((ChatterPlayer) chatter).getPlayer();
+        if (sender instanceof ChatterPlayer) {
+            Player player = ((ChatterPlayer) sender).getPlayer();
 
             Iterator<Chatter> iterator = chatters.iterator();
             while (iterator.hasNext()) {
@@ -130,15 +85,20 @@ public final class SCmdChannelWho extends FlexSubcommand<FlexChat> {
             }
         }
 
-        List<String> names = StringUtils.collectionToStringList(chatters, Chatter::getName);
+        List<String> names = chatters.stream().map(Chatter::getName).sorted().collect(Collectors.toList());
 
-        ListBuilder builder = new ListBuilder("subtitle", "Chatters", channel.getName(), label);
+        ListBuilder builder = new ListBuilder("subtitle", "Chatters", channel.getName(), context.getLabel());
 
         if (!names.isEmpty()) {
-            builder.addMessage(StringUtils.collectionToString(names, object -> ChatColor.GOLD + object, ChatColor.DARK_GRAY + ", "));
+            StringUtils.collectionToString(names, ChatColor.DARK_GRAY + ", ", new StringConverter<String>() {
+                @Override
+                public String toString(String string) {
+                    return ChatColor.GOLD + string;
+                }
+            });
         }
 
-        builder.sendTo(sender, 1);
+        builder.sendTo(context.getSender(), 1);
     }
 
 }

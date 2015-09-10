@@ -26,56 +26,54 @@ package me.st28.flexseries.flexchat.commands.ignore;
 
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
-import me.st28.flexseries.flexcore.command.CommandArgument;
-import me.st28.flexseries.flexcore.command.CommandUtils;
-import me.st28.flexseries.flexcore.command.FlexCommand;
-import me.st28.flexseries.flexcore.command.FlexCommandSettings;
-import me.st28.flexseries.flexcore.command.exceptions.CommandInterruptedException;
-import me.st28.flexseries.flexcore.message.MessageReference;
-import me.st28.flexseries.flexcore.message.ReplacementMap;
-import me.st28.flexseries.flexcore.player.PlayerData;
-import me.st28.flexseries.flexcore.player.PlayerManager;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
-import org.bukkit.command.CommandSender;
+import me.st28.flexseries.flexlib.command.CommandContext;
+import me.st28.flexseries.flexlib.command.CommandDescriptor;
+import me.st28.flexseries.flexlib.command.CommandInterruptedException;
+import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptReason;
+import me.st28.flexseries.flexlib.command.FlexCommand;
+import me.st28.flexseries.flexlib.command.argument.PlayerArgument;
+import me.st28.flexseries.flexlib.message.MessageManager;
+import me.st28.flexseries.flexlib.message.ReplacementMap;
+import me.st28.flexseries.flexlib.player.PlayerManager;
+import me.st28.flexseries.flexlib.player.PlayerReference;
+import me.st28.flexseries.flexlib.player.data.PlayerData;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public final class CmdIgnore extends FlexCommand<FlexChat> {
 
     public CmdIgnore(FlexChat plugin) {
-        super(plugin, "ignore", Collections.singletonList(new CommandArgument("player", true)), new FlexCommandSettings<>()
-            .permission(PermissionNodes.IGNORE)
-            .setPlayerOnly(true)
-        );
+        super(plugin, new CommandDescriptor("ignore").permission(PermissionNodes.IGNORE).playerOnly(true).defaultCommand("list"));
+
+        addArgument(new PlayerArgument("player", true).notSender(true).onlineOnly(true));
 
         registerSubcommand(new SCmdIgnoreList(this));
     }
 
     @Override
-    public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
-        Player target = CommandUtils.getTargetPlayer(sender, args[0], true);
+    public void handleExecute(CommandContext context) {
+        PlayerReference target = context.getGlobalObject("player", PlayerReference.class);
 
-        PlayerData data = FlexPlugin.getRegisteredModule(PlayerManager.class).getPlayerData(CommandUtils.getSenderUuid(sender));
+        PlayerData data = FlexPlugin.getGlobalModule(PlayerManager.class).getPlayerData(((Player) context.getSender()).getUniqueId());
         List<String> ignored = data.getCustomData("ignored", List.class);
         if (ignored == null) {
             ignored = new ArrayList<>();
             data.setCustomData("ignored", ignored);
         }
 
-        String targetIdentifier = target.getUniqueId().toString();
+        String targetIdentifier = target.getUuid().toString();
 
         if (ignored.contains(targetIdentifier)) {
-            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.ignore_exists", new ReplacementMap("{NAME}", target.getName()).getMap()));
-        } else if (PermissionNodes.IGNORE_BYPASS.isAllowed(target)) {
-            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.ignore_not_allowed", new ReplacementMap("{NAME}", target.getName()).getMap()));
+            throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.ignore_exists", new ReplacementMap("{NAME}", target.getName()).getMap()));
+        } else if (PermissionNodes.IGNORE_BYPASS.isAllowed(target.getPlayer())) {
+            throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.ignore_not_allowed", new ReplacementMap("{NAME}", target.getName()).getMap()));
         }
 
         ignored.add(targetIdentifier);
-        MessageReference.create(FlexChat.class, "notices.ignore_added", new ReplacementMap("{NAME}", target.getName()).getMap()).sendTo(sender);
+        throw new CommandInterruptedException(InterruptReason.COMMAND_END, MessageManager.getMessage(FlexChat.class, "notices.ignore_added", new ReplacementMap("{NAME}", target.getName()).getMap()));
     }
 
 }

@@ -28,6 +28,7 @@ import me.st28.flexseries.flexchat.backend.ChatManager;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.backend.chatadmin.ChatAdminManager;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
+import me.st28.flexseries.flexchat.backend.format.FormatManager;
 import me.st28.flexseries.flexchat.commands.CmdMessage;
 import me.st28.flexseries.flexchat.commands.CmdReply;
 import me.st28.flexseries.flexchat.commands.channel.CmdChannel;
@@ -35,31 +36,32 @@ import me.st28.flexseries.flexchat.commands.chatspy.CmdChatSpy;
 import me.st28.flexseries.flexchat.commands.ignore.CmdIgnore;
 import me.st28.flexseries.flexchat.commands.ignore.CmdUnignore;
 import me.st28.flexseries.flexchat.logging.ChatLogHelper;
-import me.st28.flexseries.flexcore.command.FlexCommandWrapper;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
+import me.st28.flexseries.flexlib.command.FlexCommandWrapper;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public final class FlexChat extends FlexPlugin {
 
     @Override
-    public void handlePluginLoad() {
+    public void handleLoad() {
         registerModule(new ChannelManagerImpl(this));
         registerModule(new ChatterManagerImpl(this));
         registerModule(new ChatManager(this));
         registerModule(new ChatAdminManager(this));
+        registerModule(new FormatManager(this));
     }
 
     @Override
-    public void handlePluginEnable() {
+    public void handleEnable() {
         // Setup commands
-        FlexCommandWrapper.registerCommand(this, new CmdChannel(this));
-        FlexCommandWrapper.registerCommand(this, new CmdChatSpy(this));
-        FlexCommandWrapper.registerCommand(this, new CmdIgnore(this));
-        FlexCommandWrapper.registerCommand(this, new CmdUnignore(this));
+        FlexCommandWrapper.registerCommand(new CmdChannel(this));
+        FlexCommandWrapper.registerCommand(new CmdChatSpy(this));
+        FlexCommandWrapper.registerCommand(new CmdIgnore(this));
+        FlexCommandWrapper.registerCommand(new CmdUnignore(this));
 
         CmdMessage messageCommand = new CmdMessage(this);
-        FlexCommandWrapper.registerCommand(this, messageCommand);
-        FlexCommandWrapper.registerCommand(this, new CmdReply(this, messageCommand));
+        FlexCommandWrapper.registerCommand(messageCommand);
+        FlexCommandWrapper.registerCommand(new CmdReply(this, messageCommand));
 
         // Setup logger
         ChatLogHelper.init(this);
