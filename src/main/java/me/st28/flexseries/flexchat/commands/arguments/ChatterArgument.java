@@ -22,32 +22,39 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.st28.flexseries.flexchat.commands.chatspy;
+package me.st28.flexseries.flexchat.commands.arguments;
 
-import me.st28.flexseries.flexchat.FlexChat;
-import me.st28.flexseries.flexchat.backend.chatadmin.ChatAdminManager;
-import me.st28.flexseries.flexchat.backend.chatadmin.SpySettings;
-import me.st28.flexseries.flexlib.command.*;
-import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptReason;
-import me.st28.flexseries.flexlib.message.MessageManager;
+import me.st28.flexseries.flexchat.api.chatter.Chatter;
+import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
+import me.st28.flexseries.flexlib.command.CommandContext;
+import me.st28.flexseries.flexlib.command.argument.PlayerArgument;
+import me.st28.flexseries.flexlib.player.PlayerReference;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
-import org.bukkit.entity.Player;
+import org.bukkit.Bukkit;
 
-public final class SCmdChatSpyDisable extends Subcommand<FlexChat> {
+public class ChatterArgument extends PlayerArgument {
 
-    public SCmdChatSpyDisable(FlexCommand<FlexChat> parent) {
-        super(parent, new CommandDescriptor("disable").description("Disables chat spying").playerOnly(true));
+    public ChatterArgument(String name, boolean isRequired) {
+        super(name, isRequired);
+
+        onlineOnly(true);
     }
 
     @Override
-    public void handleExecute(CommandContext context) {
-        SpySettings settings = FlexPlugin.getGlobalModule(ChatAdminManager.class).getSpySettings(((Player) context.getSender()).getUniqueId());
+    public Object parseInput(CommandContext context, String input) {
+        ChatterManagerImpl chatterManager = FlexPlugin.getGlobalModule(ChatterManagerImpl.class);
 
-        if (settings.setEnabled(false)) {
-            throw new CommandInterruptedException(InterruptReason.COMMAND_END, MessageManager.getMessage(FlexChat.class, "notices.spy_disabled"));
+        Chatter targetChatter;
+
+        if (input.equalsIgnoreCase("console")) {
+            targetChatter = chatterManager.getChatter(Bukkit.getConsoleSender());
         } else {
-            throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.spy_already_disabled"));
+            PlayerReference ref = (PlayerReference) super.parseInput(context, input);
+
+            targetChatter = chatterManager.getChatter(ref.getPlayer());
         }
+
+        return targetChatter;
     }
 
 }

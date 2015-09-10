@@ -26,50 +26,51 @@ package me.st28.flexseries.flexchat.commands.ignore;
 
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
-import me.st28.flexseries.flexcore.command.CommandArgument;
-import me.st28.flexseries.flexcore.command.CommandUtils;
-import me.st28.flexseries.flexcore.command.FlexCommand;
-import me.st28.flexseries.flexcore.command.FlexCommandSettings;
-import me.st28.flexseries.flexcore.command.exceptions.CommandInterruptedException;
-import me.st28.flexseries.flexcore.message.MessageReference;
-import me.st28.flexseries.flexcore.message.ReplacementMap;
-import me.st28.flexseries.flexcore.player.PlayerData;
-import me.st28.flexseries.flexcore.player.PlayerManager;
-import me.st28.flexseries.flexcore.player.PlayerProfile;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
-import org.bukkit.command.CommandSender;
+import me.st28.flexseries.flexlib.command.CommandContext;
+import me.st28.flexseries.flexlib.command.CommandDescriptor;
+import me.st28.flexseries.flexlib.command.CommandInterruptedException;
+import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptReason;
+import me.st28.flexseries.flexlib.command.FlexCommand;
+import me.st28.flexseries.flexlib.command.argument.PlayerArgument;
+import me.st28.flexseries.flexlib.message.MessageManager;
+import me.st28.flexseries.flexlib.message.ReplacementMap;
+import me.st28.flexseries.flexlib.player.PlayerManager;
+import me.st28.flexseries.flexlib.player.PlayerReference;
+import me.st28.flexseries.flexlib.player.data.PlayerData;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public final class CmdUnignore extends FlexCommand<FlexChat> {
 
     public CmdUnignore(FlexChat plugin) {
-        super(plugin, "unignore", Collections.singletonList(new CommandArgument("player", true)), new FlexCommandSettings<>()
-            .permission(PermissionNodes.IGNORE)
-            .setPlayerOnly(true)
-        );
+        super(plugin, new CommandDescriptor("unignore").permission(PermissionNodes.IGNORE).playerOnly(true));
+
+        addArgument(new PlayerArgument("player", true).notSender(true));
     }
 
     @Override
-    public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
-        UUID target = CommandUtils.getPlayerUuid(sender, args[0], true, false, false);
+    public void handleExecute(CommandContext context) {
+        UUID target = context.getGlobalObject("player", PlayerReference.class).getUuid();
 
-        PlayerData data = FlexPlugin.getRegisteredModule(PlayerManager.class).getPlayerData(CommandUtils.getSenderUuid(sender));
+        PlayerData data = FlexPlugin.getGlobalModule(PlayerManager.class).getPlayerData(((Player) context.getSender()).getUniqueId());
         List<String> ignored = data.getCustomData("ignored", List.class);
         if (ignored == null) {
             ignored = new ArrayList<>();
             data.setCustomData("ignored", ignored);
         }
 
-        String targetName = new PlayerProfile(target).getName();
+        String targetName = new PlayerReference(target).getName();
         String targetIdentifier = target.toString();
 
-        if (!ignored.contains(targetIdentifier)) {
-            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.ignore_not_exists", new ReplacementMap("{NAME}", targetName).getMap()));
+        if (!ignored.remove(targetIdentifier)) {
+            throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.ignore_not_exists", new ReplacementMap("{NAME}", targetName).getMap()));
         }
 
-        ignored.remove(targetIdentifier);
-        MessageReference.create(FlexChat.class, "notices.ignore_removed", new ReplacementMap("{NAME}", targetName).getMap()).sendTo(sender);
+        throw new CommandInterruptedException(InterruptReason.COMMAND_END, MessageManager.getMessage(FlexChat.class, "notices.ignore_removed", new ReplacementMap("{NAME}", targetName).getMap()));
     }
 
 }

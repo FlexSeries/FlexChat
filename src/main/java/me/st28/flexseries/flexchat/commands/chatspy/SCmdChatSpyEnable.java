@@ -27,36 +27,26 @@ package me.st28.flexseries.flexchat.commands.chatspy;
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.backend.chatadmin.ChatAdminManager;
 import me.st28.flexseries.flexchat.backend.chatadmin.SpySettings;
-import me.st28.flexseries.flexchat.permissions.PermissionNodes;
-import me.st28.flexseries.flexcore.command.CommandUtils;
-import me.st28.flexseries.flexcore.command.FlexCommand;
-import me.st28.flexseries.flexcore.command.FlexCommandSettings;
-import me.st28.flexseries.flexcore.command.FlexSubcommand;
-import me.st28.flexseries.flexcore.command.exceptions.CommandInterruptedException;
-import me.st28.flexseries.flexcore.message.MessageReference;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
-import org.bukkit.command.CommandSender;
+import me.st28.flexseries.flexlib.command.*;
+import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptReason;
+import me.st28.flexseries.flexlib.message.MessageManager;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import org.bukkit.entity.Player;
 
-import java.util.Map;
-
-public final class SCmdChatSpyEnable extends FlexSubcommand<FlexChat> {
+public final class SCmdChatSpyEnable extends Subcommand<FlexChat> {
 
     public SCmdChatSpyEnable(FlexCommand<FlexChat> parent) {
-        super(parent, "enable", null, new FlexCommandSettings<>()
-            .permission(PermissionNodes.SPY)
-            .description("Enables chat spying")
-            .setPlayerOnly(true)
-        );
+        super(parent, new CommandDescriptor("enable").description("Enables chat spying").playerOnly(true));
     }
 
     @Override
-    public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
-        SpySettings settings = FlexPlugin.getRegisteredModule(ChatAdminManager.class).getSpySettings(CommandUtils.getSenderUuid(sender));
+    public void handleExecute(CommandContext context) {
+        SpySettings settings = FlexPlugin.getGlobalModule(ChatAdminManager.class).getSpySettings(((Player) context.getSender()).getUniqueId());
 
         if (settings.setEnabled(true)) {
-            MessageReference.create(FlexChat.class, "notices.spy_enabled").sendTo(sender);
+            throw new CommandInterruptedException(InterruptReason.COMMAND_END, MessageManager.getMessage(FlexChat.class, "notices.spy_enabled"));
         } else {
-            throw new CommandInterruptedException(MessageReference.create(FlexChat.class, "errors.spy_already_enabled"));
+            throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.spy_already_enabled"));
         }
     }
 

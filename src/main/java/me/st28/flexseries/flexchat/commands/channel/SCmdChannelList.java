@@ -31,10 +31,14 @@ import me.st28.flexseries.flexchat.api.chatter.Chatter;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
-import me.st28.flexseries.flexcore.command.*;
-import me.st28.flexseries.flexcore.list.ListBuilder;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
-import me.st28.flexseries.flexcore.util.QuickMap;
+import me.st28.flexseries.flexlib.command.AbstractCommand;
+import me.st28.flexseries.flexlib.command.CommandContext;
+import me.st28.flexseries.flexlib.command.CommandDescriptor;
+import me.st28.flexseries.flexlib.command.Subcommand;
+import me.st28.flexseries.flexlib.command.argument.PageArgument;
+import me.st28.flexseries.flexlib.message.list.ListBuilder;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import me.st28.flexseries.flexlib.utils.QuickMap;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
@@ -42,18 +46,21 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 // TODO: Show multiple instances of a channel if multiple instances are joined
-public final class SCmdChannelList extends FlexSubcommand<FlexChat> {
+final class SCmdChannelList extends Subcommand<FlexChat> {
 
-    public SCmdChannelList(FlexCommand<FlexChat> parent) {
-        super(parent, "list", Collections.singletonList(new CommandArgument("page", false)), new FlexCommandSettings().description("List channels"));
+    public SCmdChannelList(AbstractCommand<FlexChat> parent) {
+        super(parent, new CommandDescriptor("list").description("List channels"));
+
+        addArgument(new PageArgument(false));
     }
 
     @Override
-    public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
-        int page = CommandUtils.getPage(args, 0, false);
+    public void handleExecute(CommandContext context) {
+        CommandSender sender = context.getSender();
+        int page = context.getGlobalObject("page", Integer.class);
 
-        ChannelManagerImpl channelManager = FlexPlugin.getRegisteredModule(ChannelManagerImpl.class);
-        ChatterManagerImpl chatterManager = FlexPlugin.getRegisteredModule(ChatterManagerImpl.class);
+        ChannelManagerImpl channelManager = FlexPlugin.getGlobalModule(ChannelManagerImpl.class);
+        ChatterManagerImpl chatterManager = FlexPlugin.getGlobalModule(ChatterManagerImpl.class);
 
         Chatter chatter = chatterManager.getChatter(sender);
 
@@ -104,11 +111,11 @@ public final class SCmdChannelList extends FlexSubcommand<FlexChat> {
         // Remove channels that shouldn't be visible on the list command.
         boolean canSenderBypass = PermissionNodes.VIEW_BYPASS.isAllowed(sender);
 
-        ListBuilder builder = new ListBuilder("page", "Chat Channels", null, label);
+        ListBuilder builder = new ListBuilder("page", "Chat Channels", null, context.getLabel());
 
         Set<Channel> chatterChannels = chatter.getInstances().stream().map(ChannelInstance::getChannel).collect(Collectors.toSet());
         for (Channel channel : channels) {
-            if (!canSenderBypass && !PermissionNodes.buildVariableNode(PermissionNodes.VIEW, channel.getName()).isAllowed(sender) && activeChannel == channel) {
+            if (!canSenderBypass && !PermissionNodes.buildVariableNode(PermissionNodes.VIEW, channel.getName()).isAllowed(sender) && !chatterChannels.contains(channel)) {
                 continue;
             }
 
@@ -122,10 +129,10 @@ public final class SCmdChannelList extends FlexSubcommand<FlexChat> {
             }
 
             builder.addMessage("flexchat_channel", new QuickMap<>("{CHANNEL}", channel.getName())
-                .put("{COLOR}", channel.getColor().toString())
-                .put("{STATUS}", status)
-                .put("{ACTIVE}", channel == activeChannel ? channelManager.getActiveSymbol() : "")
-                .getMap()
+                            .put("{COLOR}", channel.getColor().toString())
+                            .put("{STATUS}", status)
+                            .put("{ACTIVE}", channel == activeChannel ? channelManager.getActiveSymbol() : "")
+                            .getMap()
             );
         }
 

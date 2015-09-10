@@ -25,33 +25,34 @@
 package me.st28.flexseries.flexchat.commands.ignore;
 
 import me.st28.flexseries.flexchat.FlexChat;
-import me.st28.flexseries.flexchat.permissions.PermissionNodes;
-import me.st28.flexseries.flexcore.command.*;
-import me.st28.flexseries.flexcore.list.ListBuilder;
-import me.st28.flexseries.flexcore.player.PlayerManager;
-import me.st28.flexseries.flexcore.player.uuid_tracker.PlayerUuidTracker;
-import me.st28.flexseries.flexcore.plugin.FlexPlugin;
-import me.st28.flexseries.flexcore.util.StringUtils;
+import me.st28.flexseries.flexlib.command.CommandContext;
+import me.st28.flexseries.flexlib.command.CommandDescriptor;
+import me.st28.flexseries.flexlib.command.FlexCommand;
+import me.st28.flexseries.flexlib.command.Subcommand;
+import me.st28.flexseries.flexlib.message.list.ListBuilder;
+import me.st28.flexseries.flexlib.player.PlayerManager;
+import me.st28.flexseries.flexlib.player.uuidtracker.PlayerUuidTracker;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import me.st28.flexseries.flexlib.utils.StringUtils;
 import org.bukkit.ChatColor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 
-public final class SCmdIgnoreList extends FlexSubcommand<FlexChat> {
+public final class SCmdIgnoreList extends Subcommand<FlexChat> {
 
     public SCmdIgnoreList(FlexCommand<FlexChat> parent) {
-        super(parent, "list", null, new FlexCommandSettings<>()
-            .setPlayerOnly(true)
-            .permission(PermissionNodes.IGNORE)
-            .description("List all ignored players")
-        );
+        super(parent, new CommandDescriptor("list").playerOnly(true).description("List ignored players"));
     }
 
     @Override
-    public void runCommand(CommandSender sender, String command, String label, String[] args, Map<String, String> parameters) {
-        PlayerUuidTracker uuidTracker = FlexPlugin.getRegisteredModule(PlayerUuidTracker.class);
+    public void handleExecute(CommandContext context) {
+        PlayerUuidTracker uuidTracker = FlexPlugin.getGlobalModule(PlayerUuidTracker.class);
 
-        List<String> ignored = FlexPlugin.getRegisteredModule(PlayerManager.class).getPlayerData(CommandUtils.getSenderUuid(sender)).getCustomData("ignored", List.class);
+        List<String> ignored = FlexPlugin.getGlobalModule(PlayerManager.class).getPlayerData(((Player) context.getSender()).getUniqueId()).getCustomData("ignored", List.class);
         if (ignored == null) {
             ignored = new ArrayList<>();
         }
@@ -66,18 +67,18 @@ public final class SCmdIgnoreList extends FlexSubcommand<FlexChat> {
                 continue;
             }
 
-            names.add(uuidTracker.getName(uuid));
+            names.add(uuidTracker.getLatestName(uuid));
         }
 
         Collections.sort(names);
 
-        String namesFormatted = StringUtils.stringCollectionToString(names, ChatColor.GRAY + ", ");
+        String namesFormatted = StringUtils.collectionToString(names, ChatColor.GRAY + ", ");
 
-        ListBuilder builder = new ListBuilder("title", "Ignored", null, label);
+        ListBuilder builder = new ListBuilder("title", "Ignored", null, context.getLabel());
         if (!names.isEmpty()) {
             builder.addMessage(namesFormatted);
         }
-        builder.sendTo(sender, 1);
+        builder.sendTo(context.getSender(), 1);
     }
 
 }
