@@ -81,7 +81,6 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
     private boolean firstReload = true;
 
     private String activeSymbol;
-    private String messageFormat;
 
     private final Map<String, ChatFormat> globalFormats = new LinkedHashMap<>();
 
@@ -181,8 +180,6 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
         activeSymbol = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(config.getString("active symbol", "\u25B6")));
         FlexPlugin.getGlobalModule(ListManager.class).createElementFormat("flexchat_channel", "&a{ACTIVE}{COLOR}{CHANNEL} &8({STATUS}&8)");
-
-        messageFormat = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(config.getString("private message format", "&f[&7{SENDER} &f\u27A1 &7{RECEIVER}&f] &7{MESSAGE}")));
 
         // Load formats
         globalFormats.clear();
@@ -333,10 +330,6 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
     public String getActiveSymbol() {
         return activeSymbol;
-    }
-
-    public String getMessageFormat() {
-        return messageFormat;
     }
 
     @Override
