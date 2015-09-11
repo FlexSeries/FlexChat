@@ -25,6 +25,7 @@
 package me.st28.flexseries.flexchat.backend.variables;
 
 import me.st28.flexseries.flexchat.api.ChatVariable;
+import me.st28.flexseries.flexlib.hook.HookDisabledException;
 import me.st28.flexseries.flexlib.hook.HookManager;
 import me.st28.flexseries.flexlib.hook.defaults.VaultHook;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
@@ -38,7 +39,7 @@ public abstract class VaultChatVariable extends ChatVariable {
     protected VaultHook getVaultHook() {
         try {
             return FlexPlugin.getGlobalModule(HookManager.class).getHook(VaultHook.class);
-        } catch (Exception ex) {
+        } catch (HookDisabledException ex) {
             return null;
         }
     }
