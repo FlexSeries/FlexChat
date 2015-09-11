@@ -36,6 +36,7 @@ permissions:
       flexchat.color: true
       flexchat.format: true
       flexchat.magic: true
+      flexchat.kick: true
       flexchat.spy: true
       flexchat.spy.persistent: true
       flexchat.view.bypass: true
@@ -74,6 +75,10 @@ permissions:
     default: false
   flexchat.ignore.bypass:
     description: 'Ability to bypass being ignored by another player'
+    default: false
+
+  flexchat.kick:
+    description: 'Ability to kick a player from a channel'
     default: false
 
   flexchat.message:

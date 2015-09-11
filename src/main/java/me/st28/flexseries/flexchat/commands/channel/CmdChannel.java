@@ -55,6 +55,7 @@ public final class CmdChannel extends FlexCommand<FlexChat> {
 
         //registerSubcommand(new SCmdChannelInfo(this));
         registerSubcommand(new SCmdChannelJoin(this));
+        registerSubcommand(new SCmdChannelKick(this));
         registerSubcommand(new SCmdChannelLeave(this));
         registerSubcommand(new SCmdChannelList(this));
         registerSubcommand(new SCmdChannelWho(this));

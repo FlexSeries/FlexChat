@@ -14,6 +14,7 @@ errors:
   channel_no_permission: '{mood=error}You do not have permission to {VERB} channel {o=item}{CHANNEL}{/}.'
   channel_not_found: '{mood=error}Channel {o=input}{NAME}{/} not found.'
   channel_not_joined: '{mood=error}You are not in channel &6{CHANNEL}{mood=.}.'
+  channel_not_joined_other: '{mood=error}Player {o=player}{PLAYER}{/} is not in channel {o=item}{CHANNEL}{/}.'
   channel_player_banned: '{mood=error}{PLAYER} is already banned from channel {o=item}{CHANNEL}{/}.'
   channel_player_unbanned: '{mood=error}{PLAYER} is not banned from channel {o=item}{CHANNEL}{/}.'
   chatter_not_found: '{mood=error}Unable to find player {o=input}{NAME}{/}.'
@@ -48,7 +49,7 @@ alerts_channel:
   tag: '&8[&9\u2709&8] '
   chatter_banned: '{TAG}&4&o{CHATTER} &4&owas banned from channel {COLOR}&o{CHANNEL}&4&o.'
   chatter_joined: '{TAG}&a&o{CHATTER} &a&ojoined channel {COLOR}&o{CHANNEL}&a&o.'
-  chatter_kicked: '{TAG}&c&o{CHATTER} &4&owas kicked from channel {COLOR}&o{CHANNEL}&4&o.'
+  chatter_kicked: '{TAG}&c&o{CHATTER} &4&owas kicked from channel {COLOR}&o{CHANNEL} &4&oby {PLAYER}.'
   chatter_left: '{TAG}&c&o{CHATTER} &c&oleft channel {COLOR}&o{CHANNEL}&c&o.'
   chatter_unbanned: '{TAG}&2&o{CHATTER} &2&owas unbanned from channel {COLOR}&o{CHANNEL}&4&o.'
 

@@ -46,6 +46,8 @@ public enum PermissionNodes implements PermissionNode {
 
     VIEW_BYPASS,
 
+    KICK,
+
     COLOR,
     FORMAT,
     MAGIC,
