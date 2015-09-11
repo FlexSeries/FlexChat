@@ -25,6 +25,7 @@
 package me.st28.flexseries.flexchat.logging;
 
 import me.st28.flexseries.flexchat.FlexChat;
+import me.st28.flexseries.flexchat.api.channel.ChannelInstance;
 import me.st28.flexseries.flexlib.log.LogHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -80,6 +81,17 @@ public final class ChatLogHelper {
         } else {
             CHAT_LOGGER.log(Level.INFO, message);
         }
+
+        if (logToBukkit) {
+            Bukkit.getLogger().log(Level.INFO, "[CHAT] " + message);
+        }
+    }
+
+    public static void log(ChannelInstance instance, String message) {
+        String channel = instance.getChannel().getName();
+        String instanceName = instance.getDisplayName();
+
+        CHAT_LOGGER.log(Level.INFO, "[[" + channel + (instanceName == null ? "" : (":" + instanceName)) + "]] " + message);
 
         if (logToBukkit) {
             Bukkit.getLogger().log(Level.INFO, "[CHAT] " + message);

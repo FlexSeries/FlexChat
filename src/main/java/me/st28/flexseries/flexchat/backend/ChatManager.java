@@ -169,15 +169,7 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
 
         Bukkit.getPluginManager().callEvent(new ChannelChatEvent(active, chatter, recipients, e.getMessage()));
 
-        String logName;
-
-        if (active.getLabel() == null) {
-            logName = active.getChannel().getName();
-        } else {
-            logName = active.getChannel().getName() + ":" + active.getDisplayName();
-        }
-
-        ChatLogHelper.log(ChatColor.stripColor(e.getFormat().replace("{MESSAGE}", e.getMessage())), logName);
+        ChatLogHelper.log(active, ChatColor.stripColor(e.getFormat().replace("{MESSAGE}", e.getMessage())));
     }
 
 }
