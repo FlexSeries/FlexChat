@@ -64,7 +64,7 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
     protected void handleEnable() {
         chatters.put(ChatterConsole.NAME, new ChatterConsole());
 
-        registerPlayerDataProvider(new DataProviderDescriptor().addHardDependency(new ModuleReference("FlexLib", "uuid_tracker")));
+        registerPlayerDataProvider(new DataProviderDescriptor());
     }
 
     @Override
