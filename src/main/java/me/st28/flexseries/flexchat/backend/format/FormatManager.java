@@ -35,6 +35,7 @@ import me.st28.flexseries.flexlib.hook.defaults.VaultHook;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import me.st28.flexseries.flexlib.plugin.module.FlexModule;
 import me.st28.flexseries.flexlib.plugin.module.ModuleDescriptor;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
@@ -62,12 +63,12 @@ public final class FormatManager extends FlexModule<FlexChat> {
         final ConfigurationSection messageSec = config.getConfigurationSection("message formats");
         if (messageSec != null) {
             for (String group : messageSec.getKeys(false)) {
-                messageFormats.put(group.toLowerCase(), messageSec.getString(group));
+                messageFormats.put(group.toLowerCase(), StringEscapeUtils.unescapeJava(messageSec.getString(group)));
             }
         }
 
         if (!messageFormats.containsKey("default")) {
-            messageFormats.put("default", "&f[&7{SENDER} &f\\u27A1 &7{RECEIVER}&f] &7{MESSAGE}");
+            messageFormats.put("default", "&f[&7{SENDER} &f\u27A1 &7{RECEIVER}&f] &7{MESSAGE}");
         }
     }
 
