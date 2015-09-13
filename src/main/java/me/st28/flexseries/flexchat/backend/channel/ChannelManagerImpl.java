@@ -45,6 +45,7 @@ import me.st28.flexseries.flexlib.log.LogHelper;
 import me.st28.flexseries.flexlib.message.MessageManager;
 import me.st28.flexseries.flexlib.message.ReplacementMap;
 import me.st28.flexseries.flexlib.message.list.ListManager;
+import me.st28.flexseries.flexlib.permission.PermissionNode;
 import me.st28.flexseries.flexlib.player.PlayerExtendedJoinEvent;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import me.st28.flexseries.flexlib.plugin.module.FlexModule;
@@ -309,11 +310,11 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         channelName = channelName.toLowerCase();
         PluginManager pluginManager = Bukkit.getPluginManager();
 
-        pluginManager.addPermission(new Permission(PermissionNodes.buildVariableNode(PermissionNodes.AUTOJOIN, channelName).getNode(), PermissionDefault.FALSE));
-        pluginManager.addPermission(new Permission(PermissionNodes.buildVariableNode(PermissionNodes.JOIN, channelName).getNode(), PermissionDefault.OP));
-        pluginManager.addPermission(new Permission(PermissionNodes.buildVariableNode(PermissionNodes.LEAVE, channelName).getNode(), PermissionDefault.OP));
-        pluginManager.addPermission(new Permission(PermissionNodes.buildVariableNode(PermissionNodes.CHAT, channelName).getNode(), PermissionDefault.OP));
-        pluginManager.addPermission(new Permission(PermissionNodes.buildVariableNode(PermissionNodes.VIEW, channelName).getNode(), PermissionDefault.TRUE));
+        pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.AUTOJOIN, channelName).getNode(), PermissionDefault.FALSE));
+        pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.JOIN, channelName).getNode(), PermissionDefault.OP));
+        pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.LEAVE, channelName).getNode(), PermissionDefault.OP));
+        pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.CHAT, channelName).getNode(), PermissionDefault.OP));
+        pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.VIEW, channelName).getNode(), PermissionDefault.TRUE));
     }
 
     private void unregisterPermission(String channelName) {
@@ -321,11 +322,11 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         channelName = channelName.toLowerCase();
         PluginManager pluginManager = Bukkit.getPluginManager();
 
-        pluginManager.removePermission(pluginManager.getPermission(PermissionNodes.buildVariableNode(PermissionNodes.AUTOJOIN, channelName).getNode()));
-        pluginManager.removePermission(pluginManager.getPermission(PermissionNodes.buildVariableNode(PermissionNodes.JOIN, channelName).getNode()));
-        pluginManager.removePermission(pluginManager.getPermission(PermissionNodes.buildVariableNode(PermissionNodes.LEAVE, channelName).getNode()));
-        pluginManager.removePermission(pluginManager.getPermission(PermissionNodes.buildVariableNode(PermissionNodes.CHAT, channelName).getNode()));
-        pluginManager.removePermission(pluginManager.getPermission(PermissionNodes.buildVariableNode(PermissionNodes.VIEW, channelName).getNode()));
+        pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.AUTOJOIN, channelName).getNode()));
+        pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.JOIN, channelName).getNode()));
+        pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.LEAVE, channelName).getNode()));
+        pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.CHAT, channelName).getNode()));
+        pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.VIEW, channelName).getNode()));
     }
 
     public String getActiveSymbol() {
@@ -409,7 +410,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
         // Add to autojoinable channels.
         for (Channel channel : channels.values()) {
-            if (chatter.hasPermission(PermissionNodes.buildVariableNode(PermissionNodes.AUTOJOIN, channel.getName()))) {
+            if (chatter.hasPermission(PermissionNode.buildVariableNode(PermissionNodes.AUTOJOIN, channel.getName()))) {
                 List<ChannelInstance> instances = channel.getInstances(chatter);
                 if (instances != null && instances.size() == 1) {
                     ChannelInstance instance = instances.get(0);

@@ -37,6 +37,7 @@ import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptR
 import me.st28.flexseries.flexlib.message.MessageManager;
 import me.st28.flexseries.flexlib.message.ReplacementMap;
 import me.st28.flexseries.flexlib.message.reference.MessageReference;
+import me.st28.flexseries.flexlib.permission.PermissionNode;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 
 public class SCmdChannelLeave extends Subcommand<FlexChat> {
@@ -57,7 +58,7 @@ public class SCmdChannelLeave extends Subcommand<FlexChat> {
         ChannelInstance instance = context.getGlobalObject("instance", ChannelInstance.class);
         Channel channel = instance.getChannel();
 
-        if (!chatter.hasPermission(PermissionNodes.buildVariableNode(PermissionNodes.LEAVE, channel.getName()))) {
+        if (!chatter.hasPermission(PermissionNode.buildVariableNode(PermissionNodes.LEAVE, channel.getName()))) {
             throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.channel_no_permission", new ReplacementMap("{VERB}", "leave").put("{CHANNEL}", channel.getName()).getMap()));
         }
 

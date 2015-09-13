@@ -37,6 +37,7 @@ import me.st28.flexseries.flexlib.command.CommandDescriptor;
 import me.st28.flexseries.flexlib.command.Subcommand;
 import me.st28.flexseries.flexlib.command.argument.PageArgument;
 import me.st28.flexseries.flexlib.message.list.ListBuilder;
+import me.st28.flexseries.flexlib.permission.PermissionNode;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import me.st28.flexseries.flexlib.utils.QuickMap;
 import org.bukkit.ChatColor;
@@ -115,7 +116,7 @@ final class SCmdChannelList extends Subcommand<FlexChat> {
 
         Set<Channel> chatterChannels = chatter.getInstances().stream().map(ChannelInstance::getChannel).collect(Collectors.toSet());
         for (Channel channel : channels) {
-            if (!canSenderBypass && !PermissionNodes.buildVariableNode(PermissionNodes.VIEW, channel.getName()).isAllowed(sender) && !chatterChannels.contains(channel)) {
+            if (!canSenderBypass && !PermissionNode.buildVariableNode(PermissionNodes.VIEW, channel.getName()).isAllowed(sender) && !chatterChannels.contains(channel)) {
                 continue;
             }
 

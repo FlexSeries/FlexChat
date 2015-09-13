@@ -39,6 +39,7 @@ import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptR
 import me.st28.flexseries.flexlib.command.FlexCommand;
 import me.st28.flexseries.flexlib.message.MessageManager;
 import me.st28.flexseries.flexlib.message.ReplacementMap;
+import me.st28.flexseries.flexlib.permission.PermissionNode;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.bukkit.command.CommandSender;
 
@@ -71,7 +72,7 @@ public final class CmdChannel extends FlexCommand<FlexChat> {
         Channel channel = context.getGlobalObject("channel", Channel.class);
         ChannelInstance instance = context.getGlobalObject("instance", ChannelInstance.class);
 
-        if (!chatter.isInInstance(instance) && !chatter.hasPermission(PermissionNodes.buildVariableNode(PermissionNodes.JOIN, channel.getName()))) {
+        if (!chatter.isInInstance(instance) && !chatter.hasPermission(PermissionNode.buildVariableNode(PermissionNodes.JOIN, channel.getName()))) {
             throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.channel_no_permission", new ReplacementMap("{VERB}", "join").put("{CHANNEL}", channel.getName()).getMap()));
         }
 

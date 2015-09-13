@@ -36,6 +36,7 @@ import me.st28.flexseries.flexlib.command.*;
 import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptReason;
 import me.st28.flexseries.flexlib.message.MessageManager;
 import me.st28.flexseries.flexlib.message.ReplacementMap;
+import me.st28.flexseries.flexlib.permission.PermissionNode;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.bukkit.command.CommandSender;
 
@@ -55,7 +56,7 @@ public final class SCmdChannelJoin extends Subcommand<FlexChat> {
         Channel channel = context.getGlobalObject("channel", Channel.class);
         ChannelInstance instance = context.getGlobalObject("instance", ChannelInstance.class);
 
-        if (!chatter.isInInstance(instance) && !chatter.hasPermission(PermissionNodes.buildVariableNode(PermissionNodes.JOIN, channel.getName()))) {
+        if (!chatter.isInInstance(instance) && !chatter.hasPermission(PermissionNode.buildVariableNode(PermissionNodes.JOIN, channel.getName()))) {
             throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.channel_no_permission", new ReplacementMap("{VERB}", "join").put("{CHANNEL}", channel.getName()).getMap()));
         }
 

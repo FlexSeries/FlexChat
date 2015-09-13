@@ -37,6 +37,7 @@ import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptR
 import me.st28.flexseries.flexlib.command.argument.Argument;
 import me.st28.flexseries.flexlib.message.MessageManager;
 import me.st28.flexseries.flexlib.message.ReplacementMap;
+import me.st28.flexseries.flexlib.permission.PermissionNode;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.bukkit.command.CommandSender;
 
@@ -106,7 +107,7 @@ public final class ChannelArgument extends Argument {
         return channelManager.getChannels().stream().filter(new Predicate<Channel>() {
             @Override
             public boolean test(Channel channel) {
-                return canSenderBypass || PermissionNodes.buildVariableNode(PermissionNodes.VIEW, channel.getName()).isAllowed(sender);
+                return canSenderBypass || PermissionNode.buildVariableNode(PermissionNodes.VIEW, channel.getName()).isAllowed(sender);
             }
         }).map(Channel::getName).collect(Collectors.toList());
     }

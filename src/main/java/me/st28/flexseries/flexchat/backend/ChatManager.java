@@ -31,13 +31,11 @@ import me.st28.flexseries.flexchat.api.channel.ChannelInstance;
 import me.st28.flexseries.flexchat.api.chatter.Chatter;
 import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.api.format.ChatFormat;
-import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
-import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
 import me.st28.flexseries.flexchat.logging.ChatLogHelper;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexlib.message.MessageManager;
 import me.st28.flexseries.flexlib.message.ReplacementMap;
-import me.st28.flexseries.flexlib.message.reference.MessageReference;
+import me.st28.flexseries.flexlib.permission.PermissionNode;
 import me.st28.flexseries.flexlib.player.PlayerManager;
 import me.st28.flexseries.flexlib.player.data.PlayerData;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
@@ -53,7 +51,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public final class ChatManager extends FlexModule<FlexChat> implements Listener {
 
@@ -88,7 +89,7 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
             return;
         }
 
-        if (!chatter.hasPermission(PermissionNodes.buildVariableNode(PermissionNodes.CHAT, active.getChannel().getName()))) {
+        if (!chatter.hasPermission(PermissionNode.buildVariableNode(PermissionNodes.CHAT, active.getChannel().getName()))) {
             e.setCancelled(true);
             MessageManager.getMessage(FlexChat.class, "errors.channel_no_permission", new ReplacementMap("{VERB}", "chat in").put("{CHANNEL}", active.getChannel().getName()).getMap()).sendTo(player);
             return;

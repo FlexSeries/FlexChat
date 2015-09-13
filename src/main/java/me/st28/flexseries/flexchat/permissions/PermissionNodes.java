@@ -76,19 +76,4 @@ public enum PermissionNodes implements PermissionNode {
         return node;
     }
 
-    public static PermissionNode buildVariableNode(PermissionNodes mainPerm, String... variables) {
-        final String node = mainPerm.node + "." + StringUtils.collectionToString(Arrays.asList(variables), ".").toLowerCase();
-
-        if (VARIABLE_NODES.containsKey(node)) {
-            return VARIABLE_NODES.get(node);
-        }
-
-        PermissionNode newNode = () -> node;
-
-        VARIABLE_NODES.put(node, newNode);
-        return newNode;
-    }
-
-    private final static Map<String, PermissionNode> VARIABLE_NODES = new HashMap<>();
-
 }
