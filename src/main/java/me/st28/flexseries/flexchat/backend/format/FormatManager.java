@@ -105,6 +105,11 @@ public final class FormatManager extends FlexModule<FlexChat> {
 
         for (ChatVariable variable : ChatFormat.VARIABLES.values()) {
             String key = variable.getReplaceKey();
+
+            if (!finalMessage.contains(key)) {
+                continue;
+            }
+
             if (!cachedReplacements.containsKey(key)) {
                 String replacement = variable.getReplacement(sender, null);
                 if (replacement == null) {
