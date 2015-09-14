@@ -32,6 +32,7 @@ import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.api.format.ChatFormat;
 import me.st28.flexseries.flexlib.hook.HookManager;
 import me.st28.flexseries.flexlib.hook.defaults.VaultHook;
+import me.st28.flexseries.flexlib.permission.PermissionHelper;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import me.st28.flexseries.flexlib.plugin.module.FlexModule;
 import me.st28.flexseries.flexlib.plugin.module.ModuleDescriptor;
@@ -40,10 +41,7 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
@@ -79,24 +77,7 @@ public final class FormatManager extends FlexModule<FlexChat> {
             return messageFormats.containsKey("console") ? messageFormats.get("console") : messageFormats.get("default");
         }
 
-        VaultHook vault;
-        try {
-            vault = FlexPlugin.getGlobalModule(HookManager.class).getHook(VaultHook.class);
-        } catch (Exception ex) {
-            // Vault not loaded successfully.
-            return messageFormats.get("default");
-        }
-
-        List<String> playerGroups = Arrays.asList(vault.getPermission().getPlayerGroups(null, ((ChatterPlayer) chatter).getPlayer())).stream().map(String::toLowerCase).collect(Collectors.toList());
-
-        for (Entry<String, String> entry : messageFormats.entrySet()) {
-            if (playerGroups.contains(entry.getKey())) {
-                return entry.getValue();
-            }
-            //TODO: Check inheritance. (May have to link directly into permission plugins...)
-        }
-
-        return messageFormats.get("default");
+        return messageFormats.get(PermissionHelper.getTopGroup(((ChatterPlayer) chatter).getPlayer(), new ArrayList<>(messageFormats.keySet()), "default"));
     }
 
     public String formatMessage(Chatter sender, String message) {
