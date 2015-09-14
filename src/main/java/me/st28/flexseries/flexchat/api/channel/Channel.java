@@ -32,6 +32,7 @@ import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexlib.hook.HookManager;
 import me.st28.flexseries.flexlib.hook.defaults.VaultHook;
 import me.st28.flexseries.flexlib.log.LogHelper;
+import me.st28.flexseries.flexlib.permission.PermissionHelper;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
@@ -142,26 +143,7 @@ public abstract class Channel {
         if (!(chatter instanceof ChatterPlayer)) {
             return getChatFormat((String) null);
         }
-
-        VaultHook vault;
-        try {
-            vault = FlexPlugin.getGlobalModule(HookManager.class).getHook(VaultHook.class);
-        } catch (Exception ex) {
-            // Vault not loaded successfully.
-            return getChatFormat((String) null);
-        }
-
-        List<String> playerGroups = Arrays.asList(vault.getPermission().getPlayerGroups(null, ((ChatterPlayer) chatter).getPlayer())).stream().map(String::toLowerCase).collect(Collectors.toList());
-
-        for (Entry<String, ChatFormat> entry : formats.entrySet()) {
-            if (playerGroups.contains(entry.getKey())) {
-                return entry.getValue();
-            }/* else if (entry.getValue().shouldInheritGroup()) {
-
-            }*/
-            //TODO: Check inheritance. (May have to link directly into permission plugins...)
-        }
-        return getChatFormat((String) null);
+        return formats.get(PermissionHelper.getTopGroup(((ChatterPlayer) chatter).getPlayer(), new ArrayList<>(formats.keySet()), "default"));
     }
 
     /**
