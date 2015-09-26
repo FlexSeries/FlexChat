@@ -60,7 +60,7 @@ public final class CmdMessage extends FlexCommand<FlexChat> {
         super(plugin, new CommandDescriptor("message").permission(PermissionNodes.MESSAGE));
 
         addArgument(new ChatterArgument("player", true));
-        addArgument(new StringArgument("message", true));
+        addArgument(new StringArgument("message", true, true));
     }
 
     @Override
