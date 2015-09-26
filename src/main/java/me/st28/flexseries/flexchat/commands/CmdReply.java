@@ -46,7 +46,7 @@ public final class CmdReply extends FlexCommand<FlexChat> {
 
         this.messageCommand = messageCommand;
 
-        addArgument(new StringArgument("message", true));
+        addArgument(new StringArgument("message", true, true));
     }
 
     @Override
