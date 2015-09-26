@@ -70,7 +70,8 @@ public final class CmdMessage extends FlexCommand<FlexChat> {
         Chatter sender = FlexPlugin.getGlobalModule(ChatterManagerImpl.class).getChatter(context.getSender());
         Chatter target = context.getGlobalObject("player", Chatter.class);
 
-        String message = formatManager.formatMessage(sender, context.getGlobalObject("message", String.class));
+        String rawMessage = context.getGlobalObject("message", String.class);
+        String message = formatManager.formatMessage(sender, rawMessage);
 
         String senderIdentifier = sender.getIdentifier();
         String targetIdentifier = target.getIdentifier();
@@ -104,7 +105,7 @@ public final class CmdMessage extends FlexCommand<FlexChat> {
         replies.put(targetIdentifier, senderIdentifier);
 
         // Log message
-        ChatLogHelper.log(ChatColor.stripColor("[[-MSG-]] " + sender.getName() + " TO " + target.getName() + " > " + message));
+        ChatLogHelper.log(ChatColor.stripColor("[[-MSG-]] " + sender.getName() + " TO " + target.getName() + " > " + rawMessage));
     }
 
 
