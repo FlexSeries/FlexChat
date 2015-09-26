@@ -66,12 +66,22 @@ public class ChatterPlayer extends Chatter {
 
     @Override
     public void sendMessage(String message) {
-        getPlayer().sendMessage(message);
+        Player player = getPlayer();
+        if (player == null) {
+            return;
+        }
+
+        player.sendMessage(message);
     }
 
     @Override
     public void sendMessage(MessageReference message) {
-        message.sendTo(getPlayer());
+        Player player = getPlayer();
+        if (player == null) {
+            return;
+        }
+
+        message.sendTo(player);
     }
 
 }
