@@ -144,10 +144,8 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
 
     @Override
     public void unloadPlayer(PlayerLoader loader, PlayerData data, UUID uuid, String name) {
-        Chatter chatter = chatters.get(uuid.toString());
+        Chatter chatter = chatters.remove(uuid.toString());
         if (chatter != null) {
-            chatters.remove(uuid.toString());
-
             for (ChannelInstance instance : chatter.getInstances()) {
                 instance.removeChatter(chatter);
             }
