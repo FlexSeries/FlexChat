@@ -33,7 +33,6 @@ import me.st28.flexseries.flexchat.api.chatter.ChatterManager;
 import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexlib.log.LogHelper;
-import me.st28.flexseries.flexlib.player.PlayerExtendedLeaveEvent;
 import me.st28.flexseries.flexlib.player.data.DataProviderDescriptor;
 import me.st28.flexseries.flexlib.player.data.PlayerData;
 import me.st28.flexseries.flexlib.player.data.PlayerDataProvider;
@@ -46,7 +45,6 @@ import me.st28.flexseries.flexlib.storage.flatfile.YamlFileManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import java.io.File;

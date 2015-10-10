@@ -30,10 +30,7 @@ import me.st28.flexseries.flexchat.api.chatter.Chatter;
 import me.st28.flexseries.flexchat.api.chatter.ChatterConsole;
 import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.api.format.ChatFormat;
-import me.st28.flexseries.flexlib.hook.HookManager;
-import me.st28.flexseries.flexlib.hook.defaults.VaultHook;
 import me.st28.flexseries.flexlib.permission.PermissionHelper;
-import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import me.st28.flexseries.flexlib.plugin.module.FlexModule;
 import me.st28.flexseries.flexlib.plugin.module.ModuleDescriptor;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -41,9 +38,9 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class FormatManager extends FlexModule<FlexChat> {
 

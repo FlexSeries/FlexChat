@@ -50,7 +50,6 @@ import me.st28.flexseries.flexlib.player.PlayerExtendedJoinEvent;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import me.st28.flexseries.flexlib.plugin.module.FlexModule;
 import me.st28.flexseries.flexlib.plugin.module.ModuleDescriptor;
-import me.st28.flexseries.flexlib.plugin.module.ModuleDisabledException;
 import me.st28.flexseries.flexlib.storage.flatfile.YamlFileManager;
 import me.st28.flexseries.flexlib.utils.PluginUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -70,8 +69,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public final class ChannelManagerImpl extends FlexModule<FlexChat> implements ChannelManager, Listener {

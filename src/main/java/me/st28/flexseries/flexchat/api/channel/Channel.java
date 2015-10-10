@@ -29,18 +29,18 @@ import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.api.format.ChatFormat;
 import me.st28.flexseries.flexchat.api.format.ReferencedChatFormat;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
-import me.st28.flexseries.flexlib.hook.HookManager;
-import me.st28.flexseries.flexlib.hook.defaults.VaultHook;
 import me.st28.flexseries.flexlib.log.LogHelper;
 import me.st28.flexseries.flexlib.permission.PermissionHelper;
-import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public abstract class Channel {
 

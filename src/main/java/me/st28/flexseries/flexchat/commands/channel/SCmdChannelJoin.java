@@ -38,7 +38,6 @@ import me.st28.flexseries.flexlib.message.MessageManager;
 import me.st28.flexseries.flexlib.message.ReplacementMap;
 import me.st28.flexseries.flexlib.permission.PermissionNode;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
-import org.bukkit.command.CommandSender;
 
 public final class SCmdChannelJoin extends Subcommand<FlexChat> {
 

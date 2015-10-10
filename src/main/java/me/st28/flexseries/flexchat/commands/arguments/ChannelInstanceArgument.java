@@ -35,7 +35,6 @@ import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptR
 import me.st28.flexseries.flexlib.command.argument.Argument;
 import me.st28.flexseries.flexlib.message.MessageManager;
 import me.st28.flexseries.flexlib.message.ReplacementMap;
-import me.st28.flexseries.flexlib.message.reference.MessageReference;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.apache.commons.lang.Validate;
 
