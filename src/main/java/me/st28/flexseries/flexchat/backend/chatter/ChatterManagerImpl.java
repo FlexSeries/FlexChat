@@ -33,8 +33,9 @@ import me.st28.flexseries.flexchat.api.chatter.ChatterManager;
 import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexlib.log.LogHelper;
+import me.st28.flexseries.flexlib.player.PlayerData;
+import me.st28.flexseries.flexlib.player.PlayerReference;
 import me.st28.flexseries.flexlib.player.data.DataProviderDescriptor;
-import me.st28.flexseries.flexlib.player.data.PlayerData;
 import me.st28.flexseries.flexlib.player.data.PlayerDataProvider;
 import me.st28.flexseries.flexlib.player.data.PlayerLoader;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
@@ -48,7 +49,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterManager, Listener, PlayerDataProvider {
 
@@ -62,7 +69,7 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
     protected void handleEnable() {
         chatters.put(ChatterConsole.NAME, new ChatterConsole());
 
-        registerPlayerDataProvider(new DataProviderDescriptor());
+        registerPlayerDataProvider(new DataProviderDescriptor().onlineOnly(true));
     }
 
     @Override
@@ -128,26 +135,27 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
     }
 
     @Override
-    public void loadPlayer(PlayerLoader loader, PlayerData data, UUID uuid, String name) {
-        loadPlayerChatter(uuid);
+    public void loadPlayer(PlayerLoader loader, PlayerData data, PlayerReference player) {
+        loadPlayerChatter(player.getUuid());
     }
 
     @Override
-    public void savePlayer(PlayerLoader loader, PlayerData data, UUID uuid, String name) {
-        Chatter chatter = chatters.get(uuid.toString());
+    public void savePlayer(PlayerLoader loader, PlayerData data, PlayerReference player) {
+        Chatter chatter = chatters.get(player.getUuid().toString());
         if (chatter != null) {
             saveChatter(chatter);
         }
     }
 
     @Override
-    public void unloadPlayer(PlayerLoader loader, PlayerData data, UUID uuid, String name) {
-        Chatter chatter = chatters.remove(uuid.toString());
+    public boolean unloadPlayer(PlayerLoader loader, PlayerData data, PlayerReference player, boolean force) {
+        Chatter chatter = chatters.remove(player.getUuid().toString());
         if (chatter != null) {
             for (ChannelInstance instance : chatter.getInstances()) {
                 instance.removeChatter(chatter);
             }
         }
+        return true;
     }
 
 }

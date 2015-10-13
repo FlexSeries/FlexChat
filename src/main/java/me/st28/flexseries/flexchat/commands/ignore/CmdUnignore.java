@@ -36,7 +36,7 @@ import me.st28.flexseries.flexlib.message.MessageManager;
 import me.st28.flexseries.flexlib.message.ReplacementMap;
 import me.st28.flexseries.flexlib.player.PlayerManager;
 import me.st28.flexseries.flexlib.player.PlayerReference;
-import me.st28.flexseries.flexlib.player.data.PlayerData;
+import me.st28.flexseries.flexlib.player.PlayerData;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.bukkit.entity.Player;
 

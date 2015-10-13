@@ -28,8 +28,10 @@ import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.ChannelChatEvent;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
+import me.st28.flexseries.flexlib.player.PlayerData;
 import me.st28.flexseries.flexlib.player.PlayerExtendedJoinEvent;
-import me.st28.flexseries.flexlib.player.data.PlayerData;
+import me.st28.flexseries.flexlib.player.PlayerReference;
+import me.st28.flexseries.flexlib.player.data.DataProviderDescriptor;
 import me.st28.flexseries.flexlib.player.data.PlayerDataProvider;
 import me.st28.flexseries.flexlib.player.data.PlayerLoader;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
@@ -50,8 +52,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -84,6 +90,8 @@ public class ChatAdminManager extends FlexModule<FlexChat> implements Listener, 
     @Override
     protected void handleEnable() {
         spyFile = new YamlFileManager(getDataFolder() + File.separator + "chatSpies.yml");
+
+        registerPlayerDataProvider(new DataProviderDescriptor());
     }
 
     private void loadPlayer(UUID uuid) {
@@ -198,8 +206,8 @@ public class ChatAdminManager extends FlexModule<FlexChat> implements Listener, 
     }
 
     @Override
-    public void loadPlayer(PlayerLoader loader, PlayerData data, UUID uuid, String name) {
-        loadPlayer(uuid);
+    public void loadPlayer(PlayerLoader loader, PlayerData data, PlayerReference player) {
+        loadPlayer(player.getUuid());
     }
 
 }
