@@ -53,7 +53,7 @@ public final class SCmdChannelWho extends Subcommand<FlexChat> {
         super(parent, new CommandDescriptor("who").description("View chatters in a channel").permission(PermissionNodes.WHO));
 
         addArgument(new ChannelArgument("channel", false));
-        addArgument(new ChannelInstanceArgument("instance", false, "channel"));
+        //addArgument(new ChannelInstanceArgument("instance", false, "channel"));
     }
 
     @Override
