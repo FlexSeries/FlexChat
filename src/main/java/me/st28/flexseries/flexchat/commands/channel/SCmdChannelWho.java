@@ -31,10 +31,13 @@ import me.st28.flexseries.flexchat.api.chatter.Chatter;
 import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
 import me.st28.flexseries.flexchat.commands.arguments.ChannelArgument;
-import me.st28.flexseries.flexchat.commands.arguments.ChannelInstanceArgument;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
-import me.st28.flexseries.flexlib.command.*;
+import me.st28.flexseries.flexlib.command.AbstractCommand;
+import me.st28.flexseries.flexlib.command.CommandContext;
+import me.st28.flexseries.flexlib.command.CommandDescriptor;
+import me.st28.flexseries.flexlib.command.CommandInterruptedException;
 import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptReason;
+import me.st28.flexseries.flexlib.command.Subcommand;
 import me.st28.flexseries.flexlib.message.MessageManager;
 import me.st28.flexseries.flexlib.message.ReplacementMap;
 import me.st28.flexseries.flexlib.message.list.ListBuilder;
@@ -44,7 +47,9 @@ import me.st28.flexseries.flexlib.utils.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public final class SCmdChannelWho extends Subcommand<FlexChat> {
@@ -76,7 +81,7 @@ public final class SCmdChannelWho extends Subcommand<FlexChat> {
             while (iterator.hasNext()) {
                 Chatter next = iterator.next();
 
-                if (next instanceof ChatterPlayer && !player.canSee(((ChatterPlayer) next).getPlayer())) {
+                if (next != sender && next instanceof ChatterPlayer && !player.canSee(((ChatterPlayer) next).getPlayer())) {
                     iterator.remove();
                 }
             }
@@ -87,12 +92,12 @@ public final class SCmdChannelWho extends Subcommand<FlexChat> {
         ListBuilder builder = new ListBuilder("subtitle", "Chatters", channel.getName(), context.getLabel());
 
         if (!names.isEmpty()) {
-            StringUtils.collectionToString(names, ChatColor.DARK_GRAY + ", ", new StringConverter<String>() {
+            builder.addMessage(StringUtils.collectionToString(names, ChatColor.DARK_GRAY + ", ", new StringConverter<String>() {
                 @Override
                 public String toString(String string) {
                     return ChatColor.GOLD + string;
                 }
-            });
+            }));
         }
 
         builder.sendTo(context.getSender(), 1);
