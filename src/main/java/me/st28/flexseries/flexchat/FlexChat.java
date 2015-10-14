@@ -1,41 +1,75 @@
+/**
+ * FlexChat - Licensed under the MIT License (MIT)
+ *
+ * Copyright (c) Stealth2800 <http://stealthyone.com/>
+ * Copyright (c) contributors <https://github.com/FlexSeries>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package me.st28.flexseries.flexchat;
 
-import me.st28.flexseries.flexchat.api.ChannelManager;
-import me.st28.flexseries.flexchat.api.ChatterManager;
-import me.st28.flexseries.flexchat.backend.ChatAdminManager;
+import me.st28.flexseries.flexchat.backend.ChatManager;
+import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
+import me.st28.flexseries.flexchat.backend.chatadmin.ChatAdminManager;
+import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
+import me.st28.flexseries.flexchat.backend.format.FormatManager;
 import me.st28.flexseries.flexchat.commands.CmdMessage;
 import me.st28.flexseries.flexchat.commands.CmdReply;
 import me.st28.flexseries.flexchat.commands.channel.CmdChannel;
-import me.st28.flexseries.flexchat.commands.chat_spy.CmdChatSpy;
+import me.st28.flexseries.flexchat.commands.chatspy.CmdChatSpy;
 import me.st28.flexseries.flexchat.commands.ignore.CmdIgnore;
 import me.st28.flexseries.flexchat.commands.ignore.CmdUnignore;
-import me.st28.flexseries.flexcore.commands.FlexCommandWrapper;
-import me.st28.flexseries.flexcore.plugins.FlexPlugin;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import me.st28.flexseries.flexchat.logging.ChatLogHelper;
+import me.st28.flexseries.flexlib.command.FlexCommandWrapper;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import org.bukkit.configuration.file.FileConfiguration;
 
 public final class FlexChat extends FlexPlugin {
 
-    public final static Logger CHAT_LOGGER = LogManager.getLogger(ChannelManager.class.getCanonicalName());
-
     @Override
-    public void handlePluginLoad() {
-        registerModule(new ChannelManager(this));
-        registerModule(new ChatterManager(this));
+    public void handleLoad() {
+        registerModule(new ChannelManagerImpl(this));
+        registerModule(new ChatterManagerImpl(this));
+        registerModule(new ChatManager(this));
         registerModule(new ChatAdminManager(this));
+        registerModule(new FormatManager(this));
     }
 
     @Override
-    public void handlePluginEnable() {
-        FlexCommandWrapper.registerCommand(this, "flexchannel", new CmdChannel(this));
-        FlexCommandWrapper.registerCommand(this, "flexchatspy", new CmdChatSpy(this));
-
-        FlexCommandWrapper.registerCommand(this, "flexignore", new CmdIgnore(this));
-        FlexCommandWrapper.registerCommand(this, "flexunignore", new CmdUnignore(this));
+    public void handleEnable() {
+        // Setup commands
+        FlexCommandWrapper.registerCommand(new CmdChannel(this));
+        FlexCommandWrapper.registerCommand(new CmdChatSpy(this));
+        FlexCommandWrapper.registerCommand(new CmdIgnore(this));
+        FlexCommandWrapper.registerCommand(new CmdUnignore(this));
 
         CmdMessage messageCommand = new CmdMessage(this);
-        FlexCommandWrapper.registerCommand(this, "flexmessage", messageCommand);
-        FlexCommandWrapper.registerCommand(this, "flexreply", new CmdReply(this, messageCommand));
+        FlexCommandWrapper.registerCommand(messageCommand);
+        FlexCommandWrapper.registerCommand(new CmdReply(this, messageCommand));
+
+        // Setup logger
+        ChatLogHelper.init(this);
+    }
+
+    @Override
+    public void handleConfigReload(FileConfiguration config) {
+        ChatLogHelper.reload(config);
     }
 
 }

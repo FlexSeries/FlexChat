@@ -6,7 +6,7 @@
 
     <groupId>me.st28.flexseries</groupId>
     <artifactId>flexchat</artifactId>
-    <version>1.1.2</version>
+    <version>2.0.0</version>
     <name>FlexChat</name>
     <description>Powerful chat plugin for Bukkit</description>
     <url>http://stealthyone.com/</url>
@@ -24,6 +24,23 @@
         <url>https://github.com/FlexSeries/FlexChat.git</url>
     </scm>
 
+    <ciManagement>
+        <system>jenkins</system>
+        <url>http://ci.stealthyone.com/</url>
+    </ciManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>stealthyone-releases</id>
+            <url>http://repo.stealthyone.com/content/repositories/releases/</url>
+        </repository>
+
+        <snapshotRepository>
+            <id>stealthyone-snapshots</id>
+            <url>http://repo.stealthyone.com/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <repositories>
         <repository>
             <id>stealthyone-repo</id>
@@ -34,8 +51,8 @@
     <dependencies>
         <dependency>
             <groupId>me.st28.flexseries</groupId>
-            <artifactId>flexcore</artifactId>
-            <version>3.0.0-SNAPSHOT</version>
+            <artifactId>flexlib</artifactId>
+            <version>0.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -85,12 +102,44 @@
             </plugin>
 
             <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>2.2</version>
+                <executions>
+                    <execution>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                        <configuration>
+                            <encoding>UTF-8</encoding>
+
+                            <header>LICENSE.txt</header>
+
+                            <mapping>
+                                <java>JAVADOC_STYLE</java>
+                            </mapping>
+
+                            <properties>
+                                <name>${project.name}</name>
+                            </properties>
+
+                            <includes>
+                                <include>src/main/java/**</include>
+                                <include>src/test/java/**</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>

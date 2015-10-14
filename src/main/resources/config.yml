@@ -1,2 +1,4 @@
 debug: false
 autosave interval: 10
+logging:
+  log to bukkit: true
