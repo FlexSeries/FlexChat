@@ -31,6 +31,7 @@ import me.st28.flexseries.flexchat.api.chatter.Chatter;
 import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
 import me.st28.flexseries.flexchat.commands.arguments.ChannelArgument;
+import me.st28.flexseries.flexchat.commands.arguments.ChannelInstanceArgument;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexlib.command.AbstractCommand;
 import me.st28.flexseries.flexlib.command.CommandContext;
@@ -58,7 +59,7 @@ public final class SCmdChannelWho extends Subcommand<FlexChat> {
         super(parent, new CommandDescriptor("who").description("View chatters in a channel").permission(PermissionNodes.WHO));
 
         addArgument(new ChannelArgument("channel", false));
-        //addArgument(new ChannelInstanceArgument("instance", false, "channel"));
+        addArgument(new ChannelInstanceArgument("instance", false, "channel"));
     }
 
     @Override
