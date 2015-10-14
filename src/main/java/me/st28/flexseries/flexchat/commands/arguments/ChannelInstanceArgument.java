@@ -85,7 +85,10 @@ public class ChannelInstanceArgument extends Argument {
         }
 
         List<ChannelInstance> instances = channel.getInstances(sender);
-        if (instances.size() == 1) {
+
+        if (instances == null || instances.isEmpty()) {
+            throw new CommandInterruptedException(InterruptReason.ARGUMENT_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.channel_cannot_join"));
+        } else if (instances.size() == 1) {
             return instances.get(0);
         } else {
             // An instance must be specified.
