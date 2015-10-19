@@ -136,9 +136,14 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
             radius = (int) Math.pow(radius, 2D);
 
             for (Chatter oChatter : active.getChatters()) {
+                if (oChatter == null) {
+                    continue;
+                }
+
                 if (oChatter instanceof ChatterPlayer) {
                     try {
-                        if (((ChatterPlayer) oChatter).getPlayer().getLocation().distanceSquared(senderLoc) > radius) {
+                        Player oPlayer = ((ChatterPlayer) oChatter).getPlayer();
+                        if (oPlayer != null && oPlayer.getLocation().distanceSquared(senderLoc) > radius) {
                             continue;
                         }
                     } catch (IllegalArgumentException ex) {

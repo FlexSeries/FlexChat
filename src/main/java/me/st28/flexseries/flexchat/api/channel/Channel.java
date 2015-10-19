@@ -157,7 +157,7 @@ public abstract class Channel {
     public ChannelInstance getInstance(String name) {
         Validate.notNull(name, "Name cannot be null.");
         for (ChannelInstance instance : getInstances()) {
-            if (instance.getDisplayName().equalsIgnoreCase(name) || instance.getLabel().equalsIgnoreCase("label")) {
+            if (instance.getDisplayName() != null && (instance.getDisplayName().equalsIgnoreCase(name) || instance.getLabel().equalsIgnoreCase("label"))) {
                 return instance;
             }
         }
