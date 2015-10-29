@@ -39,6 +39,7 @@ import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.apache.commons.lang.Validate;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,12 +85,12 @@ public class ChannelInstanceArgument extends Argument {
             return instance;
         }
 
-        List<ChannelInstance> instances = channel.getInstances(sender);
+        Collection<ChannelInstance> instances = channel.getInstances(sender);
 
         if (instances == null || instances.isEmpty()) {
             throw new CommandInterruptedException(InterruptReason.ARGUMENT_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.channel_cannot_join"));
         } else if (instances.size() == 1) {
-            return instances.get(0);
+            return instances.iterator().next();
         } else {
             // An instance must be specified.
             throw new CommandInterruptedException(InterruptReason.INVALID_USAGE);
