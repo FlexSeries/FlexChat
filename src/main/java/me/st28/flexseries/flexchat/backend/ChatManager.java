@@ -44,17 +44,15 @@ import me.st28.flexseries.flexlib.plugin.module.ModuleDescriptor;
 import me.st28.flexseries.flexlib.plugin.module.ModuleReference;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public final class ChatManager extends FlexModule<FlexChat> implements Listener {
 
@@ -125,36 +123,7 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
             return;
         }
 
-        int radius = active.getChannel().getRadius();
-
-        Set<Chatter> recipients = new HashSet<>();
-
-        if (radius <= 0) {
-            recipients.addAll(active.getChatters());
-        } else {
-            Location senderLoc = ((ChatterPlayer) chatter).getPlayer().getLocation();
-            radius = (int) Math.pow(radius, 2D);
-
-            for (Chatter oChatter : active.getChatters()) {
-                if (oChatter == null) {
-                    continue;
-                }
-
-                if (oChatter instanceof ChatterPlayer) {
-                    try {
-                        Player oPlayer = ((ChatterPlayer) oChatter).getPlayer();
-                        if (oPlayer != null && oPlayer.getLocation().distanceSquared(senderLoc) > radius) {
-                            continue;
-                        }
-                    } catch (IllegalArgumentException ex) {
-                        // Different worlds.
-                        continue;
-                    }
-                }
-
-                recipients.add(oChatter);
-            }
-        }
+        Collection<Chatter> recipients = active.getApplicableChatters(chatter);
 
         Iterator<Chatter> iterator = recipients.iterator();
         while (iterator.hasNext()) {

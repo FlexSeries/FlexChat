@@ -25,10 +25,16 @@
 package me.st28.flexseries.flexchat.api.channel;
 
 import me.st28.flexseries.flexchat.api.chatter.Chatter;
+import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexlib.message.reference.MessageReference;
 import org.apache.commons.lang.Validate;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Represents an instance of a channel.
@@ -66,8 +72,51 @@ public class ChannelInstance {
         return label;
     }
 
+    /**
+     * @return An unmodifiable collection of all chatters that have joined the instance.
+     */
     public Collection<Chatter> getChatters() {
         return Collections.unmodifiableCollection(chatters);
+    }
+
+    /**
+     * @return A collection of all chatters in the instance that can receive a message sent by the
+     *         provided chatter.
+     */
+    public Collection<Chatter> getApplicableChatters(Chatter chatter) {
+        Validate.notNull(chatter, "Chatter cannot be null.");
+
+        int range = channel.getRadius();
+        if (range == 0 || !(chatter instanceof ChatterPlayer)) {
+            return chatters;
+        }
+
+        Set<Chatter> returnSet = new HashSet<>();
+
+        Location senderLoc = ((ChatterPlayer) chatter).getPlayer().getLocation();
+        double radius = Math.pow(channel.getRadius(), 2D);
+
+        for (Chatter oChatter : chatters) {
+            if (oChatter == null) {
+                continue;
+            }
+
+            if (oChatter instanceof ChatterPlayer) {
+                try {
+                    Player oPlayer = ((ChatterPlayer) oChatter).getPlayer();
+                    if (oPlayer != null && oPlayer.getLocation().distanceSquared(senderLoc) > radius) {
+                        continue;
+                    }
+                } catch (IllegalArgumentException ex) {
+                    // Different worlds.
+                    continue;
+                }
+            }
+
+            returnSet.add(oChatter);
+        }
+
+        return returnSet;
     }
 
     public boolean containsChatter(Chatter chatter) {
