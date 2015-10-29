@@ -1,5 +1,6 @@
-active symbol: '\u25B6'
-list format: '&a{ACTIVE}{COLOR}{CHANNEL} &8({STATUS}&8)'
+active symbol:
+  channel: '\u25B6'
+  instance: '\u25B6'
 default channel: 'default'
 global formats: # [g:default]
   default: '{CHCOLOR}[{CHTAG}] {PREFIX}{DISPNAME}{SUFFIX}&8: {CHCOLOR}{MESSAGE}'

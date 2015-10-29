@@ -88,7 +88,8 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
     private boolean firstReload = true;
 
-    private String activeSymbol;
+    private String activeSymbolChannel;
+    private String activeSymbolInstance;
 
     private final Map<String, ChatFormat> globalFormats = new LinkedHashMap<>();
 
@@ -186,8 +187,12 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
         FileConfiguration config = getConfig();
 
-        activeSymbol = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(config.getString("active symbol", "\u25B6")));
-        FlexPlugin.getGlobalModule(ListManager.class).createElementFormat("flexchat_channel", "&a{ACTIVE}{COLOR}{CHANNEL} &8({STATUS}&8)");
+        activeSymbolChannel = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(config.getString("active symbol.channel", "\u25B6")));
+        activeSymbolInstance = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(config.getString("active symbol.instance", "\u25B6")));
+
+        ListManager listManager = FlexPlugin.getGlobalModule(ListManager.class);
+        listManager.createElementFormat("flexchat_channel", "&a{ACTIVE}{COLOR}{CHANNEL} &8({STATUS}&8)");
+        listManager.createElementFormat("flexchat_channel_instance", "  &a{ACTIVE}&7{INSTANCE} &8({STATUS}&8)");
 
         // Load formats
         globalFormats.clear();
@@ -336,8 +341,12 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.VIEW, channelName).getNode()));
     }
 
-    public String getActiveSymbol() {
-        return activeSymbol;
+    public String getActiveSymbolChannel() {
+        return activeSymbolChannel;
+    }
+
+    public String getActiveSymbolInstance() {
+        return activeSymbolInstance;
     }
 
     @Override

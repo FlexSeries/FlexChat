@@ -132,7 +132,7 @@ final class SCmdChannelList extends Subcommand<FlexChat> {
             builder.addMessage("flexchat_channel", new QuickMap<>("{CHANNEL}", channel.getName())
                             .put("{COLOR}", channel.getColor().toString())
                             .put("{STATUS}", status)
-                            .put("{ACTIVE}", channel == activeChannel ? channelManager.getActiveSymbol() : "")
+                            .put("{ACTIVE}", channel == activeChannel ? channelManager.getActiveSymbolChannel() : "")
                             .getMap()
             );
         }
