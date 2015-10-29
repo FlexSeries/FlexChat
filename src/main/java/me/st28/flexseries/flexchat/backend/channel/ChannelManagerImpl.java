@@ -192,7 +192,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
         ListManager listManager = FlexPlugin.getGlobalModule(ListManager.class);
         listManager.createElementFormat("flexchat_channel", "&a{ACTIVE}{COLOR}{CHANNEL} &8({STATUS}&8)");
-        listManager.createElementFormat("flexchat_channel_instance", "  &a{ACTIVE}&7{INSTANCE} &8({STATUS}&8)");
+        listManager.createElementFormat("flexchat_channel_instance", "&a{ACTIVE}&7{INSTANCE} &8({STATUS}&8)");
 
         // Load formats
         globalFormats.clear();
