@@ -33,7 +33,11 @@ import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.apache.commons.lang.Validate;
 import org.bukkit.configuration.ConfigurationSection;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 public abstract class Chatter {
@@ -50,59 +54,43 @@ public abstract class Chatter {
     public void load(ConfigurationSection config) {
         ChannelManagerImpl channelManager = FlexPlugin.getGlobalModule(ChannelManagerImpl.class);
 
+        // Load channel instances
         ConfigurationSection instanceSec = config.getConfigurationSection("instances");
         if (instanceSec != null) {
             for (String chName : instanceSec.getKeys(false)) {
                 Channel channel = channelManager.getChannel(chName);
                 if (channel == null) {
+                    // Ignore invalid channel names from the config
                     continue;
                 }
 
-                Map<String, ChannelInstance> curInstances = new HashMap<>();
-                if (channel.getInstances(this) != null) {
-                    for (ChannelInstance instance : channel.getInstances(this)) {
-                        curInstances.put(instance.getLabel(), instance);
+                for (String label : instanceSec.getStringList(chName)) {
+                    ChannelInstance instance = channel.getInstance(label);
+                    if (instance != null) {
+                        this.instances.put(instance, System.currentTimeMillis());
                     }
-                }
-
-                if (instanceSec.isSet(chName) && !instanceSec.getStringList(chName).isEmpty()) {
-                    for (String instanceLabel : instanceSec.getStringList(chName)) {
-                        if (curInstances.containsKey(instanceLabel)) {
-                            instances.put(curInstances.get(instanceLabel), System.currentTimeMillis());
-                        }
-                    }
-                } else if (curInstances.size() == 1) {
-                    instances.put(channel.getInstances(this).get(0), System.currentTimeMillis());
                 }
             }
         }
 
+        // Load active channel+instance
         String actChName = config.getString("active.channel");
         String actInstName = config.getString("active.instance");
 
         if (actChName == null) {
+            // No channel, don't continue
             return;
         }
 
         Channel channel = channelManager.getChannel(actChName);
         if (channel == null) {
+            // Channel doesn't exist, don't continue
             return;
         }
 
-        List<ChannelInstance> instances = channel.getInstances(this);
-        if (instances != null) {
-            if (actInstName == null && instances.size() == 1) {
-                activeInstance = instances.get(0);
-            } else if (actInstName != null) {
-                for (ChannelInstance instance : instances) {
-                    if (instance.getLabel().equals(actInstName)) {
-                        activeInstance = instance;
-                    }
-                }
-            }
-        }
-
+        activeInstance = channel.getInstance(actInstName);
         if (!this.instances.containsKey(activeInstance)) {
+            // Not actually in active instance, don't set it
             activeInstance = null;
         }
 
@@ -132,6 +120,9 @@ public abstract class Chatter {
         if (activeInstance != null) {
             config.set("active.channel", activeInstance.getChannel().getName());
             config.set("active.instance", activeInstance.getLabel());
+        } else {
+            config.set("active.channel", null);
+            config.set("active.instance", null);
         }
     }
 
@@ -208,8 +199,8 @@ public abstract class Chatter {
 
         if (!instances.containsKey(instance)
                 || this.activeInstance == instance
-                || !instance.getChannel().getInstances(this).contains(instance)
-        ) {
+                || !instance.getChannel().getAllInstances(this).contains(instance))
+        {
             return false;
         }
 
