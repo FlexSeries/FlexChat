@@ -100,9 +100,10 @@ public class ChannelInstance {
     }
 
     public void removeAllChatters() {
-        Iterator<Chatter> iterator = chatters.iterator();
-        while (iterator.hasNext()) {
-            removeChatter(iterator.next());
+        Set<Chatter> toRemove = new HashSet<>(chatters);
+
+        for (Chatter chatter : toRemove) {
+            removeChatter(chatter);
         }
     }
 
