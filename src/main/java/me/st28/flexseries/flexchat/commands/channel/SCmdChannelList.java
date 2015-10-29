@@ -30,10 +30,12 @@ import me.st28.flexseries.flexchat.api.channel.ChannelInstance;
 import me.st28.flexseries.flexchat.api.chatter.Chatter;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
+import me.st28.flexseries.flexchat.commands.arguments.ChannelArgument;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexlib.command.AbstractCommand;
 import me.st28.flexseries.flexlib.command.CommandContext;
 import me.st28.flexseries.flexlib.command.CommandDescriptor;
+import me.st28.flexseries.flexlib.command.CommandUtils;
 import me.st28.flexseries.flexlib.command.Subcommand;
 import me.st28.flexseries.flexlib.command.argument.PageArgument;
 import me.st28.flexseries.flexlib.message.list.ListBuilder;
@@ -50,13 +52,19 @@ import java.util.stream.Collectors;
 final class SCmdChannelList extends Subcommand<FlexChat> {
 
     public SCmdChannelList(AbstractCommand<FlexChat> parent) {
-        super(parent, new CommandDescriptor("list").description("List channels"));
+        super(parent, new CommandDescriptor("list").description("List channels").permission(PermissionNodes.LIST));
 
+        addArgument(new ChannelArgument("channel", false));
         addArgument(new PageArgument(false));
     }
 
     @Override
     public void handleExecute(CommandContext context) {
+        if (!context.isDefaultValue("channel")) {
+            listInstances(context);
+            return;
+        }
+
         CommandSender sender = context.getSender();
         int page = context.getGlobalObject("page", Integer.class);
 
@@ -110,7 +118,7 @@ final class SCmdChannelList extends Subcommand<FlexChat> {
         });
 
         // Remove channels that shouldn't be visible on the list command.
-        boolean canSenderBypass = PermissionNodes.VIEW_BYPASS.isAllowed(sender);
+        boolean canSenderBypass = PermissionNodes.BYPASS_VIEW.isAllowed(sender);
 
         ListBuilder builder = new ListBuilder("page", "Chat Channels", null, context.getLabel());
 
@@ -138,6 +146,46 @@ final class SCmdChannelList extends Subcommand<FlexChat> {
         }
 
         builder.sendTo(sender, page);
+    }
+
+    private void listInstances(CommandContext context) {
+        CommandUtils.performPermissionCheck(context, PermissionNodes.LIST_INSTANCE);
+
+        CommandSender sender = context.getSender();
+        int page = context.getGlobalObject("page", Integer.class);
+
+        ChannelManagerImpl channelManager = FlexPlugin.getGlobalModule(ChannelManagerImpl.class);
+        ChatterManagerImpl chatterManager = FlexPlugin.getGlobalModule(ChatterManagerImpl.class);
+
+        Chatter chatter = chatterManager.getChatter(sender);
+        Channel channel = context.getGlobalObject("channel", Channel.class);
+
+        List<ChannelInstance> instances = new ArrayList<>();
+
+        if (PermissionNodes.LIST_INSTANCE_ALL.isAllowed(context.getSender())) {
+            instances.addAll(channel.getInstances());
+        } else {
+            instances.addAll(channel.getAllInstances(chatter));
+        }
+
+        Collections.sort(instances, new Comparator<ChannelInstance>() {
+            @Override
+            public int compare(ChannelInstance o1, ChannelInstance o2) {
+                if (o1 == o2) return 0;
+
+                if (o1.getDisplayName() == null) {
+                    return -1;
+                } else if (o2.getDisplayName() == null) {
+                    return 1;
+                }
+                return o1.getDisplayName().toLowerCase().compareTo(o2.getDisplayName().toLowerCase());
+            }
+        });
+
+        for (ChannelInstance instance : channel.getAllInstances(chatter)) {
+
+        }
+
     }
 
 }

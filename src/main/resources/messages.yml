@@ -34,6 +34,7 @@ notices:
   tag: '&8[&9\u2709&8] '
   channel_active_notice: '{TAG}{mood=notice}Currently chatting in {COLOR}&o{CHANNEL}{mood=.}.'
   channel_active_set: '{TAG}{mood=notice}&oNow chatting in {COLOR}&o{CHANNEL}{mood=.}&o.'
+  channel_active_set_specific: '{TAG}{mood=notice}&oNow chatting in {COLOR}&o{CHANNEL}&8/&7{INSTANCE}{mood=.}&o.'
   chat_spy_toggled: '{TAG}{mood=notice}Chat spying {STATUS}{mood=.}.'
   chat_spy_toggled_other: '{TAG}{mood=notice}Chat spying {STATUS} {mood=.}for {o=player}{PLAYER}{/}.'
   ignore_added: '{TAG}{mood=notice}You are now ignoring {o=player}{NAME}{/}.'

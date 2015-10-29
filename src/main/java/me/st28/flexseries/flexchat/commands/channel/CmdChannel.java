@@ -66,8 +66,6 @@ public final class CmdChannel extends FlexCommand<FlexChat> {
 
     @Override
     public void handleExecute(CommandContext context) {
-        // TODO: Make it so admins can join any channel instance.
-
         CommandSender sender = context.getSender();
         Chatter chatter = FlexPlugin.getGlobalModule(ChatterManagerImpl.class).getChatter(sender);
 
@@ -91,7 +89,18 @@ public final class CmdChannel extends FlexCommand<FlexChat> {
         }
 
         if (chatter.setActiveInstance(instance)) {
-            throw new CommandInterruptedException(InterruptReason.COMMAND_END, MessageManager.getMessage(FlexChat.class, "notices.channel_active_set", new ReplacementMap("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()));
+            if (instance.getDisplayName() != null && !context.isDefaultValue("instance")) {
+                throw new CommandInterruptedException(InterruptReason.COMMAND_END, MessageManager.getMessage(FlexChat.class, "notices.channel_active_set_specific",
+                        new ReplacementMap("{COLOR}", channel.getColor().toString())
+                                .put("{CHANNEL}", channel.getName())
+                                .put("{INSTANCE}", instance.getDisplayName())
+                                .getMap()));
+            } else {
+                throw new CommandInterruptedException(InterruptReason.COMMAND_END, MessageManager.getMessage(FlexChat.class, "notices.channel_active_set",
+                        new ReplacementMap("{COLOR}", channel.getColor().toString())
+                                .put("{CHANNEL}", channel.getName())
+                                .getMap()));
+            }
         } else {
             throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.channel_active_already_set", new ReplacementMap("{CHANNEL}", channel.getName()).getMap()));
         }
