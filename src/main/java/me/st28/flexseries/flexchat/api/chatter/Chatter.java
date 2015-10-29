@@ -34,6 +34,7 @@ import org.apache.commons.lang.Validate;
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -64,10 +65,19 @@ public abstract class Chatter {
                     continue;
                 }
 
-                for (String label : instanceSec.getStringList(chName)) {
-                    ChannelInstance instance = channel.getInstance(label);
-                    if (instance != null) {
-                        this.instances.put(instance, System.currentTimeMillis());
+                List<String> instanceNames = instanceSec.getStringList(chName);
+                if (!instanceNames.isEmpty()) {
+                    for (String label : instanceNames) {
+                        ChannelInstance instance = channel.getInstance(label);
+                        if (instance != null) {
+                            this.instances.put(instance, System.currentTimeMillis());
+                        }
+                    }
+                } else {
+                    Collection<ChannelInstance> applicableInstances = channel.getInstances(this);
+                    if (applicableInstances != null && applicableInstances.size() == 1) {
+                        // If this chatter only belongs to a single channel instance, put them in it
+                        this.instances.put(applicableInstances.iterator().next(), System.currentTimeMillis());
                     }
                 }
             }
@@ -88,7 +98,13 @@ public abstract class Chatter {
             return;
         }
 
-        activeInstance = channel.getInstance(actInstName);
+        Collection<ChannelInstance> applicableInstances = channel.getInstances(this);
+        if (applicableInstances != null && actInstName == null && applicableInstances.size() == 1) {
+            activeInstance = applicableInstances.iterator().next();
+        } else {
+            activeInstance = channel.getInstance(actInstName);
+        }
+
         if (!this.instances.containsKey(activeInstance)) {
             // Not actually in active instance, don't set it
             activeInstance = null;
