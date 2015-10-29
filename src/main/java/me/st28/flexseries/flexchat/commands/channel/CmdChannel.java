@@ -36,9 +36,11 @@ import me.st28.flexseries.flexlib.command.CommandContext;
 import me.st28.flexseries.flexlib.command.CommandDescriptor;
 import me.st28.flexseries.flexlib.command.CommandInterruptedException;
 import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptReason;
+import me.st28.flexseries.flexlib.command.CommandUtils;
 import me.st28.flexseries.flexlib.command.FlexCommand;
 import me.st28.flexseries.flexlib.message.MessageManager;
 import me.st28.flexseries.flexlib.message.ReplacementMap;
+import me.st28.flexseries.flexlib.message.reference.MessageReference;
 import me.st28.flexseries.flexlib.permission.PermissionNode;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.bukkit.command.CommandSender;
@@ -72,12 +74,20 @@ public final class CmdChannel extends FlexCommand<FlexChat> {
         Channel channel = context.getGlobalObject("channel", Channel.class);
         ChannelInstance instance = context.getGlobalObject("instance", ChannelInstance.class);
 
+        // Check if the chatter has permission for the channel
         if (!chatter.isInInstance(instance) && !chatter.hasPermission(PermissionNode.buildVariableNode(PermissionNodes.JOIN, channel.getName()))) {
             throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.channel_no_permission", new ReplacementMap("{VERB}", "join").put("{CHANNEL}", channel.getName()).getMap()));
         }
 
+        // Check if the chatter has the ability to join instances they normally shouldn't be in
+        if (!channel.getInstances(chatter).contains(instance)) {
+            // If the channel doesn't normally return the specified instance, the player isn't in
+            // the instance normally. Check to make sure player can join any instance
+            CommandUtils.performPermissionCheck(context, PermissionNodes.BYPASS_JOIN);
+        }
+
         if (chatter.addInstance(instance)) {
-            instance.sendMessage(MessageManager.getMessage(FlexChat.class, "alerts_channel.chatter_joined", new ReplacementMap("{CHATTER}", chatter.getName()).put("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()));
+            instance.alertJoin(chatter);
         }
 
         if (chatter.setActiveInstance(instance)) {

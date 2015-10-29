@@ -24,16 +24,21 @@
  */
 package me.st28.flexseries.flexchat.api.channel;
 
+import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.chatter.Chatter;
 import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
+import me.st28.flexseries.flexlib.message.MessageManager;
+import me.st28.flexseries.flexlib.message.ReplacementMap;
 import me.st28.flexseries.flexlib.message.reference.MessageReference;
 import org.apache.commons.lang.Validate;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -159,6 +164,52 @@ public class ChannelInstance {
     public void sendMessage(MessageReference message) {
         for (Chatter chatter : chatters) {
             chatter.sendMessage(message);
+        }
+    }
+
+    public void alertJoin(Chatter chatter) {
+        List<Chatter> single = new ArrayList<>();
+        List<Chatter> multiple = new ArrayList<>();
+
+        for (Chatter oChatter : chatters) {
+            if (oChatter.getInstanceCount(channel) > 1) {
+                multiple.add(oChatter);
+            } else {
+                single.add(oChatter);
+            }
+        }
+
+        MessageReference message = MessageManager.getMessage(FlexChat.class, "alerts_channel.chatter_joined",
+                new ReplacementMap("{CHATTER}", chatter.getDisplayName())
+                        .put("{CHANNEL}", channel.getName())
+                        .put("{COLOR}", channel.getColor().toString())
+                        .getMap());
+
+        // Send to chatters that only are in this instance for the channel
+        for (Chatter oChatter : single) {
+            oChatter.sendMessage(message);
+        }
+
+        // Handles chatters that are in multiple instances of this channel
+        if (!multiple.isEmpty()) {
+            if (getDisplayName() == null) {
+                for (Chatter oChatter : multiple) {
+                    oChatter.sendMessage(message);
+                }
+                return;
+            }
+
+            // Display name is not null, can specify instance name
+            MessageReference specificMessage = MessageManager.getMessage(FlexChat.class, "alerts_channel.chatter_joined_specific",
+                    new ReplacementMap("{CHATTER}", chatter.getDisplayName())
+                            .put("{CHANNEL}", channel.getName())
+                            .put("{COLOR}", channel.getColor().toString())
+                            .put("{INSTANCE}", getDisplayName())
+                            .getMap());
+
+            for (Chatter oChatter : multiple) {
+                oChatter.sendMessage(specificMessage);
+            }
         }
     }
 

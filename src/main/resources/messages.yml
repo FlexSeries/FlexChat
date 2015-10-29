@@ -49,6 +49,7 @@ alerts_channel:
   tag: '&8[&9\u2709&8] '
   chatter_banned: '{TAG}&4&o{CHATTER} &4&owas banned from channel {COLOR}&o{CHANNEL}&4&o.'
   chatter_joined: '{TAG}&a&o{CHATTER} &a&ojoined channel {COLOR}&o{CHANNEL}&a&o.'
+  chatter_joined_specific: '{TAG}&a&o{CHATTER} &a&ojoined {COLOR}&o{CHANNEL}&8/&7{INSTANCE}&a&o.'
   chatter_kicked: '{TAG}&c&o{CHATTER} &4&owas kicked from channel {COLOR}&o{CHANNEL} &4&oby {PLAYER}.'
   chatter_left: '{TAG}&c&o{CHATTER} &c&oleft channel {COLOR}&o{CHANNEL}&c&o.'
   chatter_unbanned: '{TAG}&2&o{CHATTER} &2&owas unbanned from channel {COLOR}&o{CHANNEL}&4&o.'
