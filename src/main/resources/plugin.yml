@@ -35,6 +35,7 @@ permissions:
     children:
       flexchat.color: true
       flexchat.format: true
+      flexchat.list.instance.all: true
       flexchat.magic: true
       flexchat.kick: true
       flexchat.spy: true
@@ -46,6 +47,8 @@ permissions:
   flexchat.user:
     default: true
     children:
+      flexchat.list: true
+      flexchat.list.instance: true
       flexchat.ignore: true
       flexchat.message: true
       flexchat.who: true
@@ -68,6 +71,16 @@ permissions:
     default: false
   flexchat.spy.persistent:
     description: 'Keep chat spy settings through server restarts and logging off'
+    default: false
+
+  flexchat.list:
+    description: 'Ability to list channels'
+    default: false
+  flexchat.list.instance:
+    description: 'Ability to list joined channel instances for a channel'
+    default: false
+  flexchat.list.instance.all:
+    description: 'Ability to list all channel instances for a channel'
     default: false
 
   flexchat.ignore:

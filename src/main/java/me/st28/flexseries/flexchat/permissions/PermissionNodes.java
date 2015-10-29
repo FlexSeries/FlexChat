@@ -55,6 +55,10 @@ public enum PermissionNodes implements PermissionNode {
     SPY,
     SPY_PERSISTENT,
 
+    LIST,
+    LIST_INSTANCE,
+    LIST_INSTANCE_ALL,
+
     INFO,
 
     IGNORE,
