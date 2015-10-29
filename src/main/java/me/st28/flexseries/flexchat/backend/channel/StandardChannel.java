@@ -31,6 +31,7 @@ import me.st28.flexseries.flexchat.api.chatter.Chatter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a channel loaded by FlexChat.
@@ -50,8 +51,8 @@ public class StandardChannel extends Channel {
     }
 
     @Override
-    public List<ChannelInstance> getInstances(Chatter chatter) {
-        return Collections.singletonList(instance);
+    public Collection<ChannelInstance> getInstances(Chatter chatter) {
+        return Collections.singleton(instance);
     }
 
 }

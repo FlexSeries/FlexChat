@@ -427,9 +427,9 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         // Add to autojoinable channels.
         for (Channel channel : channels.values()) {
             if (chatter.hasPermission(PermissionNode.buildVariableNode(PermissionNodes.AUTOJOIN, channel.getName()))) {
-                List<ChannelInstance> instances = channel.getInstances(chatter);
+                Collection<ChannelInstance> instances = channel.getInstances(chatter);
                 if (instances != null && instances.size() == 1) {
-                    ChannelInstance instance = instances.get(0);
+                    ChannelInstance instance = instances.iterator().next();
                     instance.addChatter(chatter);
                 }
             }
@@ -437,10 +437,10 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
         ChannelInstance active = chatter.getActiveInstance();
         if (active == null) {
-            List<ChannelInstance> defaultInstances = getDefaultChannel().getInstances(chatter);
+            Collection<ChannelInstance> defaultInstances = getDefaultChannel().getInstances(chatter);
 
             if (defaultInstances.size() == 1) {
-                ChannelInstance instance = defaultInstances.get(0);
+                ChannelInstance instance = defaultInstances.iterator().next();
 
                 chatter.addInstance(instance);
                 chatter.setActiveInstance(instance);

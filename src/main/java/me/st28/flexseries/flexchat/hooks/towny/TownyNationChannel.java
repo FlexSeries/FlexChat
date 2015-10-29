@@ -47,7 +47,7 @@ public final class TownyNationChannel extends Channel {
     }
 
     @Override
-    public List<ChannelInstance> getInstances(Chatter chatter) {
+    public Collection<ChannelInstance> getInstances(Chatter chatter) {
         try {
             Town town = TownyUniverse.getDataSource().getResident(chatter.getName()).getTown();
             if (town == null) {
@@ -60,7 +60,7 @@ public final class TownyNationChannel extends Channel {
                 instances.put(uid, new TownyNationChannelInstance(this, uid));
             }
 
-            return Collections.singletonList(instances.get(uid));
+            return Collections.singleton(instances.get(uid));
         } catch (NotRegisteredException ex) {
             return null;
         }
