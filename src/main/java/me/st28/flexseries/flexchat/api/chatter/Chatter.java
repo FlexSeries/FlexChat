@@ -191,8 +191,6 @@ public abstract class Chatter {
 
             if (!instances.isEmpty()) {
                 activeInstance = getInstances().get(0);
-
-                Channel channel = activeInstance.getChannel();
             }
         }
 
