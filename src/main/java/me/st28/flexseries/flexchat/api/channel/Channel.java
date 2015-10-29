@@ -38,9 +38,10 @@ import org.bukkit.configuration.ConfigurationSection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class Channel {
 
@@ -167,8 +168,26 @@ public abstract class Channel {
     }
 
     /**
+     * @return All of the instances a chatter is in, including ones they aren't normally in (from
+     *         {@link #getInstances(Chatter)}).
+     */
+    public Collection<ChannelInstance> getAllInstances(Chatter chatter) {
+        Set<ChannelInstance> returnSet = new HashSet<>();
+
+        for (ChannelInstance instance : getInstances()) {
+            if (instance.containsChatter(chatter)) {
+                returnSet.add(instance);
+            }
+        }
+
+        returnSet.addAll(getInstances(chatter));
+
+        return returnSet;
+    }
+
+    /**
      * @return The {@link ChannelInstance}s a particular {@link Chatter} belongs in.
      */
-    public abstract List<ChannelInstance> getInstances(Chatter chatter);
+    public abstract Collection<ChannelInstance> getInstances(Chatter chatter);
 
 }
