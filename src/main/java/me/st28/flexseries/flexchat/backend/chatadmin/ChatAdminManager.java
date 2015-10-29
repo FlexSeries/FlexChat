@@ -26,6 +26,8 @@ package me.st28.flexseries.flexchat.backend.chatadmin;
 
 import me.st28.flexseries.flexchat.FlexChat;
 import me.st28.flexseries.flexchat.api.ChannelChatEvent;
+import me.st28.flexseries.flexchat.api.channel.ChannelInstance;
+import me.st28.flexseries.flexchat.api.chatter.Chatter;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexlib.player.PlayerData;
@@ -186,19 +188,23 @@ public class ChatAdminManager extends FlexModule<FlexChat> implements Listener, 
     public void onChannelChat(ChannelChatEvent e) {
         String sendMessage;
 
-        if (e.getChannelInstance().getLabel() == null) {
+        ChannelInstance instance = e.getChannelInstance();
+        if (instance.getLabel() == null) {
             sendMessage = channelOutput;
         } else {
-            sendMessage = instanceOutput.replace("{INSTANCE}", e.getChannelInstance().getDisplayName());
+            sendMessage = instanceOutput.replace("{INSTANCE}", instance.getDisplayName());
         }
 
-        sendMessage = ChatColor.translateAlternateColorCodes('&', sendMessage.replace("{SENDER}", e.getSender().getName()).replace("{CHANNEL}", e.getChannelInstance().getChannel().getName())).replace("{MESSAGE}", e.getMessage());
+        sendMessage = ChatColor.translateAlternateColorCodes('&', sendMessage.replace("{SENDER}", e.getSender().getName()).replace("{CHANNEL}", instance.getChannel().getName())).replace("{MESSAGE}", e.getMessage());
 
         ChatterManagerImpl chatterManager = FlexPlugin.getGlobalModule(ChatterManagerImpl.class);
 
         for (Player spy : getOnlineSpies()) {
-            if (isSpyEnabled(spy.getUniqueId()) && getSpySettings(spy.getUniqueId()).containsInstance(e.getChannelInstance())) {
-                if (!e.getChannelInstance().containsChatter(chatterManager.getChatter(spy))) {
+            if (isSpyEnabled(spy.getUniqueId()) && getSpySettings(spy.getUniqueId()).containsInstance(instance)) {
+                Chatter chatter = chatterManager.getChatter(spy);
+                if (!instance.containsChatter(chatter) || !instance.getApplicableChatters(chatter).contains(e.getSender())) {
+                    // Only send if the chatter is not in the instance or the applicable chatters
+                    // doesn't contain the sender (usually only happens with range-based channels)
                     spy.sendMessage(sendMessage);
                 }
             }
