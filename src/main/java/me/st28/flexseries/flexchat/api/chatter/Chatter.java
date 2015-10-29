@@ -160,6 +160,16 @@ public abstract class Chatter {
         return list;
     }
 
+    public int getInstanceCount(Channel channel) {
+        int count = 0;
+        for (ChannelInstance instance : instances.keySet()) {
+            if (instance.getChannel() == channel) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     public boolean isInInstance(ChannelInstance instance) {
         Validate.notNull(instance, "Instance cannot be null.");
         return instances.containsKey(instance);
