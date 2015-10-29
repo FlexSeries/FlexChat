@@ -37,11 +37,12 @@ permissions:
       flexchat.format: true
       flexchat.list.instance.all: true
       flexchat.magic: true
+      flexchat.bypass.ignore: true
+      flexchat.bypass.join: true
+      flexchat.bypass.view: true
       flexchat.kick: true
       flexchat.spy: true
       flexchat.spy.persistent: true
-      flexchat.view.bypass: true
-      flexchat.ignore.bypass: true
       flexchat.who.other: true
 
   flexchat.user:
@@ -73,6 +74,16 @@ permissions:
     description: 'Keep chat spy settings through server restarts and logging off'
     default: false
 
+  flexchat.bypass.ignore:
+    description: 'Ability to bypass being ignored by another player'
+    default: false
+  flexchat.bypass.join:
+    description: 'Ability to join any channel instance'
+    default: false
+  flexchat.view.bypass:
+    description: 'Ability to view channels on the channel list even if they don''t normally allow it'
+    default: false
+
   flexchat.list:
     description: 'Ability to list channels'
     default: false
@@ -86,9 +97,6 @@ permissions:
   flexchat.ignore:
     description: 'Ability to ignore another player and not receive messages from them'
     default: false
-  flexchat.ignore.bypass:
-    description: 'Ability to bypass being ignored by another player'
-    default: false
 
   flexchat.kick:
     description: 'Ability to kick a player from a channel'
@@ -96,10 +104,6 @@ permissions:
 
   flexchat.message:
     description: 'Ability to use private messaging'
-    default: false
-
-  flexchat.view.bypass:
-    description: 'Ability to view channels on the channel list command even if they don''t normally allow it'
     default: false
 
   flexchat.who:

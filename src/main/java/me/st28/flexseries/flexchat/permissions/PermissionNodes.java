@@ -44,7 +44,9 @@ public enum PermissionNodes implements PermissionNode {
     VIEW,
     /* ------------------- */
 
-    VIEW_BYPASS,
+    BYPASS_IGNORE,
+    BYPASS_JOIN,
+    BYPASS_VIEW,
 
     KICK,
 
@@ -62,7 +64,6 @@ public enum PermissionNodes implements PermissionNode {
     INFO,
 
     IGNORE,
-    IGNORE_BYPASS,
 
     MESSAGE,
 

@@ -131,7 +131,7 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
 
             PlayerData data = FlexPlugin.getGlobalModule(PlayerManager.class).getPlayerData(((ChatterPlayer) oChatter).getUuid());
             List<String> ignored = data.getCustomData("ignored", List.class);
-            if (ignored != null && !chatter.hasPermission(PermissionNodes.IGNORE_BYPASS) && ignored.contains(chatter.getIdentifier())) {
+            if (ignored != null && !chatter.hasPermission(PermissionNodes.BYPASS_IGNORE) && ignored.contains(chatter.getIdentifier())) {
                 iterator.remove();
             }
         }

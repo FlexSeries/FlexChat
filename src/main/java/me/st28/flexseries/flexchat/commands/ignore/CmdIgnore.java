@@ -68,7 +68,7 @@ public final class CmdIgnore extends FlexCommand<FlexChat> {
 
         if (ignored.contains(targetIdentifier)) {
             throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.ignore_exists", new ReplacementMap("{NAME}", target.getName()).getMap()));
-        } else if (PermissionNodes.IGNORE_BYPASS.isAllowed(target.getPlayer())) {
+        } else if (PermissionNodes.BYPASS_IGNORE.isAllowed(target.getPlayer())) {
             throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.ignore_not_allowed", new ReplacementMap("{NAME}", target.getName()).getMap()));
         }
 

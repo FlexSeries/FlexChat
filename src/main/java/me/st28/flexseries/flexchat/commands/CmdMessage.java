@@ -76,7 +76,7 @@ public final class CmdMessage extends FlexCommand<FlexChat> {
         String senderIdentifier = sender.getIdentifier();
         String targetIdentifier = target.getIdentifier();
 
-        if (sender instanceof Player && !sender.hasPermission(PermissionNodes.IGNORE_BYPASS) && target instanceof ChatterPlayer) {
+        if (sender instanceof Player && !sender.hasPermission(PermissionNodes.BYPASS_IGNORE) && target instanceof ChatterPlayer) {
             final PlayerManager playerManager = FlexPlugin.getGlobalModule(PlayerManager.class);
 
             PlayerData data = playerManager.getPlayerData(((Player) sender).getUniqueId());

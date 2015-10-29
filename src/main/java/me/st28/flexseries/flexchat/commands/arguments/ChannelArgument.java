@@ -102,7 +102,7 @@ public final class ChannelArgument extends Argument {
         CommandSender sender = context.getSender();
         ChannelManagerImpl channelManager = FlexPlugin.getGlobalModule(ChannelManagerImpl.class);
 
-        boolean canSenderBypass = PermissionNodes.VIEW_BYPASS.isAllowed(sender);
+        boolean canSenderBypass = PermissionNodes.BYPASS_VIEW.isAllowed(sender);
 
         return channelManager.getChannels().stream().filter(new Predicate<Channel>() {
             @Override
