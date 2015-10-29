@@ -152,12 +152,14 @@ public abstract class Channel {
     public abstract Collection<ChannelInstance> getInstances();
 
     /**
-     * @return A {@link ChannelInstance} with the given name.
+     * @return A {@link ChannelInstance} with the given name. Null input returns the default instance
+     *         (assuming there is one).
      */
     public ChannelInstance getInstance(String name) {
-        Validate.notNull(name, "Name cannot be null.");
         for (ChannelInstance instance : getInstances()) {
-            if (instance.getDisplayName() != null && (instance.getDisplayName().equalsIgnoreCase(name) || instance.getLabel().equalsIgnoreCase("label"))) {
+            if ((name == null && instance.getDisplayName() == null)
+                    || (instance.getDisplayName() != null && (instance.getDisplayName().equalsIgnoreCase(name) || instance.getLabel().equalsIgnoreCase(name))))
+            {
                 return instance;
             }
         }
