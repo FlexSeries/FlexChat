@@ -182,10 +182,27 @@ final class SCmdChannelList extends Subcommand<FlexChat> {
             }
         });
 
-        for (ChannelInstance instance : channel.getAllInstances(chatter)) {
+        ListBuilder builder = new ListBuilder("page_subtitle", "Channel Instances", channel.getColor() + channel.getName(), context.getLabel());
 
+        List<ChannelInstance> chatterInstances = chatter.getInstances();
+        ChannelInstance activeInstance = chatter.getActiveInstance();
+
+        for (ChannelInstance instance : instances) {
+            String status;
+            if (chatterInstances.contains(instance)) {
+                status = ChatColor.GREEN + "joined";
+            } else {
+                status = ChatColor.RED + "not joined";
+            }
+
+            builder.addMessage("flexchat_channel_instance", new QuickMap<>("{INSTANCE}", instance.getDisplayName() == null ? "(default)" : instance.getDisplayName())
+                            .put("{STATUS}", status)
+                            .put("{ACTIVE}", instance == activeInstance ? channelManager.getActiveSymbolInstance() : "")
+                            .getMap()
+            );
         }
 
+        builder.sendTo(context.getSender(), page);
     }
 
 }
