@@ -79,20 +79,20 @@ public final class CmdMessage extends FlexCommand<FlexChat> {
         if (sender instanceof Player && !sender.hasPermission(PermissionNodes.BYPASS_IGNORE) && target instanceof ChatterPlayer) {
             final PlayerManager playerManager = FlexPlugin.getGlobalModule(PlayerManager.class);
 
-            PlayerData data = playerManager.getPlayerData(((Player) sender).getUniqueId());
-            UUID uuid = ((ChatterPlayer) target).getUuid();
+            PlayerData senderData = playerManager.getPlayerData(((Player) sender).getUniqueId());
+            UUID targetUuid = ((ChatterPlayer) target).getUuid();
 
-            List<String> ignored = (List<String>) data.getCustomData("ignored", List.class);
+            // Check to see if the sender has ignored the target
+            List<String> senderIgnored = (List<String>) senderData.getCustomData("ignored", List.class);
+            if (senderIgnored != null && senderIgnored.contains(targetIdentifier)) {
+                // The sender has ignored the target -> prevent messaging
+                throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.cannot_message_player", new ReplacementMap("{NAME}", target.getDisplayName()).getMap()));
+            }
 
-            if (ignored != null) {
-                if (ignored.contains(targetIdentifier)) {
-                    throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.cannot_message_player", new ReplacementMap("{NAME}", target.getDisplayName()).getMap()));
-                }
-
-                List<String> oIgnored = (List<String>) playerManager.getPlayerData(uuid).getCustomData("ignored", List.class);
-                if (oIgnored != null && oIgnored.contains(senderIdentifier)) {
-                    throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.cannot_message_player", new ReplacementMap("{NAME}", target.getDisplayName()).getMap()));
-                }
+            // Check to see if the target has ignored the sender
+            List<String> targetIgnored = (List<String>) playerManager.getPlayerData(targetUuid).getCustomData("ignored", List.class);
+            if (targetIgnored != null && targetIgnored.contains(senderIdentifier)) {
+                throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.cannot_message_player", new ReplacementMap("{NAME}", target.getDisplayName()).getMap()));
             }
         }
 
