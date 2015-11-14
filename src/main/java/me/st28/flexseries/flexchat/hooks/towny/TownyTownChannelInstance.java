@@ -44,6 +44,10 @@ public final class TownyTownChannelInstance extends ChannelInstance {
         }
     }
 
+    public Town getTown() {
+        return town;
+    }
+
     @Override
     public String getDisplayName() {
         return town.getName();

@@ -51,7 +51,10 @@ public final class TownyTownChannel extends Channel {
             int uid = TownyUniverse.getDataSource().getResident(chatter.getName()).getTown().getUID();
 
             if (!instances.containsKey(uid)) {
-                instances.put(uid, new TownyTownChannelInstance(this, uid));
+                TownyTownChannelInstance instance = new TownyTownChannelInstance(this, uid);
+                if (instance.getTown() != null) {
+                    instances.put(uid, instance);
+                }
             }
 
             return Collections.singleton(instances.get(uid));
