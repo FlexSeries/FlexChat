@@ -213,4 +213,53 @@ public class ChannelInstance {
         }
     }
 
+    public void alertLeave(Chatter chatter) {
+        List<Chatter> single = new ArrayList<>();
+        List<Chatter> multiple = new ArrayList<>();
+
+        Set<Chatter> newChatters = new HashSet<>(chatters);
+        newChatters.add(chatter);
+
+        for (Chatter oChatter : newChatters) {
+            if (oChatter.getInstanceCount(channel) > 1) {
+                multiple.add(oChatter);
+            } else {
+                single.add(oChatter);
+            }
+        }
+
+        MessageReference message = MessageManager.getMessage(FlexChat.class, "alerts_channel.chatter_left",
+                new ReplacementMap("{CHATTER}", chatter.getDisplayName())
+                        .put("{CHANNEL}", channel.getName())
+                        .put("{COLOR}", channel.getColor().toString())
+                        .getMap());
+
+        // Send to chatters that only are in this instance for the channel
+        for (Chatter oChatter : single) {
+            oChatter.sendMessage(message);
+        }
+
+        // Handles chatters that are in multiple instances of this channel
+        if (!multiple.isEmpty()) {
+            if (getDisplayName() == null) {
+                for (Chatter oChatter : multiple) {
+                    oChatter.sendMessage(message);
+                }
+                return;
+            }
+
+            // Display name is not null, can specify instance name
+            MessageReference specificMessage = MessageManager.getMessage(FlexChat.class, "alerts_channel.chatter_left_specific",
+                    new ReplacementMap("{CHATTER}", chatter.getDisplayName())
+                            .put("{CHANNEL}", channel.getName())
+                            .put("{COLOR}", channel.getColor().toString())
+                            .put("{INSTANCE}", getDisplayName())
+                            .getMap());
+
+            for (Chatter oChatter : multiple) {
+                oChatter.sendMessage(specificMessage);
+            }
+        }
+    }
+
 }
