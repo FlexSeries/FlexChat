@@ -41,6 +41,10 @@ public final class TownyNationChannel extends Channel {
         super("Nation", "towny-nation");
     }
 
+    public TownyNationChannelInstance getInstanceByUid(int nationUid) {
+        return (TownyNationChannelInstance) instances.get(nationUid);
+    }
+
     @Override
     public Collection<ChannelInstance> getInstances() {
         return Collections.unmodifiableCollection(instances.values());

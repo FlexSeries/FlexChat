@@ -53,6 +53,7 @@ alerts_channel:
   chatter_joined_specific: '{TAG}&a&o{CHATTER} &a&ojoined {COLOR}&o{CHANNEL}&8/&7{INSTANCE}&a&o.'
   chatter_kicked: '{TAG}&c&o{CHATTER} &4&owas kicked from channel {COLOR}&o{CHANNEL} &4&oby {PLAYER}.'
   chatter_left: '{TAG}&c&o{CHATTER} &c&oleft channel {COLOR}&o{CHANNEL}&c&o.'
+  chatter_left_specific: '{TAG}&c&o{CHATTER} &c&oleft channel {COLOR}&o{CHANNEL}&8/&7{INSTANCE}&c&o.'
   chatter_unbanned: '{TAG}&2&o{CHATTER} &2&owas unbanned from channel {COLOR}&o{CHANNEL}&4&o.'
 
 hooks:

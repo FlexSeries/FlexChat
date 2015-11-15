@@ -26,13 +26,26 @@ package me.st28.flexseries.flexchat.hooks.towny;
 
 import com.palmergames.bukkit.towny.event.DeleteNationEvent;
 import com.palmergames.bukkit.towny.event.DeleteTownEvent;
+import com.palmergames.bukkit.towny.event.NationAddTownEvent;
+import com.palmergames.bukkit.towny.event.NationRemoveTownEvent;
+import com.palmergames.bukkit.towny.event.TownAddResidentEvent;
+import com.palmergames.bukkit.towny.event.TownRemoveResidentEvent;
 import com.palmergames.bukkit.towny.object.Nation;
+import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
+import me.st28.flexseries.flexchat.api.FlexChatAPI;
+import me.st28.flexseries.flexchat.api.channel.Channel;
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance;
+import me.st28.flexseries.flexchat.api.chatter.Chatter;
+import me.st28.flexseries.flexchat.api.chatter.ChatterManager;
+import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -48,6 +61,43 @@ public final class TownyListener implements Listener {
         this.nationChannel = nationChannel;
     }
 
+    private Chatter getChatter(Resident resident) {
+        return FlexPlugin.getGlobalModule(ChatterManagerImpl.class).getChatter(Bukkit.getPlayer(resident.getName()));
+    }
+
+    private void addToInstances(Chatter chatter, Channel channel) {
+        Collection<ChannelInstance> instances = channel.getInstances(chatter);
+        if (chatter == null || instances == null || instances.isEmpty()) {
+            return;
+        }
+
+        for (ChannelInstance instance : instances) {
+            if (instance.addChatter(chatter)) {
+                instance.alertJoin(chatter);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onTownAddResident(TownAddResidentEvent e) {
+        addToInstances(getChatter(e.getResident()), townChannel);
+    }
+
+    @EventHandler
+    public void onTownRemoveResident(TownRemoveResidentEvent e) {
+        Chatter chatter = getChatter(e.getResident());
+        if (chatter == null) {
+            return;
+        }
+
+        TownyTownChannelInstance instance = townChannel.getInstanceByUid(e.getTown().getUID());
+        if (instance != null) {
+            if (instance.removeChatter(chatter)) {
+                instance.alertLeave(chatter);
+            }
+        }
+    }
+
     @EventHandler
     public void onTownDelete(DeleteTownEvent e) {
         List<Integer> uids = TownyUniverse.getDataSource().getTowns().stream().map(Town::getUID).collect(Collectors.toList());
@@ -60,6 +110,21 @@ public final class TownyListener implements Listener {
 
                 next.getValue().removeAllChatters();
             }
+        }
+    }
+
+    @EventHandler
+    public void onNationAddTown(NationAddTownEvent e) {
+        for (Resident resident : e.getTown().getResidents()) {
+            addToInstances(getChatter(resident), nationChannel);
+        }
+    }
+
+    @EventHandler
+    public void onNationRemoveTown(NationRemoveTownEvent e) {
+        TownyNationChannelInstance instance = nationChannel.getInstanceByUid(e.getNation().getUID());
+        if (instance != null) {
+            instance.removeAllChatters();
         }
     }
 
