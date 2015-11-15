@@ -65,9 +65,7 @@ public class SCmdChannelLeave extends Subcommand<FlexChat> {
         boolean isActive = instance == chatter.getActiveInstance();
 
         if (chatter.removeInstance(instance)) {
-            MessageReference message = MessageManager.getMessage(FlexChat.class, "alerts_channel.chatter_left", new ReplacementMap("{CHATTER}", chatter.getName()).put("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap());
-            instance.sendMessage(message);
-            chatter.sendMessage(message);
+            instance.alertLeave(chatter);
 
             if (isActive && chatter.getActiveInstance() != null) {
                 channel = chatter.getActiveInstance().getChannel();
