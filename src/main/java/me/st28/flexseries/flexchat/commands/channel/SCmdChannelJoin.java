@@ -60,7 +60,9 @@ public final class SCmdChannelJoin extends Subcommand<FlexChat> {
         }
 
         if (chatter.addInstance(instance)) {
-            instance.sendMessage(MessageManager.getMessage(FlexChat.class, "alerts_channel.chatter_joined", new ReplacementMap("{CHATTER}", chatter.getName()).put("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()));
+            instance.alertJoin(chatter);
+        } else {
+            throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.channel_already_joined", new ReplacementMap("{CHANNEL}", channel.getName()).getMap()));
         }
     }
 
