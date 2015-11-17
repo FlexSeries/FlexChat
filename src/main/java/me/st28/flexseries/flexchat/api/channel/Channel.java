@@ -157,12 +157,16 @@ public abstract class Channel {
      *         (assuming there is one).
      */
     public ChannelInstance getInstance(String name) {
-        for (ChannelInstance instance : getInstances()) {
-            if ((name == null && instance.getDisplayName() == null)
-                    || (instance.getDisplayName() != null && (instance.getDisplayName().equalsIgnoreCase(name) || instance.getLabel().equalsIgnoreCase(name))))
-            {
-                return instance;
+        try {
+            for (ChannelInstance instance : getInstances()) {
+                if ((name == null && instance.getDisplayName() == null)
+                        || (instance.getDisplayName() != null && (instance.getDisplayName().equalsIgnoreCase(name) || instance.getLabel().equalsIgnoreCase(name)))) {
+                    return instance;
+                }
             }
+        } catch (NullPointerException ex) {
+            // TODO: Temporary fix to attempt at solving NullPointerException
+            return null;
         }
         return null;
     }

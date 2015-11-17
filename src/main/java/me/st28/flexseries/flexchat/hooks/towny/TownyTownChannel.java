@@ -55,9 +55,14 @@ public final class TownyTownChannel extends Channel {
             int uid = TownyUniverse.getDataSource().getResident(chatter.getName()).getTown().getUID();
 
             if (!instances.containsKey(uid)) {
-                TownyTownChannelInstance instance = new TownyTownChannelInstance(this, uid);
-                if (instance.getTown() != null) {
-                    instances.put(uid, instance);
+                try {
+                    TownyTownChannelInstance instance = new TownyTownChannelInstance(this, uid);
+                    if (instance.getTown() != null) {
+                        instances.put(uid, instance);
+                    }
+                } catch (IllegalStateException ex) {
+                    // TODO: Temporary fix to attempt at solving NullPointerException
+                    return null;
                 }
             }
 

@@ -42,6 +42,10 @@ public final class TownyTownChannelInstance extends ChannelInstance {
                 break;
             }
         }
+
+        if (town == null) {
+            throw new IllegalStateException("Town with UID " + uid + " not found.");
+        }
     }
 
     public Town getTown() {
