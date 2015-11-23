@@ -111,14 +111,12 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
 
         Chatter chatter = FlexChatAPI.getChatterManager().getChatter(player);
         if (chatter == null) {
-            e.setCancelled(true);
             MessageManager.getMessage(FlexChat.class, "errors.unable_to_chat").sendTo(player);
             return;
         }
 
         ChannelInstance active = chatter.getActiveInstance();
         if (active == null) {
-            e.setCancelled(true);
             MessageManager.getMessage(FlexChat.class, "errors.channel_active_not_set").sendTo(player);
             return;
         }
