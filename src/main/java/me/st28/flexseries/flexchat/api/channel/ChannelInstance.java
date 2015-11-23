@@ -153,6 +153,14 @@ public class ChannelInstance {
         return result;
     }
 
+    /**
+     * Removes a chatter from this instance, BUT NOT THE CHANNEL FROM THE CHATTER.
+     * This should ONLY be used when the chatter is being unloaded.
+     */
+    public void removeOfflineChatter(Chatter chatter) {
+        chatters.remove(chatter);
+    }
+
     public void removeAllChatters() {
         Set<Chatter> toRemove = new HashSet<>(chatters);
 

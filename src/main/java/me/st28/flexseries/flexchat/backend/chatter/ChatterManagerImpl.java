@@ -152,7 +152,7 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
         Chatter chatter = chatters.remove(player.getUuid().toString());
         if (chatter != null) {
             for (ChannelInstance instance : chatter.getInstances()) {
-                instance.removeChatter(chatter);
+                instance.removeOfflineChatter(chatter);
             }
         }
         return true;
