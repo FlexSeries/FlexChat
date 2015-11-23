@@ -107,42 +107,53 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
     public void onAsyncPlayerChatHighest(AsyncPlayerChatEvent e) {
         e.setCancelled(true); // FlexChat will handle sending the message.
 
-        Player player = e.getPlayer();
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            Player player = e.getPlayer();
 
-        Chatter chatter = FlexChatAPI.getChatterManager().getChatter(player);
-        if (chatter == null) {
-            MessageManager.getMessage(FlexChat.class, "errors.unable_to_chat").sendTo(player);
-            return;
-        }
-
-        ChannelInstance active = chatter.getActiveInstance();
-        if (active == null) {
-            MessageManager.getMessage(FlexChat.class, "errors.channel_active_not_set").sendTo(player);
-            return;
-        }
-
-        Collection<Chatter> recipients = active.getApplicableChatters(chatter);
-
-        Iterator<Chatter> iterator = recipients.iterator();
-        while (iterator.hasNext()) {
-            Chatter oChatter = iterator.next();
-
-            PlayerData data = FlexPlugin.getGlobalModule(PlayerManager.class).getPlayerData(((ChatterPlayer) oChatter).getUuid());
-            List<String> ignored = data.getCustomData("ignored", List.class);
-            if (ignored != null && !chatter.hasPermission(PermissionNodes.BYPASS_IGNORE) && ignored.contains(chatter.getIdentifier())) {
-                iterator.remove();
+            // Get the chatter. If null, send an error message.
+            final Chatter chatter = FlexChatAPI.getChatterManager().getChatter(player);
+            if (chatter == null) {
+                MessageManager.getMessage(FlexChat.class, "errors.unable_to_chat").sendTo(player);
+                return;
             }
-        }
 
-        String sendMessage = e.getFormat().replace("{MESSAGE}", ChatFormat.applyApplicableChatColors(chatter, e.getMessage()));
+            // Get the active instance. If null, send an error message.
+            final ChannelInstance active = chatter.getActiveInstance();
+            if (active == null) {
+                MessageManager.getMessage(FlexChat.class, "errors.channel_active_not_set").sendTo(player);
+                return;
+            }
 
-        for (Chatter oChatter : recipients) {
-            oChatter.sendMessage(sendMessage);
-        }
+            // Determine who the recipients are
+            final Collection<Chatter> recipients = active.getApplicableChatters(chatter);
 
-        Bukkit.getPluginManager().callEvent(new ChannelChatEvent(active, chatter, recipients, e.getMessage()));
+            if (!chatter.hasPermission(PermissionNodes.BYPASS_IGNORE)) {
+                // Only look for ignore exclusions if the chatter cannot bypass ignores.
 
-        ChatLogHelper.log(active, ChatColor.stripColor(e.getFormat().replace("{MESSAGE}", e.getMessage())));
+                PlayerManager playerManager = FlexPlugin.getGlobalModule(PlayerManager.class);
+                for (Iterator<Chatter> it = recipients.iterator(); it.hasNext(); ) {
+                    Chatter oChatter = it.next();
+
+                    PlayerData data = playerManager.getPlayerData(((ChatterPlayer) oChatter).getUuid());
+                    List<String> ignored = data.getCustomData("ignored", List.class);
+                    if (ignored != null && ignored.contains(chatter.getIdentifier())) {
+                        // If the other player has ignored the sender, remove them from the recipients
+                        it.remove();
+                    }
+                }
+            }
+
+            // Send the message, call new event, and log to the console.
+            String sendMessage = e.getFormat().replace("{MESSAGE}", ChatFormat.applyApplicableChatColors(chatter, e.getMessage()));
+
+            for (Chatter oChatter : recipients) {
+                oChatter.sendMessage(sendMessage);
+            }
+
+            Bukkit.getPluginManager().callEvent(new ChannelChatEvent(active, chatter, recipients, e.getMessage()));
+
+            ChatLogHelper.log(active, ChatColor.stripColor(e.getFormat().replace("{MESSAGE}", e.getMessage())));
+        });
     }
 
 }
