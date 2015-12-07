@@ -107,9 +107,6 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
             if (instances.size() == 1) {
                 config.set("active.channel", defaultChannel.getName());
                 config.set("instances." + defaultChannel.getName(), new ArrayList<String>());
-
-                data.setCustomData(FlexChat.class, "active.channel", defaultChannel.getName());
-                data.setCustomData(FlexChat.class, "instances." + defaultChannel.getName(), new ArrayList<String>());
             }
         }
 
