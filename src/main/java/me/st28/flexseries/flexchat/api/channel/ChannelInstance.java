@@ -93,7 +93,7 @@ public class ChannelInstance {
 
         int range = channel.getRadius();
         if (range == 0 || !(chatter instanceof ChatterPlayer)) {
-            return chatters;
+            return new HashSet<>(chatters);
         }
 
         Set<Chatter> returnSet = new HashSet<>();
