@@ -54,7 +54,7 @@ public enum PermissionNodes implements PermissionNode {
     FORMAT,
     MAGIC,
 
-    SPY,
+    SPY, // Also dynamic
     SPY_PERSISTENT,
 
     LIST,

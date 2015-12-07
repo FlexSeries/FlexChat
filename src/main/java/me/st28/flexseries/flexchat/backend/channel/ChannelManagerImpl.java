@@ -327,6 +327,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.LEAVE, channelName).getNode(), PermissionDefault.OP));
         pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.CHAT, channelName).getNode(), PermissionDefault.OP));
         pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.VIEW, channelName).getNode(), PermissionDefault.TRUE));
+        pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.SPY, channelName).getNode(), PermissionDefault.TRUE));
     }
 
     private void unregisterPermission(String channelName) {
@@ -339,6 +340,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.LEAVE, channelName).getNode()));
         pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.CHAT, channelName).getNode()));
         pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.VIEW, channelName).getNode()));
+        pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.SPY, channelName).getNode()));
     }
 
     public String getActiveSymbolChannel() {

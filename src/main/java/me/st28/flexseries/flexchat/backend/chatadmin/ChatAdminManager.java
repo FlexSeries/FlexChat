@@ -30,6 +30,7 @@ import me.st28.flexseries.flexchat.api.channel.ChannelInstance;
 import me.st28.flexseries.flexchat.api.chatter.Chatter;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
+import me.st28.flexseries.flexlib.permission.PermissionNode;
 import me.st28.flexseries.flexlib.player.PlayerData;
 import me.st28.flexseries.flexlib.player.PlayerExtendedJoinEvent;
 import me.st28.flexseries.flexlib.player.PlayerReference;
@@ -199,8 +200,11 @@ public class ChatAdminManager extends FlexModule<FlexChat> implements Listener, 
 
         ChatterManagerImpl chatterManager = FlexPlugin.getGlobalModule(ChatterManagerImpl.class);
 
+        PermissionNode permission = PermissionNode.buildVariableNode(PermissionNodes.SPY, instance.getChannel().getName().toLowerCase());
         for (Player spy : getOnlineSpies()) {
-            if (isSpyEnabled(spy.getUniqueId()) && getSpySettings(spy.getUniqueId()).containsInstance(instance)) {
+            if (isSpyEnabled(spy.getUniqueId())
+                    && getSpySettings(spy.getUniqueId()).containsInstance(instance)
+                    && permission.isAllowed(spy)) {
                 Chatter chatter = chatterManager.getChatter(spy);
                 if (!instance.containsChatter(chatter) || !instance.getApplicableChatters(chatter).contains(e.getSender())) {
                     // Only send if the chatter is not in the instance or the applicable chatters
