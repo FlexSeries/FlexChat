@@ -32,8 +32,8 @@ import me.st28.flexseries.flexchat.api.chatter.ChatterConsole;
 import me.st28.flexseries.flexchat.api.chatter.ChatterManager;
 import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
-import me.st28.flexseries.flexlib.log.LogHelper;
 import me.st28.flexseries.flexlib.player.PlayerData;
+import me.st28.flexseries.flexlib.player.PlayerManager;
 import me.st28.flexseries.flexlib.player.PlayerReference;
 import me.st28.flexseries.flexlib.player.data.DataProviderDescriptor;
 import me.st28.flexseries.flexlib.player.data.PlayerDataProvider;
@@ -44,7 +44,7 @@ import me.st28.flexseries.flexlib.plugin.module.ModuleDescriptor;
 import me.st28.flexseries.flexlib.plugin.module.ModuleReference;
 import me.st28.flexseries.flexlib.storage.flatfile.YamlFileManager;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
@@ -53,7 +53,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -80,6 +79,11 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
     }
 
     private void saveChatter(Chatter chatter) {
+        if (chatter instanceof ChatterPlayer) {
+            chatter.save(FlexPlugin.getGlobalModule(PlayerManager.class).getPlayerData(((ChatterPlayer) chatter).getUuid()).getCustomSection(FlexChat.class));
+            return;
+        }
+
         YamlFileManager file = new YamlFileManager(getDataFolder() + File.separator + chatter.getIdentifier() + ".yml");
 
         chatter.save(file.getConfig());
@@ -87,7 +91,7 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
         file.save();
     }
 
-    private void loadPlayerChatter(UUID uuid) {
+    private void loadPlayerChatter(UUID uuid, PlayerData data) {
         String identifier = uuid.toString();
         if (chatters.containsKey(identifier)) {
             return;
@@ -95,25 +99,21 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
 
         ChatterPlayer chatter = new ChatterPlayer(uuid);
 
-        YamlFileManager file = new YamlFileManager(getDataFolder() + File.separator + uuid.toString() + ".yml");
-        if (file.isEmpty()) {
-            LogHelper.debug(this, "Creating chatter file for '" + uuid.toString() + "'");
+        Channel defaultChannel = FlexPlugin.getGlobalModule(ChannelManagerImpl.class).getDefaultChannel();
 
-            Channel defaultChannel = FlexPlugin.getGlobalModule(ChannelManagerImpl.class).getDefaultChannel();
+        ConfigurationSection config = data.getCustomSection(FlexChat.class);
+        if (defaultChannel != null) {
+            Collection<ChannelInstance> instances = defaultChannel.getInstances(chatter);
+            if (instances.size() == 1) {
+                config.set("active.channel", defaultChannel.getName());
+                config.set("instances." + defaultChannel.getName(), new ArrayList<String>());
 
-            if (defaultChannel != null) {
-                FileConfiguration config = file.getConfig();
-
-                Collection<ChannelInstance> instances = defaultChannel.getInstances(chatter);
-                if (instances.size() == 1) {
-                    config.set("active.channel", defaultChannel.getName());
-                    config.set("instances." + defaultChannel.getName(), new ArrayList<String>());
-                }
+                data.setCustomData(FlexChat.class, "active.channel", defaultChannel.getName());
+                data.setCustomData(FlexChat.class, "instances." + defaultChannel.getName(), new ArrayList<String>());
             }
-            file.save();
         }
 
-        chatter.load(file.getConfig());
+        chatter.load(config);
         chatters.put(identifier, chatter);
     }
 
@@ -136,7 +136,7 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
 
     @Override
     public void loadPlayer(PlayerLoader loader, PlayerData data, PlayerReference player) {
-        loadPlayerChatter(player.getUuid());
+        loadPlayerChatter(player.getUuid(), data);
     }
 
     @Override

@@ -29,6 +29,7 @@ import me.st28.flexseries.flexchat.api.channel.ChannelInstance;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexlib.message.reference.MessageReference;
 import me.st28.flexseries.flexlib.permission.PermissionNode;
+import me.st28.flexseries.flexlib.player.PlayerData;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 import org.apache.commons.lang.Validate;
 import org.bukkit.configuration.ConfigurationSection;
