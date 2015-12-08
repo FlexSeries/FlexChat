@@ -14,28 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.st28.flexseries.flexchat.commands.channel;
+package me.st28.flexseries.flexchat.commands.chatspy;
 
 import me.st28.flexseries.flexchat.FlexChat;
-import me.st28.flexseries.flexchat.commands.arguments.ChannelArgument;
+import me.st28.flexseries.flexchat.backend.chatadmin.ChatAdminManager;
+import me.st28.flexseries.flexchat.backend.chatadmin.SpySettings;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexlib.command.AbstractCommand;
 import me.st28.flexseries.flexlib.command.CommandContext;
 import me.st28.flexseries.flexlib.command.CommandDescriptor;
 import me.st28.flexseries.flexlib.command.Subcommand;
+import me.st28.flexseries.flexlib.command.argument.PageArgument;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import org.bukkit.entity.Player;
 
-public final class SCmdChannelInfo extends Subcommand<FlexChat> {
+public class SCmdChatSpyList extends Subcommand<FlexChat> {
 
-    public SCmdChannelInfo(AbstractCommand<FlexChat> parent) {
-        super(parent, new CommandDescriptor("info").description("View information about a channel").permission(PermissionNodes.INFO));
+    public SCmdChatSpyList(AbstractCommand<FlexChat> parent) {
+        super(parent, new CommandDescriptor("list").description("List spied channels").permission(PermissionNodes.SPY).playerOnly(true));
 
-        addArgument(new ChannelArgument("channel", true));
+        addArgument(new PageArgument(false));
     }
 
     @Override
     public void handleExecute(CommandContext context) {
-        // TODO: Implement
-        context.getSender().sendMessage("NYI");
+        int page = context.getGlobalObject("page", Integer.class);
+
+        SpySettings settings = FlexPlugin.getGlobalModule(ChatAdminManager.class).getSpySettings(((Player) context.getSender()).getUniqueId());
+
+
     }
 
 }

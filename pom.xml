@@ -114,7 +114,7 @@
                         <configuration>
                             <encoding>UTF-8</encoding>
 
-                            <header>LICENSE.txt</header>
+                            <header>LICENSE-NOTICE.txt</header>
 
                             <mapping>
                                 <java>JAVADOC_STYLE</java>
