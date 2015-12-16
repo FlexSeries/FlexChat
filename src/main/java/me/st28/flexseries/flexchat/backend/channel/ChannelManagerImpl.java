@@ -114,8 +114,8 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         TownyTownChannel townChannel = new TownyTownChannel();
         TownyNationChannel nationChannel = new TownyNationChannel();
 
-        registerChannel(townChannel);
-        registerChannel(nationChannel);
+        registerChannel(townChannel, plugin.getResource("channels/custom/Towny-town.yml"));
+        registerChannel(nationChannel, plugin.getResource("channels/custom/Towny-nation.yml"));
 
         ChatFormat.registerChatVariable(new ChatVariable("TOWNY-TOWN") {
             @Override
