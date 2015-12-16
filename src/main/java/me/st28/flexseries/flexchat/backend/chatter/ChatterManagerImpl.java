@@ -72,7 +72,7 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
 
     private void saveChatter(Chatter chatter) {
         if (chatter instanceof ChatterPlayer) {
-            chatter.save(FlexPlugin.getGlobalModule(PlayerManager.class).getPlayerData(((ChatterPlayer) chatter).getUuid()).getCustomSection(FlexChat.class));
+            chatter.save(FlexPlugin.getGlobalModule(PlayerManager.class).getPlayerData(((ChatterPlayer) chatter).getUuid()).getDirectSection(FlexChat.class));
             return;
         }
 
@@ -93,7 +93,7 @@ public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterM
 
         Channel defaultChannel = FlexPlugin.getGlobalModule(ChannelManagerImpl.class).getDefaultChannel();
 
-        ConfigurationSection config = data.getCustomSection(FlexChat.class);
+        ConfigurationSection config = data.getDirectSection(FlexChat.class);
         if (defaultChannel != null) {
             Collection<ChannelInstance> instances = defaultChannel.getInstances(chatter);
             if (instances.size() == 1) {
