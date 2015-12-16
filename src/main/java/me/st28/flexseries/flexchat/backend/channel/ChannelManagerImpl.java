@@ -16,6 +16,7 @@
  */
 package me.st28.flexseries.flexchat.backend.channel;
 
+import com.gmail.nossr50.api.PartyAPI;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownyUniverse;
@@ -29,6 +30,8 @@ import me.st28.flexseries.flexchat.api.chatter.ChatterPlayer;
 import me.st28.flexseries.flexchat.api.format.ChatFormat;
 import me.st28.flexseries.flexchat.api.format.StandardChatFormat;
 import me.st28.flexseries.flexchat.backend.chatter.ChatterManagerImpl;
+import me.st28.flexseries.flexchat.hooks.mcmmo.McMmoListener;
+import me.st28.flexseries.flexchat.hooks.mcmmo.McMmoPartyChannel;
 import me.st28.flexseries.flexchat.hooks.towny.TownyListener;
 import me.st28.flexseries.flexchat.hooks.towny.TownyNationChannel;
 import me.st28.flexseries.flexchat.hooks.towny.TownyTownChannel;
@@ -101,9 +104,38 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         customChannelDir = new File(getDataFolder() + File.separator + "custom");
         customChannelDir.mkdir();
 
+        if (!setupHookMcMmo()) {
+            LogHelper.info(this, "Unable to register optional features for McMMO because it isn't installed.");
+        }
+
         if (!setupHookTowny()) {
             LogHelper.info(this, "Unable to register optional features for Towny because it isn't installed.");
         }
+    }
+
+    private boolean setupHookMcMmo() {
+        if (Bukkit.getPluginManager().getPlugin("mcMMO") == null) {
+            return false;
+        }
+
+        McMmoPartyChannel partyChannel = new McMmoPartyChannel();
+
+        registerChannel(partyChannel, plugin.getResource("channels/custom/McMMO-party.yml"));
+
+        ChatFormat.registerChatVariable(new ChatVariable("MCMMO-PARTY") {
+            @Override
+            public String getReplacement(Chatter chatter, Channel channel) {
+                if (!(chatter instanceof ChatterPlayer)) {
+                    return null;
+                }
+
+                return PartyAPI.getPartyName(((ChatterPlayer) chatter).getPlayer());
+            }
+        });
+
+        Bukkit.getPluginManager().registerEvents(new McMmoListener(partyChannel), plugin);
+        LogHelper.info(this, "Optional features for McMMO enabled.");
+        return true;
     }
 
     private boolean setupHookTowny() {
@@ -366,7 +398,6 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
         YamlFileManager file = new YamlFileManager(customChannelDir + File.separator + channel.getFileName() + ".yml");
         if (defaultConfig != null) {
-
             FileConfiguration config = file.getConfig();
 
             YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defaultConfig));

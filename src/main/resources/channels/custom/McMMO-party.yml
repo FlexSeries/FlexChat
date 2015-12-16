@@ -1,0 +1,5 @@
+name: 'Party'
+tag: 'P'
+color: 'GREEN'
+formats:
+  default: '&8[{CHCOLOR}Party&8] &f{NAME}: {CHCOLOR}{MESSAGE}'
