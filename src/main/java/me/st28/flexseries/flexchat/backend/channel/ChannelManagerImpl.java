@@ -129,7 +129,11 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
                     return null;
                 }
 
-                return PartyAPI.getPartyName(((ChatterPlayer) chatter).getPlayer());
+                try {
+                    return PartyAPI.getPartyName(((ChatterPlayer) chatter).getPlayer());
+                } catch (IndexOutOfBoundsException ex) {
+                    return null;
+                }
             }
         });
 
