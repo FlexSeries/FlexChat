@@ -47,7 +47,11 @@ public class McMmoListener implements Listener {
         if (newName == null) {
             // Party was removed, disbanded, etc. Remove entirely
 
-            channel.instances.remove(e.getOldParty().toLowerCase()).removeAllChatters();
+            McMmoPartyChannelInstance instance = channel.instances.remove(e.getOldParty().toLowerCase());
+
+            if (instance != null) {
+                instance.removeAllChatters();
+            }
         } else {
             Bukkit.getScheduler().scheduleSyncDelayedTask(JavaPlugin.getPlugin(FlexChat.class), () -> {
                 Party party = null;
@@ -76,7 +80,7 @@ public class McMmoListener implements Listener {
                 if (oldName != null) {
                     McMmoPartyChannelInstance oldInstance = channel.instances.get(oldName.toLowerCase());
 
-                    if (oldInstance.getChatters().isEmpty()) {
+                    if (oldInstance != null && oldInstance.getChatters().isEmpty()) {
                         channel.instances.remove(oldName.toLowerCase());
                     }
                 }
