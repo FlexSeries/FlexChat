@@ -44,8 +44,6 @@ public abstract class Channel {
     private ChatColor color;
     private int radius;
 
-    private String logFormat;
-
     private final Map<String, ChatFormat> formats = new LinkedHashMap<>();
 
     public Channel(String name) {
@@ -71,11 +69,6 @@ public abstract class Channel {
         }
 
         color = ChatColor.valueOf(config.getString("color", "WHITE").toUpperCase());
-
-        logFormat = config.getString("log format", null);
-        if (logFormat != null && logFormat.equals("")) {
-            logFormat = null;
-        }
 
         radius = config.getInt("chat radius", 0);
         if (radius < 0) {
