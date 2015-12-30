@@ -35,6 +35,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * A FlexChat chat channel.
+ */
 public abstract class Channel {
 
     private String name;
@@ -101,40 +104,66 @@ public abstract class Channel {
         }
     }
 
-    public void save() {}
-
+    /**
+     * @return The name of the channel.
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * @return The name of the file this channel's configuration is stored in.
+     */
     public String getFileName() {
         return fileName == null ? name : fileName;
     }
 
+    /**
+     * @return The channel's short name.
+     */
     public String getTag() {
         return tag;
     }
 
+    /**
+     * @return The description of the channel.
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * @return The channel's primary color.
+     */
     public ChatColor getColor() {
         return color;
     }
 
+    /**
+     * @return The chat radius of the channel.<br />
+     *         0 for a global channel.
+     */
     public int getRadius() {
-        return radius;
+        return radius < 0 ? 0 : radius;
     }
 
+    /**
+     * @return An unmodifiable collection of all of the chat formats for this channel.
+     */
     public Collection<ChatFormat> getChatFormats() {
         return Collections.unmodifiableCollection(formats.values());
     }
 
+    /**
+     * @return The chat format for a specified group for this channel.
+     */
     public ChatFormat getChatFormat(String group) {
         return formats.get(group == null ? "default" : group.toLowerCase());
     }
 
+    /**
+     * @return The chat format for a specified {@link Chatter}.
+     */
     public ChatFormat getChatFormat(Chatter chatter) {
         if (!(chatter instanceof ChatterPlayer)) {
             return getChatFormat((String) null);
