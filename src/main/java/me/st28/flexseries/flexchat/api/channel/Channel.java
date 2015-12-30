@@ -41,6 +41,7 @@ public abstract class Channel {
     private String fileName;
     private String tag;
 
+    private String description;
     private ChatColor color;
     private int radius;
 
@@ -66,6 +67,11 @@ public abstract class Channel {
         tag = config.getString("tag");
         if (tag != null && tag.equals("")) {
             tag = null;
+        }
+
+        description = config.getString("description", null);
+        if (description != null && description.equals("")) {
+            description = null;
         }
 
         color = ChatColor.valueOf(config.getString("color", "WHITE").toUpperCase());
@@ -107,6 +113,10 @@ public abstract class Channel {
 
     public String getTag() {
         return tag;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public ChatColor getColor() {
