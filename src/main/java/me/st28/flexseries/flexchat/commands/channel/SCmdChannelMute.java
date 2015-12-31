@@ -69,7 +69,7 @@ final class SCmdChannelMute extends Subcommand<FlexChat> {
             } else {
                 message = "alerts_channel.channel_muted_time";
 
-                replacements.put("{TIME}", TimeUtils.formatSeconds(time));
+                replacements.put("{TIME}", TimeUtils.formatSeconds(time, true));
             }
 
             channel.sendMessage(MessageManager.getMessage(FlexChat.class, message, replacements.getMap()));
