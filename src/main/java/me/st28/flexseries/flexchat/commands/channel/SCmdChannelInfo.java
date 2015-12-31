@@ -17,7 +17,9 @@
 package me.st28.flexseries.flexchat.commands.channel;
 
 import me.st28.flexseries.flexchat.FlexChat;
+import me.st28.flexseries.flexchat.api.FlexChatAPI;
 import me.st28.flexseries.flexchat.api.channel.Channel;
+import me.st28.flexseries.flexchat.api.channel.ChannelManager;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.commands.arguments.ChannelArgument;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
@@ -32,6 +34,7 @@ import me.st28.flexseries.flexlib.message.ReplacementMap;
 import me.st28.flexseries.flexlib.message.list.ListBuilder;
 import me.st28.flexseries.flexlib.permission.PermissionNode;
 import me.st28.flexseries.flexlib.plugin.FlexPlugin;
+import me.st28.flexseries.flexlib.utils.TimeUtils;
 
 import java.util.Map;
 
@@ -60,7 +63,12 @@ final class SCmdChannelInfo extends Subcommand<FlexChat> {
 
         builder.addMessage("title", "Description", description);
         builder.addMessage("title", "Range", channel.getRadius() == 0 ? "Global" : Integer.toString(channel.getRadius()));
-        // TODO: Is muted?
+
+        ChannelManager channelManager = FlexChatAPI.getChannelManager();
+        if (channelManager.isChannelMuted(channel)) {
+            int time = channelManager.getChannelMuteTime(channel);
+            builder.addMessage("title", "Muted", time < 0 ? "Indefinite" : TimeUtils.formatSeconds(time, true));
+        }
 
         Map<String, String> custom = channel.getCustomInfo();
         if (custom != null && !custom.isEmpty()) {

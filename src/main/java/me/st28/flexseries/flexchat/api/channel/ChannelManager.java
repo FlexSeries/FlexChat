@@ -79,6 +79,12 @@ public interface ChannelManager {
     boolean isChannelMuted(Channel channel);
 
     /**
+     * @return The number of seconds left for the channel's mute time.<br />
+     *         < 0 for an indefinite amount of time or a non-muted channel.
+     */
+    int getChannelMuteTime(Channel channel);
+
+    /**
      * Mutes a {@link Channel}.
      *
      * @param channel The channel to mute.

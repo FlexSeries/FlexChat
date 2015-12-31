@@ -95,7 +95,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
     private final Set<String> loadedChannels = new HashSet<>();
     private final Map<String, Channel> channels = new HashMap<>();
 
-    private final Map<String, BukkitRunnable> mutedChannels = new HashMap<>();
+    private final Map<String, ChannelUnmuteRunnable> mutedChannels = new HashMap<>();
 
     private File customChannelDir;
 
@@ -467,6 +467,23 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
     }
 
     @Override
+    public int getChannelMuteTime(Channel channel) {
+        Validate.notNull(channel, "Channel cannot be null.");
+
+        String name = channel.getName().toLowerCase();
+        if (!mutedChannels.containsKey(name)) {
+            return -1;
+        }
+
+        ChannelUnmuteRunnable runnable = mutedChannels.get(name);
+        if (runnable == null) {
+            return -1;
+        } else {
+            return runnable.getSecondsLeft();
+        }
+    }
+
+    @Override
     public boolean muteChannel(Channel channel, int seconds) {
         Validate.notNull(channel, "Channel cannot be null.");
 
@@ -476,21 +493,10 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
             return false;
         }
 
-        BukkitRunnable runnable = null;
+        ChannelUnmuteRunnable runnable = null;
 
         if (seconds > 0) {
-            runnable = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    if (unmuteChannel(channel)) {
-                        channel.sendMessage(MessageManager.getMessage(FlexChat.class, "alerts_channel.channel_unmuted",
-                                new ReplacementMap("{COLOR}", channel.getColor().toString())
-                                        .put("{CHANNEL}", channel.getName())
-                                        .getMap())
-                        );
-                    }
-                }
-            };
+            runnable = new ChannelUnmuteRunnable(seconds, channel);
             runnable.runTaskLater(getPlugin(), seconds * 20L);
         }
 
@@ -508,7 +514,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
             return false;
         }
 
-        BukkitRunnable runnable = mutedChannels.remove(name);
+        ChannelUnmuteRunnable runnable = mutedChannels.remove(name);
         if (runnable != null) {
             runnable.cancel();
         }
@@ -551,6 +557,35 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
             Channel channel = active.getChannel();
             e.addLoginMessage(FlexChat.class, "channel", MessageManager.getMessage(FlexChat.class, "notices.channel_active_notice", new ReplacementMap("{COLOR}", channel.getColor().toString()).put("{CHANNEL}", channel.getName()).getMap()));
         }
+    }
+
+    // ------------------------------------------------------------------------------------------ //
+
+    private final class ChannelUnmuteRunnable extends BukkitRunnable {
+
+        long end;
+        Channel channel;
+
+        ChannelUnmuteRunnable(int length, Channel channel) {
+            end = System.currentTimeMillis() + length * 1000L;
+            this.channel = channel;
+        }
+
+        int getSecondsLeft() {
+            return (int) ((end - System.currentTimeMillis()) / 1000L);
+        }
+
+        @Override
+        public void run() {
+            if (unmuteChannel(channel)) {
+                channel.sendMessage(MessageManager.getMessage(FlexChat.class, "alerts_channel.channel_unmuted",
+                        new ReplacementMap("{COLOR}", channel.getColor().toString())
+                                .put("{CHANNEL}", channel.getName())
+                                .getMap())
+                );
+            }
+        }
+
     }
 
 }
