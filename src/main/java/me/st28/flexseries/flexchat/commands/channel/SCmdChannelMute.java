@@ -65,9 +65,9 @@ final class SCmdChannelMute extends Subcommand<FlexChat> {
 
             String message;
             if (time <= 0) {
-                message = "alerts_channels.channel_muted";
+                message = "alerts_channel.channel_muted";
             } else {
-                message = "alerts_channels.channel_muted_time";
+                message = "alerts_channel.channel_muted_time";
 
                 replacements.put("{TIME}", TimeUtils.formatSeconds(time));
             }

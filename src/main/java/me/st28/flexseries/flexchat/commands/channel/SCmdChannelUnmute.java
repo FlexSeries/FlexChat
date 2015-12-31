@@ -48,7 +48,7 @@ final class SCmdChannelUnmute extends Subcommand<FlexChat> {
         }
 
         if (FlexChatAPI.getChannelManager().unmuteChannel(channel)) {
-            channel.sendMessage(MessageManager.getMessage(FlexChat.class, "alerts_channels.channel_unmuted",
+            channel.sendMessage(MessageManager.getMessage(FlexChat.class, "alerts_channel.channel_unmuted",
                     new ReplacementMap("{COLOR}", channel.getColor().toString())
                             .put("{CHANNEL}", channel.getName())
                             .getMap())
