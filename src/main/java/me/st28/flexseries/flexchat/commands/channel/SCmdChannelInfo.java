@@ -17,25 +17,57 @@
 package me.st28.flexseries.flexchat.commands.channel;
 
 import me.st28.flexseries.flexchat.FlexChat;
+import me.st28.flexseries.flexchat.api.channel.Channel;
+import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexchat.commands.arguments.ChannelArgument;
 import me.st28.flexseries.flexchat.permissions.PermissionNodes;
 import me.st28.flexseries.flexlib.command.AbstractCommand;
 import me.st28.flexseries.flexlib.command.CommandContext;
 import me.st28.flexseries.flexlib.command.CommandDescriptor;
+import me.st28.flexseries.flexlib.command.CommandInterruptedException;
+import me.st28.flexseries.flexlib.command.CommandInterruptedException.InterruptReason;
 import me.st28.flexseries.flexlib.command.Subcommand;
+import me.st28.flexseries.flexlib.message.MessageManager;
+import me.st28.flexseries.flexlib.message.ReplacementMap;
+import me.st28.flexseries.flexlib.message.list.ListBuilder;
+import me.st28.flexseries.flexlib.permission.PermissionNode;
+import me.st28.flexseries.flexlib.plugin.FlexPlugin;
 
-public final class SCmdChannelInfo extends Subcommand<FlexChat> {
+import java.util.Map;
+
+final class SCmdChannelInfo extends Subcommand<FlexChat> {
 
     public SCmdChannelInfo(AbstractCommand<FlexChat> parent) {
-        super(parent, new CommandDescriptor("info").description("View information about a channel").permission(PermissionNodes.INFO));
+        super(parent, new CommandDescriptor("info").description("View information about a channel"));
 
         addArgument(new ChannelArgument("channel", true));
     }
 
     @Override
     public void handleExecute(CommandContext context) {
-        // TODO: Implement
-        context.getSender().sendMessage("NYI");
+        Channel channel = context.getGlobalObject("channel", Channel.class);
+
+        if (!PermissionNode.buildVariableNode(PermissionNodes.INFO, channel.getName()).isAllowed(context.getSender())) {
+            throw new CommandInterruptedException(InterruptReason.COMMAND_SOFT_ERROR, MessageManager.getMessage(FlexChat.class, "errors.channel_no_permission", new ReplacementMap("{VERB}", "view info for").put("{CHANNEL}", channel.getName()).getMap()));
+        }
+
+        ListBuilder builder = new ListBuilder("subtitle", "Channel Info", channel.getName(), context.getLabel());
+
+        String description = channel.getDescription();
+        if (description == null) {
+            description = FlexPlugin.getGlobalModule(ChannelManagerImpl.class).getDefaultChannelDescription();
+        }
+
+        builder.addMessage("title", "Description", description);
+        builder.addMessage("title", "Range", channel.getRadius() == 0 ? "Global" : Integer.toString(channel.getRadius()));
+        // TODO: Is muted?
+
+        Map<String, String> custom = channel.getCustomInfo();
+        if (custom != null && !custom.isEmpty()) {
+            custom.entrySet().stream().forEach((entry -> builder.addMessage("title", entry.getKey(), entry.getValue())));
+        }
+
+        builder.sendTo(context.getSender());
     }
 
 }

@@ -89,6 +89,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
     private final Map<String, ChatFormat> globalFormats = new LinkedHashMap<>();
 
     private String defaultChannel;
+    private String defaultChannelDescription;
 
     private final Set<String> loadedChannels = new HashSet<>();
     private final Map<String, Channel> channels = new HashMap<>();
@@ -214,6 +215,8 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         customChannelDir.mkdir();
 
         FileConfiguration config = getConfig();
+
+        defaultChannelDescription = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(config.getString("default description", "&c&oNo description set")));
 
         activeSymbolChannel = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(config.getString("active symbol.channel", "\u25B6")));
         activeSymbolInstance = ChatColor.translateAlternateColorCodes('&', StringEscapeUtils.unescapeJava(config.getString("active symbol.instance", "\u25B6")));
@@ -351,6 +354,7 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         PluginManager pluginManager = Bukkit.getPluginManager();
 
         pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.AUTOJOIN, channelName).getNode(), PermissionDefault.FALSE));
+        pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.INFO, channelName).getNode(), PermissionDefault.TRUE));
         pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.JOIN, channelName).getNode(), PermissionDefault.OP));
         pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.LEAVE, channelName).getNode(), PermissionDefault.OP));
         pluginManager.addPermission(new Permission(PermissionNode.buildVariableNode(PermissionNodes.CHAT, channelName).getNode(), PermissionDefault.OP));
@@ -364,11 +368,19 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         PluginManager pluginManager = Bukkit.getPluginManager();
 
         pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.AUTOJOIN, channelName).getNode()));
+        pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.INFO, channelName).getNode()));
         pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.JOIN, channelName).getNode()));
         pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.LEAVE, channelName).getNode()));
         pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.CHAT, channelName).getNode()));
         pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.VIEW, channelName).getNode()));
         pluginManager.removePermission(pluginManager.getPermission(PermissionNode.buildVariableNode(PermissionNodes.SPY, channelName).getNode()));
+    }
+
+    /**
+     * @return The default description to use for channels that don't have a description set.
+     */
+    public String getDefaultChannelDescription() {
+        return defaultChannelDescription;
     }
 
     public String getActiveSymbolChannel() {

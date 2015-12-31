@@ -2,6 +2,7 @@ active symbol:
   channel: '\u25B6'
   instance: '\u25B6'
 default channel: 'default'
+default description: '&c&oNo description set'
 global formats: # [g:default]
   default: '{CHCOLOR}[{CHTAG}] {PREFIX}{DISPNAME}{SUFFIX}&8: {CHCOLOR}{MESSAGE}'
   moderator:

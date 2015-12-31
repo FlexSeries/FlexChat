@@ -218,4 +218,11 @@ public abstract class Channel {
      */
     public abstract Collection<ChannelInstance> getInstances(Chatter chatter);
 
+    /**
+     * @return Custom information to show on the info command when it's executed for this channel.
+     */
+    public Map<String, String> getCustomInfo() {
+        return new LinkedHashMap<>();
+    }
+
 }

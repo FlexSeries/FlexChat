@@ -31,6 +31,7 @@ public enum PermissionNodes implements PermissionNode {
     /* Dynamic permissions */
     AUTOJOIN,
     CHAT,
+    INFO,
     JOIN,
     LEAVE,
     VIEW,
@@ -52,8 +53,6 @@ public enum PermissionNodes implements PermissionNode {
     LIST,
     LIST_INSTANCE,
     LIST_INSTANCE_ALL,
-
-    INFO,
 
     IGNORE,
 
