@@ -34,11 +34,13 @@ public enum PermissionNodes implements PermissionNode {
     INFO,
     JOIN,
     LEAVE,
+    MUTE,
     VIEW,
     /* ------------------- */
 
     BYPASS_IGNORE,
     BYPASS_JOIN,
+    BYPASS_MUTE,
     BYPASS_VIEW,
 
     KICK,

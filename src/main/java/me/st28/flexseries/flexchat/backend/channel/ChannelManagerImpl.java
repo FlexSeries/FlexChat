@@ -59,6 +59,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -93,6 +94,8 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
 
     private final Set<String> loadedChannels = new HashSet<>();
     private final Map<String, Channel> channels = new HashMap<>();
+
+    private final Map<String, BukkitRunnable> mutedChannels = new HashMap<>();
 
     private File customChannelDir;
 
@@ -441,13 +444,12 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
         return true;
     }
 
+    @Override
     public Channel getDefaultChannel() {
         return channels.get(defaultChannel.toLowerCase());
     }
 
-    /**
-     * @return An unmodifiable collection of all loaded channels.
-     */
+    @Override
     public Collection<Channel> getChannels() {
         return Collections.unmodifiableCollection(channels.values());
     }
@@ -456,6 +458,62 @@ public final class ChannelManagerImpl extends FlexModule<FlexChat> implements Ch
     public Channel getChannel(String name) {
         Validate.notNull(name, "Name cannot be null.");
         return channels.get(name.toLowerCase());
+    }
+
+    @Override
+    public boolean isChannelMuted(Channel channel) {
+        Validate.notNull(channel, "Channel cannot be null.");
+        return mutedChannels.containsKey(channel.getName().toLowerCase());
+    }
+
+    @Override
+    public boolean muteChannel(Channel channel, int seconds) {
+        Validate.notNull(channel, "Channel cannot be null.");
+
+        String name = channel.getName().toLowerCase();
+
+        if (mutedChannels.containsKey(name)) {
+            return false;
+        }
+
+        BukkitRunnable runnable = null;
+
+        if (seconds > 0) {
+            runnable = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (unmuteChannel(channel)) {
+                        channel.sendMessage(MessageManager.getMessage(FlexChat.class, "alerts_channels.channel_unmuted",
+                                new ReplacementMap("{COLOR}", channel.getColor().toString())
+                                        .put("{CHANNEL}", channel.getName())
+                                        .getMap())
+                        );
+                    }
+                }
+            };
+            runnable.runTaskLater(getPlugin(), seconds * 20L);
+        }
+
+        mutedChannels.put(name, runnable);
+        return true;
+    }
+
+    @Override
+    public boolean unmuteChannel(Channel channel) {
+        Validate.notNull(channel, "Channel cannot be null.");
+
+        String name = channel.getName().toLowerCase();
+
+        if (!mutedChannels.containsKey(name)) {
+            return false;
+        }
+
+        BukkitRunnable runnable = mutedChannels.remove(name);
+        if (runnable != null) {
+            runnable.cancel();
+        }
+
+        return true;
     }
 
     @EventHandler

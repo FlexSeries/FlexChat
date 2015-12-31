@@ -116,6 +116,12 @@ public final class ChatManager extends FlexModule<FlexChat> implements Listener 
                 return;
             }
 
+            // Check if the channel is muted
+            if (FlexChatAPI.getChannelManager().isChannelMuted(active.getChannel()) && !chatter.hasPermission(PermissionNodes.BYPASS_MUTE)) {
+                MessageManager.getMessage(FlexChat.class, "errors.unable_to_chat_muted", new ReplacementMap("{CHANNEL}", active.getChannel().getName()).getMap()).sendTo(player);
+                return;
+            }
+
             // Determine who the recipients are
             final Collection<Chatter> recipients = active.getApplicableChatters(chatter);
 

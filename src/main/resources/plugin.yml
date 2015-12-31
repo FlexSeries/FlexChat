@@ -39,6 +39,7 @@ permissions:
       flexchat.magic: true
       flexchat.bypass.ignore: true
       flexchat.bypass.join: true
+      flexchat.bypass.mute: true
       flexchat.bypass.view: true
       flexchat.kick: true
       flexchat.spy: true

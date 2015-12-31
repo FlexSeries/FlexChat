@@ -19,6 +19,7 @@ package me.st28.flexseries.flexchat.api.channel;
 import me.st28.flexseries.flexchat.api.format.ChatFormat;
 
 import java.io.InputStream;
+import java.util.Collection;
 
 /**
  * Represents FlexChat's channel handler.
@@ -31,7 +32,7 @@ public interface ChannelManager {
     ChatFormat getGlobalFormat(String group);
 
     /**
-     * Registers a channel.
+     * Registers a {@link Channel}.
      *
      * @return True if the channel was successfully registered.<br />
      *         False if another channel with the same name is already registered.
@@ -39,19 +40,29 @@ public interface ChannelManager {
     boolean registerChannel(Channel channel);
 
     /**
-     * Registers a channel with a default configuration file.
+     * Registers a {@link Channel} with a default configuration file.
      *
      * @see #registerChannel(Channel)
      */
     boolean registerChannel(Channel channel, InputStream defaultConfig);
 
     /**
-     * Unregisters a channel.
+     * Unregisters a {@link Channel}.
      *
      * @return True if the channel was successfully unregistered.<br />
      *         False if the channel isn't registered under the manager.
      */
     boolean unregisterChannel(Channel channel);
+
+    /**
+     * @return The default {@link Channel}.
+     */
+    Channel getDefaultChannel();
+
+    /**
+     * @return An unmodifiable collection of all loaded {@link Channel}s.
+     */
+    Collection<Channel> getChannels();
 
     /**
      * Retrieves a {@link Channel} based on its name.
@@ -60,5 +71,31 @@ public interface ChannelManager {
      *         Null if there are no matched channels.
      */
     Channel getChannel(String name);
+
+    /**
+     * @return True if the specified channel is muted.<br />
+     *         False otherwise.
+     */
+    boolean isChannelMuted(Channel channel);
+
+    /**
+     * Mutes a {@link Channel}.
+     *
+     * @param channel The channel to mute.
+     * @param seconds The number of seconds to mute the channel for.<br />
+     *                < 0 for an indefinite amount of time.
+     * @return True if the channel was muted successfully.<br />
+     *         False if the channel is already muted.
+     */
+    boolean muteChannel(Channel channel, int seconds);
+
+    /**
+     * Unmutes a {@link Channel}.
+     *
+     * @param channel The channel to unmute.
+     * @return True if the channel was unmuted successfully.<br />
+     *         False if the channel is already unmuted.
+     */
+    boolean unmuteChannel(Channel channel);
 
 }

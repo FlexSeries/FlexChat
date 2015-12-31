@@ -22,6 +22,7 @@ import me.st28.flexseries.flexchat.api.format.ChatFormat;
 import me.st28.flexseries.flexchat.api.format.ReferencedChatFormat;
 import me.st28.flexseries.flexchat.backend.channel.ChannelManagerImpl;
 import me.st28.flexseries.flexlib.log.LogHelper;
+import me.st28.flexseries.flexlib.message.reference.MessageReference;
 import me.st28.flexseries.flexlib.permission.PermissionHelper;
 import org.apache.commons.lang.Validate;
 import org.bukkit.ChatColor;
@@ -217,6 +218,15 @@ public abstract class Channel {
      * @return The {@link ChannelInstance}s a particular {@link Chatter} belongs in.
      */
     public abstract Collection<ChannelInstance> getInstances(Chatter chatter);
+
+    /**
+     * Sends a message to all instances of this channel.
+     */
+    public void sendMessage(MessageReference message) {
+        for (ChannelInstance instance : getInstances()) {
+            instance.sendMessage(message);
+        }
+    }
 
     /**
      * @return Custom information to show on the info command when it's executed for this channel.
