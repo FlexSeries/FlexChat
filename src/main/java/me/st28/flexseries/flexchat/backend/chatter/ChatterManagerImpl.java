@@ -44,13 +44,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ChatterManagerImpl extends FlexModule<FlexChat> implements ChatterManager, Listener, PlayerDataProvider {
 
-    private final Map<String, Chatter> chatters = new HashMap<>();
+    private final Map<String, Chatter> chatters = new ConcurrentHashMap<>();
 
     public ChatterManagerImpl(FlexChat plugin) {
         super(plugin, "chatters", "Manages chatter data", new ModuleDescriptor().setGlobal(true).setSmartLoad(false).addHardDependency(new ModuleReference("FlexChat", "channels")));
