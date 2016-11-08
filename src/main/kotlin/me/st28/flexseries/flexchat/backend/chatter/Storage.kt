@@ -98,6 +98,11 @@ internal class Storage_YAML : Storage {
     }
 
     override fun save(chatter: Chatter) {
+        if (chatter !is PlayerChatter) {
+            // TODO: Save console data?
+            return
+        }
+
         val file = files[chatter.identifier]!!
         chatter.save(file.config)
         file.save()
