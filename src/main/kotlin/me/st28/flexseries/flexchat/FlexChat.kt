@@ -19,6 +19,8 @@ package me.st28.flexseries.flexchat
 import me.st28.flexseries.flexchat.backend.ChatManager
 import me.st28.flexseries.flexchat.backend.channel.ChannelModule
 import me.st28.flexseries.flexchat.backend.chatter.ChatterModule
+import me.st28.flexseries.flexchat.commands.ChatterResolver
+import me.st28.flexseries.flexlib.command.argument.ArgumentResolver
 import me.st28.flexseries.flexlib.plugin.FlexPlugin
 import net.milkbowl.vault.chat.Chat
 
@@ -36,6 +38,7 @@ class FlexChat : FlexPlugin() {
         val chatProvider = server.servicesManager.getRegistration(net.milkbowl.vault.chat.Chat::class.java)
         vaultChat = chatProvider.provider
 
+        ArgumentResolver.register(this, "chatter", ChatterResolver)
         commandMap.register(me.st28.flexseries.flexchat.commands.Messaging)
     }
 

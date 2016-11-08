@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.st28.flexseries.flexchat.api.format
+package me.st28.flexseries.flexchat.api
 
 import me.st28.flexseries.flexchat.FlexChat
 import me.st28.flexseries.flexchat.api.channel.Channel
@@ -32,7 +32,7 @@ class ChatFormat {
 
     companion object {
 
-        private val variables: MutableMap<String, (Chatter, Channel) -> String> = HashMap()
+        internal val variables: MutableMap<String, (Chatter, Channel?) -> String> = HashMap()
 
         init {
             /* Register default chat variables */
@@ -45,25 +45,25 @@ class ChatFormat {
             }
 
             // Channel related
-            registerVariable("CHCOLOR") { chatter, channel -> channel.color.toString() }
-            registerVariable("CHTAG") { chatter, channel -> channel.tag }
+            registerVariable("CHCOLOR") { chatter, channel -> channel?.color.toString() }
+            registerVariable("CHTAG") { chatter, channel -> channel?.tag ?: "" }
 
             // Permission related
-            registerVariable("GROUP", fun(chatter: Chatter, channel: Channel): String {
+            registerVariable("GROUP", fun(chatter: Chatter, channel: Channel?): String {
                 if (chatter !is PlayerChatter) {
                     return ""
                 }
                 return getVaultChat().getPrimaryGroup(null, chatter.player)
             })
 
-            registerVariable("PREFIX", fun(chatter: Chatter, channel: Channel): String {
+            registerVariable("PREFIX", fun(chatter: Chatter, channel: Channel?): String {
                 if (chatter !is PlayerChatter) {
                     return ""
                 }
                 return getVaultChat().getPlayerPrefix(null, chatter.player)
             })
 
-            registerVariable("SUFFIX", fun(chatter: Chatter, channel: Channel): String {
+            registerVariable("SUFFIX", fun(chatter: Chatter, channel: Channel?): String {
                 if (chatter !is PlayerChatter) {
                     return ""
                 }
@@ -81,7 +81,7 @@ class ChatFormat {
          * @return True if the variable was successfully registered.
          *         False if another variable with the same key was already registered.
          */
-        fun registerVariable(key: String, replacer: (Chatter, Channel) -> String): Boolean {
+        fun registerVariable(key: String, replacer: (Chatter, Channel?) -> String): Boolean {
             if (variables.containsKey(key)) {
                 return false
             }

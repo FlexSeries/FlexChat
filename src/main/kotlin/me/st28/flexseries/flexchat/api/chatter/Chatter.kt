@@ -17,6 +17,7 @@
 package me.st28.flexseries.flexchat.api.chatter
 
 import me.st28.flexseries.flexchat.FlexChat
+import me.st28.flexseries.flexchat.api.FlexChatAPI
 import me.st28.flexseries.flexchat.api.channel.Channel
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance
 import me.st28.flexseries.flexchat.backend.channel.ChannelModule
@@ -25,6 +26,7 @@ import me.st28.flexseries.flexlib.message.sendMessage
 import me.st28.flexseries.flexlib.permission.PermissionNode
 import me.st28.flexseries.flexlib.plugin.FlexPlugin
 import org.bukkit.Bukkit
+import org.bukkit.command.CommandSender
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
 import java.util.*
@@ -240,4 +242,12 @@ class PlayerChatter : Chatter {
         player?.sendMessage(message)
     }
 
+}
+
+fun Player.getChatter(): PlayerChatter? {
+    return FlexChatAPI.chatterManager.getChatter(this) as PlayerChatter?
+}
+
+fun CommandSender.getChatter(): Chatter? {
+    return FlexChatAPI.chatterManager.getChatter(this)
 }

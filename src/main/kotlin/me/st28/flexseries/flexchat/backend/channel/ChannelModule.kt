@@ -19,11 +19,15 @@ package me.st28.flexseries.flexchat.backend.channel
 import me.st28.flexseries.flexchat.FlexChat
 import me.st28.flexseries.flexchat.api.channel.Channel
 import me.st28.flexseries.flexchat.api.channel.ChannelManager
-import me.st28.flexseries.flexchat.api.format.ChatFormat
+import me.st28.flexseries.flexchat.api.chatter.Chatter
+import me.st28.flexseries.flexchat.api.chatter.ConsoleChatter
+import me.st28.flexseries.flexchat.api.chatter.PlayerChatter
+import me.st28.flexseries.flexchat.api.ChatFormat
 import me.st28.flexseries.flexchat.backend.chatter.ChatterModule
 import me.st28.flexseries.flexchat.permission.PermissionNodes
 import me.st28.flexseries.flexlib.logging.LogHelper
 import me.st28.flexseries.flexlib.message.Message
+import me.st28.flexseries.flexlib.permission.PermissionHelper
 import me.st28.flexseries.flexlib.permission.PermissionNode
 import me.st28.flexseries.flexlib.plugin.FlexModule
 import me.st28.flexseries.flexlib.plugin.FlexPlugin
@@ -103,6 +107,19 @@ class ChannelModule : FlexModule<FlexChat>, ChannelManager {
         // Set default chat format if not already set
         if (!globalFormats.containsKey("default")) {
             globalFormats.put("default", ChatFormat("{CHCOLOR}[{CHTAG}]{PREFIX}{DISPNAME}{SUFFIX}&f: {MESSAGE}", true))
+        }
+
+        /* Load message formats */
+        messageFormats.clear()
+        val messageSec = config.getConfigurationSection("message formats")
+        if (messageSec != null) {
+            for ((key, value) in messageSec.getValues(true)) {
+                messageFormats.put(key.toLowerCase(), StringEscapeUtils.unescapeJava(value as String))
+            }
+        }
+
+        if (!messageFormats.containsKey("default")) {
+            messageFormats.put("default", "&f[&7{SENDER} &f\u27A1 &7{RECEIVER}&f] &7{MESSAGE}")
         }
 
         /* Load channels */
@@ -232,6 +249,28 @@ class ChannelModule : FlexModule<FlexChat>, ChannelManager {
 
     override fun getDefaultChannelFormat(): ChatFormat {
         return globalFormats["default"]!!
+    }
+
+    override fun getMessageFormat(sender: Chatter): String {
+        if (sender is ConsoleChatter) {
+            return messageFormats["console"] ?: messageFormats["default"]!!
+        }
+        return messageFormats[PermissionHelper.getTopGroup((sender as PlayerChatter).player!!, ArrayList(messageFormats.keys), "default")]!!
+    }
+
+    override fun formatMessage(sender: Chatter, message: String): String {
+        var finalMessage = getMessageFormat(sender)
+
+        for ((key, variable) in ChatFormat.variables.entries) {
+            if (!finalMessage.contains("{$key}")) {
+                continue
+            }
+
+            finalMessage = finalMessage.replace("{$key}", variable.invoke(sender, null))
+        }
+
+        return ChatColor.translateAlternateColorCodes('&', finalMessage)
+                .replace("{MESSAGE}", ChatFormat.applyApplicableColors(sender, message))
     }
 
 }

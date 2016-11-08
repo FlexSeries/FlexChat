@@ -19,7 +19,7 @@ package me.st28.flexseries.flexchat.api.channel
 import me.st28.flexseries.flexchat.api.FlexChatAPI
 import me.st28.flexseries.flexchat.api.chatter.Chatter
 import me.st28.flexseries.flexchat.api.chatter.PlayerChatter
-import me.st28.flexseries.flexchat.api.format.ChatFormat
+import me.st28.flexseries.flexchat.api.ChatFormat
 import me.st28.flexseries.flexchat.backend.channel.ChannelModule
 import me.st28.flexseries.flexlib.message.Message
 import me.st28.flexseries.flexlib.permission.PermissionHelper

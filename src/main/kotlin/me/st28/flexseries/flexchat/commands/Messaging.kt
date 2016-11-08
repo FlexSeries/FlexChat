@@ -16,13 +16,41 @@
  */
 package me.st28.flexseries.flexchat.commands
 
+import me.st28.flexseries.flexchat.api.FlexChatAPI
+import me.st28.flexseries.flexchat.api.chatter.Chatter
+import me.st28.flexseries.flexchat.api.chatter.getChatter
 import me.st28.flexseries.flexlib.command.CommandContext
+import me.st28.flexseries.flexlib.command.CommandHandler
+import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
 
 object Messaging {
 
+    @CommandHandler(
+        "message",
+        description = "Send a private message to another user",
+        aliases = arrayOf("msg", "m", "tell", "t", "whisper", "w"),
+        args = arrayOf(
+            "player flexchat::chatter always",
+            "message string always"
+        )
+    )
     fun message(sender: CommandSender, context: CommandContext) {
+        val senderChatter = sender.getChatter()!!
+        val targetChatter = context.getArgument<Chatter>("player")!!
 
+        // TODO: Check for ignore
+
+        val rawMessage: String = context.getArgument("message")!!
+        val message = FlexChatAPI.channelManager.formatMessage(senderChatter, rawMessage)
+
+        // Send message
+        sender.sendMessage(message.replace("{SENDER}", "${ChatColor.ITALIC}me").replace("{RECEIVER}", targetChatter.displayName))
+        targetChatter.sendMessage(message.replace("{SENDER}", senderChatter.displayName).replace("{RECEIVER}", "${ChatColor.ITALIC}me"))
+
+        // TODO: Set reply reference
+
+        // TODO: Log
     }
 
     fun reply(sender: CommandSender, context: CommandContext) {

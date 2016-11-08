@@ -16,7 +16,8 @@
  */
 package me.st28.flexseries.flexchat.api.channel
 
-import me.st28.flexseries.flexchat.api.format.ChatFormat
+import me.st28.flexseries.flexchat.api.chatter.Chatter
+import me.st28.flexseries.flexchat.api.ChatFormat
 import java.io.InputStream
 
 /**
@@ -57,5 +58,15 @@ interface ChannelManager {
      * @return The default global channel chat format.
      */
     fun getDefaultChannelFormat(): ChatFormat
+
+    /**
+     * Returns the appropriate private message format for a specified Chatter.
+     */
+    fun getMessageFormat(sender: Chatter): String
+
+    /**
+     * Formats a private message.
+     */
+    fun formatMessage(sender: Chatter, message: String): String
 
 }
