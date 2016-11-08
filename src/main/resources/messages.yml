@@ -1,6 +1,9 @@
 error:
-  unable_to_chat: ''
-  unable_to_chat_channel_muted: ''
+  unable_to_chat: '{#error#}An internal error occurred. Please contact a staff member.'
+  unable_to_chat_channel_muted: '{#error#}Channel {$item {1} $} is muted.'
+
+  chatter:
+    not_found: '{#error#}Unable to find chatter {$player {1} $}'
 
   channel:
     active_not_set: ''

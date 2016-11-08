@@ -101,7 +101,8 @@ abstract class Channel {
         if (chatter !is PlayerChatter) {
             return getChatFormat(null)
         }
-        return formats[PermissionHelper.getTopGroup(chatter.player!!, ArrayList(formats.keys), "default")]!!
+        return formats[PermissionHelper.getPrimaryGroup(chatter.player!!)]
+            ?: formats[PermissionHelper.getTopGroup(chatter.player!!, ArrayList(formats.keys), "default")]!!
     }
 
     /**
