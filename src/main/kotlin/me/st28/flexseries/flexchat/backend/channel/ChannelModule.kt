@@ -61,7 +61,7 @@ class ChannelModule : FlexModule<FlexChat>, ChannelManager {
         private set
 
     /* Format related */
-    private val globalFormats: MutableMap<String, ChatFormat> = LinkedHashMap()
+    internal val globalFormats: MutableMap<String, ChatFormat> = LinkedHashMap()
     private val messageFormats: MutableMap<String, String> = HashMap()
 
     private val loadedChannels: MutableSet<String> = HashSet()

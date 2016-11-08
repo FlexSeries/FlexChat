@@ -123,8 +123,8 @@ class ChatFormat {
             format = config.get(key) as String
             shouldInheritGroup = true
         } else {
-            format = config.getString("format", "(null)")
-            shouldInheritGroup = config.getBoolean("inherit", true)
+            format = config.getString("$key.format", "(null)")
+            shouldInheritGroup = config.getBoolean("$key.inherit", true)
         }
     }
 

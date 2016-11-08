@@ -69,10 +69,23 @@ abstract class Channel {
         formats.clear()
         val formatSec: ConfigurationSection? = config.getConfigurationSection("formats")
         if (formatSec != null) {
-            // TODO: Load per-channel formats
-            /*for (group in formatSec.getKeys(false)) {
-                val format = ChatFormat()
-            }*/
+            for (group in formatSec.getKeys(false)) {
+                val value = formatSec.getString(group)
+
+                val format: ChatFormat
+
+                val matcher = ChannelModule.GLOBAL_FORMAT_PATTERN.matchEntire(value)
+                if (matcher != null) {
+                    // Use existing global format
+                    format = channelManager.globalFormats[matcher.groupValues[1]]
+                        ?: channelManager.getDefaultChannelFormat()
+                } else {
+                    // Load format
+                    format = ChatFormat(formatSec, group)
+                }
+
+                formats.put(group, format)
+            }
         }
 
         if (!formats.containsKey("default")) {

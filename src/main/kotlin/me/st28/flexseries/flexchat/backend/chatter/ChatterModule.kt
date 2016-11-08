@@ -86,7 +86,7 @@ class ChatterModule : FlexModule<FlexChat>, ChatterManager, Listener {
     }
 
     private fun unloadPlayer(player: Player) {
-        val chatter = chatters[player.uniqueId.toString()]
+        val chatter = chatters.remove(player.uniqueId.toString())
         if (chatter != null) {
             chatter.instances.keys.forEach { it.removeOfflineChatter(chatter) }
             storage.unload(chatter)
