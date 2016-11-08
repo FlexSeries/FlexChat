@@ -16,15 +16,17 @@
  */
 package me.st28.flexseries.flexchat.commands
 
+import me.st28.flexseries.flexchat.FlexChat
 import me.st28.flexseries.flexchat.api.FlexChatAPI
 import me.st28.flexseries.flexchat.api.chatter.Chatter
 import me.st28.flexseries.flexlib.command.CommandContext
 import me.st28.flexseries.flexlib.command.argument.ArgumentConfig
+import me.st28.flexseries.flexlib.command.argument.ArgumentResolveException
 import me.st28.flexseries.flexlib.command.argument.ArgumentResolver
 import me.st28.flexseries.flexlib.command.argument.PlayerResolver
 import org.bukkit.Bukkit
 
-internal object ChatterResolver : ArgumentResolver<Chatter>(true) {
+internal object ChatterResolver : ArgumentResolver<Chatter>(false) {
 
     override fun resolve(context: CommandContext, config: ArgumentConfig, input: String): Chatter? {
         if (input.equals("console", true)) {
@@ -35,12 +37,14 @@ internal object ChatterResolver : ArgumentResolver<Chatter>(true) {
         if (player != null) {
             return FlexChatAPI.chatterManager.getChatter(player.online!!)
         }
-        return null
+        throw ArgumentResolveException(FlexChat::class, "error.chatter.not_found", input)
     }
 
-    override fun resolveAsync(context: CommandContext, config: ArgumentConfig, input: String): Chatter? {
+    /*override fun resolveAsync(context: CommandContext, config: ArgumentConfig, input: String): Chatter? {
+        PlayerResolver.resolveAsync(context, config, input)
+        FlexChatAPI.chatterManager.getChatter()
         return FlexChatAPI.chatterManager.getChatter(PlayerResolver.resolveAsync(context, config, input)!!.online!!)
-    }
+    }*/
 
     override fun getTabOptions(context: CommandContext, config: ArgumentConfig, input: String): List<String>? {
         return null
