@@ -1,6 +1,0 @@
-name: 'Nation'
-tag: 'N'
-color: 'GOLD'
-log format: '[{TOWNY-NATION}, {TOWNY-TOWN}] {NAME}: {MESSAGE}'
-formats:
-  default: '&8[{CHCOLOR}{CHTAG}&8] &f{NAME}: {MESSAGE}'

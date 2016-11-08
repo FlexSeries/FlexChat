@@ -1,0 +1,11 @@
+tables:
+  ENTRY: 'entry'
+  VERSION: 'version'
+
+# updates -> Section for schema updates
+
+ENTRY:
+  create_table: >-
+    CREATE TABLE IF NOT EXISTS {TABLE_ENTRY} (
+    identifier TEXT NOT NULL UNIQUE,
+
