@@ -1,0 +1,13 @@
+providers:
+  vanilla:
+    dummy: config
+
+channel prefix:
+  format: '&8[{CHCOLOR}{CHTAG}&8] '
+
+message formats:
+  default: '&f[&7{SENDER} &f\u27A1 &7{RECEIVER}&f] &7{MESSAGE}'
+
+formats:
+  default: '{PROVIDER} <{SENDER}> {MESSAGE}'
+  vanilla: '<{SENDER}> {MESSAGE}'

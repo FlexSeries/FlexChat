@@ -16,24 +16,17 @@
  */
 package me.st28.flexseries.flexchat.api
 
-import me.st28.flexseries.flexchat.FlexChat
-import me.st28.flexseries.flexchat.backend.ChannelModule
-import me.st28.flexseries.flexchat.backend.ChatModule
-import me.st28.flexseries.flexchat.backend.ChatterModule
-import me.st28.flexseries.flexlib.plugin.FlexPlugin
-
 /**
- * The API layer for FlexChat.
+ * The API layer of the chat manager.
  */
-object FlexChatAPI {
+interface ChatManager {
 
-    val channels: ChannelManager
-        get() = FlexPlugin.getPluginModule(FlexChat::class, ChannelModule::class)!!
-
-    val chatters: ChatterManager
-        get() = FlexPlugin.getPluginModule(FlexChat::class, ChatterModule::class)!!
-
-    val chat: ChatManager
-        get() = FlexPlugin.getPluginModule(FlexChat::class, ChatModule::class)!!
+    /**
+     * Registers a [ChatProvider].
+     *
+     * @return True if the provider was successfully registered.
+     *         False if a provider with the same name is already registered.
+     */
+    fun registerProvider(provider: ChatProvider): Boolean
 
 }

@@ -16,30 +16,28 @@
  */
 package me.st28.flexseries.flexchat
 
-import me.st28.flexseries.flexchat.backend.ChatManager
-import me.st28.flexseries.flexchat.backend.channel.ChannelModule
-import me.st28.flexseries.flexchat.backend.chatter.ChatterModule
-import me.st28.flexseries.flexchat.commands.ChatterResolver
-import me.st28.flexseries.flexlib.command.argument.ArgumentResolver
+import me.st28.flexseries.flexchat.api.FlexChatAPI
+import me.st28.flexseries.flexchat.backend.ChannelModule
+import me.st28.flexseries.flexchat.backend.ChatModule
+import me.st28.flexseries.flexchat.backend.ChatterModule
+import me.st28.flexseries.flexchat.backend.VanillaChatProvider
+import me.st28.flexseries.flexchat.commands.CmdChannel
+import me.st28.flexseries.flexchat.commands.CmdFlexChat
 import me.st28.flexseries.flexlib.plugin.FlexPlugin
-import net.milkbowl.vault.chat.Chat
 
 class FlexChat : FlexPlugin() {
-
-    var vaultChat: Chat? = null
 
     override fun handleLoad() {
         registerModule(ChannelModule(this))
         registerModule(ChatterModule(this))
-        registerModule(ChatManager(this))
+        registerModule(ChatModule(this))
     }
 
     override fun handleEnable() {
-        val chatProvider = server.servicesManager.getRegistration(net.milkbowl.vault.chat.Chat::class.java)
-        vaultChat = chatProvider.provider
+        FlexChatAPI.chat.registerProvider(VanillaChatProvider)
 
-        ArgumentResolver.register(this, "chatter", ChatterResolver)
-        commandMap.register(me.st28.flexseries.flexchat.commands.Messaging)
+        commandMap.register(CmdChannel)
+        commandMap.register(CmdFlexChat)
     }
 
 }

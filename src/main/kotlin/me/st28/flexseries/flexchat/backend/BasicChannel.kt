@@ -14,27 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.st28.flexseries.flexchat.backend.channel
+package me.st28.flexseries.flexchat.backend
 
-import me.st28.flexseries.flexchat.api.channel.Channel
-import me.st28.flexseries.flexchat.api.channel.ChannelInstance
-import me.st28.flexseries.flexchat.api.chatter.Chatter
-import java.util.*
+import me.st28.flexseries.flexchat.api.Channel
 
-class StandardChannel : Channel {
-
-    private val instance: ChannelInstance
-
-    constructor(name: String) : super(name) {
-        instance = ChannelInstance(this)
-    }
-
-    override fun getInstances(): Collection<ChannelInstance> {
-        return Collections.singleton(instance)
-    }
-
-    override fun getAccessibleInstances(chatter: Chatter): Collection<ChannelInstance> {
-        return Collections.singleton(instance)
-    }
-
+/**
+ * Represents a [Channel] loaded by FlexChat that has one instance.
+ */
+class BasicChannel(name: String, description: String) : Channel(name, description) {
 }

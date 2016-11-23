@@ -14,28 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.st28.flexseries.flexchat.permission
+package me.st28.flexseries.flexchat.api
 
-import me.st28.flexseries.flexlib.permission.PermissionNode
+import java.util.*
 
-enum class PermissionNodes : PermissionNode {
+/**
+ * Represents an instance of a [Channel].
+ *
+ * @param name The name of the instance.
+ */
+class ChannelInstance(val name: String) {
 
-    COLOR,
-    FORMAT,
-    MAGIC,
-
-    AUTOJOIN,
-    INFO,
-    JOIN,
-    LEAVE,
-    CHAT,
-    VIEW,
-    SPY,
-
-    BYPASS_IGNORE,
-    BYPASS_MUTE;
-
-    override val node: String
-        get() = "flexchat.${toString().toLowerCase().replace("_", ".")}"
+    /**
+     * The chatters in this channel instance.
+     */
+    internal val chatters: MutableSet<Chatter> = HashSet()
 
 }

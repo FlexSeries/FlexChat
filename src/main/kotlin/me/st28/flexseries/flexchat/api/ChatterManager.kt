@@ -14,14 +14,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.st28.flexseries.flexchat.api.chatter
+package me.st28.flexseries.flexchat.api
 
-import org.bukkit.command.CommandSender
-
+/**
+ * Represents the API layer of the chatter manager.
+ */
 interface ChatterManager {
 
-    fun getChatter(sender: CommandSender): Chatter?
+    /**
+     * Loads a chatter under a specified provider and identifier.
+     *
+     * @return The newly loaded [Chatter].
+     *         Will return a base chatter object if no existing data was found.
+     */
+    fun loadChatter(provider: ChatProvider, identifier: String): Chatter
 
-    fun getChatter(identifier: String): Chatter?
+    /**
+     * Saves a chatter.
+     */
+    fun saveChatter(chatter: Chatter)
+
+    /**
+     * Unloads a chatter.
+     *
+     * @param save If true, will save the chatter before unloading. (Default: true)
+     */
+    fun unloadChatter(chatter: Chatter, save: Boolean = true)
 
 }

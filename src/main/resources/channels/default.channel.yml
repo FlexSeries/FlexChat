@@ -1,10 +1,13 @@
-name: 'default' # the full name of the channel
-tag: 'D' # the name to show in the default chat format
-color: 'WHITE' # the default color for the channel
-chat radius: 0 # 0 to disable local chat
-log format: '{NAME}: {MESSAGE}'
-formats: # [g:default] to use a global format
-  default: '{CHCOLOR}[{CHTAG}] &f{DISPNAME}&8: {CHCOLOR}{MESSAGE}'
-  moderator:
-    format: '{CHCOLOR}[{CHTAG}] &c{DISPNAME}&8: {CHCOLOR}{MESSAGE}'
-    inherit: true
+#
+# Configuration help - https://github.com/FlexSeries/FlexChat/wiki/Configuration
+#
+
+# General configuration
+name: 'default'
+tag: 'D'
+color: 'WHITE'
+
+# Provider-specific configuration
+providers:
+  vanilla:
+    chat radius: 0
