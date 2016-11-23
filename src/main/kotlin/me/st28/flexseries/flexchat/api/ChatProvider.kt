@@ -18,12 +18,13 @@ package me.st28.flexseries.flexchat.api
 
 import me.st28.flexseries.flexlib.util.translateColorCodes
 import org.bukkit.configuration.ConfigurationSection
+import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
 
 /**
  * Represents something that provides chat messages for a [Channel].
  */
-abstract class ChatProvider(val name: String) {
+abstract class ChatProvider(val plugin: JavaPlugin, val name: String) {
 
     /**
      * The display name of the provider, including color codes.

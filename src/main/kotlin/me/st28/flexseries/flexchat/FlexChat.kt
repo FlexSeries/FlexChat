@@ -34,7 +34,7 @@ class FlexChat : FlexPlugin() {
     }
 
     override fun handleEnable() {
-        FlexChatAPI.chat.registerProvider(VanillaChatProvider)
+        FlexChatAPI.chat.registerProvider(VanillaChatProvider(this))
 
         commandMap.register(CmdChannel)
         commandMap.register(CmdFlexChat)

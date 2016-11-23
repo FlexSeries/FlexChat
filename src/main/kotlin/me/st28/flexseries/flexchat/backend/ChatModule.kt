@@ -29,6 +29,11 @@ class ChatModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chat", "Manag
 
     internal val providers: MutableMap<String, ChatProvider> = HashMap()
 
+    override fun handleDisable() {
+        /* Disable chat providers */
+        providers.values.forEach(ChatProvider::disable)
+    }
+
     override fun registerProvider(provider: ChatProvider): Boolean {
         val key = provider.name.toLowerCase()
         if (providers.containsKey(key)) {
@@ -40,8 +45,7 @@ class ChatModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chat", "Manag
         provider.enable(null)
 
         if (provider is Listener) {
-            // TODO: Make provider have its own plugin instance
-            Bukkit.getPluginManager().registerEvents(provider, plugin)
+            Bukkit.getPluginManager().registerEvents(provider, provider.plugin)
         }
 
         LogHelper.info(this, "Registered chat provider '$key' (${provider.javaClass.canonicalName})")

@@ -16,9 +16,9 @@
  */
 package me.st28.flexseries.flexchat.backend
 
+import me.st28.flexseries.flexchat.FlexChat
 import me.st28.flexseries.flexchat.api.ChatProvider
 import me.st28.flexseries.flexchat.api.Chatter
-import me.st28.flexseries.flexchat.api.FlexChatAPI
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -30,7 +30,7 @@ import org.bukkit.event.player.PlayerQuitEvent
 /**
  * Handles in-game chat.
  */
-object VanillaChatProvider : ChatProvider("vanilla"), Listener {
+class VanillaChatProvider(plugin: FlexChat) : ChatProvider(plugin, "vanilla"), Listener {
 
     override fun enable(config: ConfigurationSection?) { }
 
