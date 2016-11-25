@@ -40,6 +40,8 @@ class FlexChat : FlexPlugin() {
         commandMap.register(CmdChannel)
         commandMap.register(CmdFlexChat)
         commandMap.register(CmdMessage)
+
+        commandMap.getCommand("channel")?.setAliases(arrayListOf("ch"))
     }
 
 }
