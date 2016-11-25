@@ -17,10 +17,14 @@
 package me.st28.flexseries.flexchat.backend
 
 import me.st28.flexseries.flexchat.FlexChat
+import me.st28.flexseries.flexchat.PermissionNodes
 import me.st28.flexseries.flexchat.api.ChatProvider
 import me.st28.flexseries.flexchat.api.FlexChatAPI
 import me.st28.flexseries.flexchat.api.chatter.PlayerChatter
 import me.st28.flexseries.flexlib.message.Message
+import me.st28.flexseries.flexlib.permission.PermissionNode
+import net.milkbowl.vault.chat.Chat
+import net.milkbowl.vault.permission.Permission
 import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.event.EventHandler
@@ -38,20 +42,47 @@ import java.util.concurrent.ExecutionException
  */
 class VanillaChatProvider(plugin: FlexChat) : ChatProvider(plugin, "vanilla"), Listener {
 
-    override fun enable(config: ConfigurationSection?) { }
+    private lateinit var vaultPerm: Permission
+    private lateinit var vaultChat: Chat
 
-    override fun reload(config: ConfigurationSection?) {
-        // TODO: load formats
+    override fun enable(config: ConfigurationSection?) {
+        // Setup Vault hook
+        vaultPerm = Bukkit.getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission::class.java)!!.provider
+        vaultChat = Bukkit.getServicesManager().getRegistration(net.milkbowl.vault.chat.Chat::class.java)!!.provider
     }
+
+    override fun reload(config: ConfigurationSection?) { }
 
     @EventHandler
     fun onPlayerJoin(e: PlayerJoinEvent) {
-        registerChatter(PlayerChatter(this, e.player))
+        val chatter = PlayerChatter(this, e.player)
+        registerChatter(chatter)
+
+        // Attempt to add chatter to autojoinable channels
+        FlexChatAPI.channels.getChannels().forEach {
+            val visible = it.getVisibleInstances(chatter)
+
+            // If only one instance is visible and the chatter has permission to autojoin, add them.
+            if (visible.size == 1 && chatter.hasPermission(PermissionNode.buildVariableNode(PermissionNodes.AUTOJOIN, it.name))) {
+                chatter.addInstance(visible.first(), true)
+            }
+        }
+
+        // Set active instance
+        val defaultInstance = FlexChatAPI.channels.getDefaultChannel()?.getDefaultInstance()
+        if (defaultInstance != null && defaultInstance.containsChatter(chatter)) {
+            chatter.activeInstance = defaultInstance
+        }
     }
 
     @EventHandler
     fun onPlayerQuit(e: PlayerQuitEvent) {
-        unregisterChatter(e.player.uniqueId.toString())
+        val chatter = unregisterChatter(e.player.uniqueId.toString()) ?: return
+
+        // Remove instances
+        chatter.channels.values.forEach {
+            it.forEach { it.chatters.remove(chatter) }
+        }
     }
 
     @EventHandler(priority = EventPriority.LOW)
@@ -80,11 +111,11 @@ class VanillaChatProvider(plugin: FlexChat) : ChatProvider(plugin, "vanilla"), L
 
                 // TODO: Get permission group, get format, etc.
 
-                return@callSyncMethod null
+                return@callSyncMethod ""
             }.get()
         } catch (ex: ExecutionException) {
             e.isCancelled = true
-            return
+            ""
         }
     }
 
@@ -113,7 +144,7 @@ class VanillaChatProvider(plugin: FlexChat) : ChatProvider(plugin, "vanilla"), L
                 }
 
                 // Send message
-                FlexChatAPI.chat.sendMessage(chatter, instance, e.format, e.message)
+                FlexChatAPI.chat.sendMessage(chatter, instance, if (e.format.isNullOrEmpty()) null else e.format, e.message)
             } catch (ex: Exception) {
                 Message.get(FlexChat::class, "error.unable_to_chat").sendTo(e.player)
                 ex.printStackTrace()

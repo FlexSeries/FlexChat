@@ -1,10 +1,10 @@
 # Fallback formats
 default formats:
-  default: '{PROVIDER} <{SENDER}> {MESSAGE}'
-  vanilla: '<{SENDER}> {MESSAGE}'
+  default: '{PROVIDER} <{NAME}> {MESSAGE}'
+  vanilla: '<{NAME}> {MESSAGE}'
 
 channel prefix:
-  format: '&8[{CHCOLOR}{CHTAG}&8] '
+  format: '&8[{CHCOLOR}{CHTAG}&8]&f '
   enabled: true
   force state: false
 

@@ -20,8 +20,10 @@ import me.st28.flexseries.flexchat.FlexChat
 import me.st28.flexseries.flexchat.api.chatter.Chatter
 import me.st28.flexseries.flexchat.api.chatter.ChatterManager
 import me.st28.flexseries.flexlib.plugin.FlexModule
+import me.st28.flexseries.flexlib.plugin.storage.flatfile.YamlFileManager
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import java.io.File
 import java.util.*
 
 class ChatterModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chatters", "Manages chatters"), ChatterManager {
@@ -30,6 +32,12 @@ class ChatterModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chatters",
 
     override fun registerChatter(chatter: Chatter) {
         chatters.put(chatter.identifier, chatter)
+
+        // TODO: Load chatter
+        val file = YamlFileManager(dataFolder.path + File.separator + chatter.provider.name + File.separator + chatter.identifier + ".yml")
+        if (file.isEmpty()) {
+            chatter.data.set("isNew", true)
+        }
     }
 
     override fun saveChatter(chatter: Chatter) {

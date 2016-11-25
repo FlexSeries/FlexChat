@@ -17,19 +17,22 @@
 package me.st28.flexseries.flexchat.backend
 
 import me.st28.flexseries.flexchat.FlexChat
+import me.st28.flexseries.flexchat.PermissionNodes
 import me.st28.flexseries.flexchat.api.channel.Channel
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance
 import me.st28.flexseries.flexchat.api.channel.ChannelManager
 import me.st28.flexseries.flexlib.logging.LogHelper
 import me.st28.flexseries.flexlib.message.MasterMessageModule
+import me.st28.flexseries.flexlib.permission.PermissionNode
 import me.st28.flexseries.flexlib.plugin.FlexModule
 import me.st28.flexseries.flexlib.plugin.FlexPlugin
 import me.st28.flexseries.flexlib.plugin.storage.flatfile.YamlFileManager
 import me.st28.flexseries.flexlib.util.translateColorCodes
 import org.apache.commons.lang.StringEscapeUtils
+import org.bukkit.Bukkit
 import org.bukkit.ChatColor
-import java.io.File
-import java.io.FilenameFilter
+import org.bukkit.permissions.Permission
+import org.bukkit.permissions.PermissionDefault
 import java.util.*
 
 class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels", "Manages channels"), ChannelManager {
@@ -132,8 +135,49 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
         }
 
         channels.put(key, channel)
+        registerPermissions(channel.name)
         LogHelper.info(this, "Registered channel '${channel.name}'")
         return true
+    }
+
+    private fun registerPermissions(channelName: String) {
+        val channelName = channelName.toLowerCase()
+        val pm = Bukkit.getPluginManager()
+
+        // Convenience lambda
+        val reg = fun(node: PermissionNode, default: PermissionDefault) {
+            pm.addPermission(
+                    Permission(PermissionNode.buildVariableNode(node, channelName).node, default)
+            )
+        }
+
+        reg(PermissionNodes.AUTOJOIN, PermissionDefault.FALSE)
+        reg(PermissionNodes.INFO, PermissionDefault.TRUE)
+        reg(PermissionNodes.JOIN, PermissionDefault.OP)
+        reg(PermissionNodes.LEAVE, PermissionDefault.OP)
+        reg(PermissionNodes.CHAT, PermissionDefault.OP)
+        reg(PermissionNodes.VIEW, PermissionDefault.TRUE)
+        reg(PermissionNodes.SPY, PermissionDefault.OP)
+    }
+
+    private fun unregisterPermission(channelName: String) {
+        val channelName = channelName.toLowerCase()
+        val pm = Bukkit.getPluginManager()
+
+        // Convenience lambda
+        val unreg = fun(node: PermissionNode) {
+            pm.removePermission(
+                    pm.getPermission(PermissionNode.buildVariableNode(node, channelName).node)
+            )
+        }
+
+        unreg(PermissionNodes.AUTOJOIN)
+        unreg(PermissionNodes.INFO)
+        unreg(PermissionNodes.JOIN)
+        unreg(PermissionNodes.LEAVE)
+        unreg(PermissionNodes.CHAT)
+        unreg(PermissionNodes.VIEW)
+        unreg(PermissionNodes.SPY)
     }
 
 }

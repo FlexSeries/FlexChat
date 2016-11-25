@@ -62,9 +62,10 @@ abstract class ChatProvider(val plugin: JavaPlugin, val name: String) {
     /**
      * Unregisters a chatter with the provider and FlexChat.
      */
-    protected fun unregisterChatter(identifier: String) {
-        val found = FlexChatAPI.chatters.getChatter(identifier) ?: return
+    protected fun unregisterChatter(identifier: String): Chatter? {
+        val found = FlexChatAPI.chatters.getChatter(identifier) ?: return null
         FlexChatAPI.chatters.unregisterChatter(found)
+        return found
     }
 
     /**

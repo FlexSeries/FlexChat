@@ -17,9 +17,10 @@
 package me.st28.flexseries.flexchat.api.chatter
 
 import me.st28.flexseries.flexchat.PermissionNodes
+import me.st28.flexseries.flexchat.api.ChatProvider
 import me.st28.flexseries.flexchat.api.channel.Channel
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance
-import me.st28.flexseries.flexchat.api.ChatProvider
+import me.st28.flexseries.flexlib.permission.PermissionNode
 import me.st28.flexseries.flexlib.util.GenericDataContainer
 import org.bukkit.configuration.ConfigurationSection
 import java.util.*
@@ -94,11 +95,69 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
     }
 
     /**
+     * @return True if the chatter is in the specified [ChannelInstance].
+     */
+    fun isInInstance(instance: ChannelInstance): Boolean {
+        return channels[instance.channel]?.contains(instance) ?: false
+    }
+
+    /**
      * Attempts to add this chatter to a [ChannelInstance].
      * This method will perform a permission check.
+     *
+     * @param instance The instance to add.
+     * @param silent If true, will not alert the chatter or chatters in the instance of the join.
+     *               Default is false.
+     * @return SUCCESS if the instance was successfully joined.
+     *         ALREADY_JOINED if the instance is already joined.
+     *         NO_PERMISSION if the chatter does not have permission to join the channel.
+     *
      */
-    fun addInstance(instance: ChannelInstance): Boolean {
-        return false
+    fun addInstance(instance: ChannelInstance, silent: Boolean = false): ChannelInstance.JoinResult {
+        // Check if already joined
+        if (isInInstance(instance)) {
+            return ChannelInstance.JoinResult.ALREADY_JOINED
+        }
+
+        // Join permission check
+        if (!hasPermission(PermissionNode.buildVariableNode(PermissionNodes.JOIN, instance.channel.name))) {
+            if (!silent) {
+                // TODO: Send no permission message
+            }
+            return ChannelInstance.JoinResult.NO_PERMISSION
+        }
+
+        return if (addInstanceUnsafe(instance, silent)) {
+            ChannelInstance.JoinResult.SUCCESS
+            // TODO: Send join message, etc.
+        } else {
+            // Should never happen since this is handled above
+            ChannelInstance.JoinResult.ALREADY_JOINED
+        }
+    }
+
+    /**
+     * Attempts to add this chatter to a [ChatterInstance].
+     * This method will not perform any checks.
+     *
+     * @param instance The instance to add.
+     * @param silent If true, will not alert the chatter or chatters in the instance of the join.
+     *               Default is false.
+     *
+     * @return True if the instance was successfully added.
+     *         False if the chatter is already in the instance.
+     */
+    fun addInstanceUnsafe(instance: ChannelInstance, silent: Boolean = false): Boolean {
+        if (isInInstance(instance)) {
+            return false
+        }
+
+        instance.chatters.add(this)
+        channels.getOrPut(instance.channel, { HashSet() }).add(instance)
+
+        // TODO: Announce join to instance members
+
+        return true
     }
 
     /**
@@ -106,7 +165,7 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
      */
     abstract fun hasPermission(permission: String): Boolean
 
-    fun hasPermission(permission: PermissionNodes): Boolean = hasPermission(permission.node)
+    fun hasPermission(permission: PermissionNode): Boolean = hasPermission(permission.node)
 
     /**
      * Sends a message to the chatter.

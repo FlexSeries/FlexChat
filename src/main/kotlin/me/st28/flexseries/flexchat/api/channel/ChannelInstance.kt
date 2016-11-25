@@ -38,4 +38,22 @@ class ChannelInstance(val channel: Channel, val name: String) {
         return chatters.contains(chatter)
     }
 
+    fun addChatter(chatter: Chatter, silent: Boolean): JoinResult {
+        return chatter.addInstance(this, silent)
+    }
+
+    fun addChatterUnsafe(chatter: Chatter, silent: Boolean): Boolean {
+        return chatter.addInstanceUnsafe(this, silent)
+    }
+
+    enum class JoinResult {
+
+        SUCCESS,
+
+        NO_PERMISSION,
+
+        ALREADY_JOINED
+
+    }
+
 }

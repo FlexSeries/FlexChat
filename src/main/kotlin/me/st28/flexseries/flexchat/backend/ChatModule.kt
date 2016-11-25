@@ -155,7 +155,7 @@ class ChatModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chat", "Manag
             finalMessage = ChatColorUtils.applySingle(finalMessage, ChatColor.MAGIC)
         }
 
-        applicableFormat.replace("{MESSAGE}", finalMessage)
+        applicableFormat = applicableFormat.replace("{MESSAGE}", finalMessage)
 
         instance.chatters.forEach { chatter.sendMessage(applicableFormat) }
     }
