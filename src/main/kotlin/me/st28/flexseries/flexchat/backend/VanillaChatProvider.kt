@@ -49,6 +49,39 @@ class VanillaChatProvider(plugin: FlexChat) : ChatProvider(plugin, "vanilla"), L
         // Setup Vault hook
         vaultPerm = Bukkit.getServicesManager().getRegistration(net.milkbowl.vault.permission.Permission::class.java)!!.provider
         vaultChat = Bukkit.getServicesManager().getRegistration(net.milkbowl.vault.chat.Chat::class.java)!!.provider
+
+        // Register chat variables
+        chatVariables.put("{WORLD}", { chatter, instance ->
+            if (chatter !is PlayerChatter) {
+                return@put null
+            }
+
+            return@put chatter.player.world.name
+        })
+
+        chatVariables.put("{GROUP}", { chatter, instance ->
+            if (chatter !is PlayerChatter) {
+                return@put null
+            }
+
+            return@put vaultPerm.getPrimaryGroup(chatter.player)
+        })
+
+        chatVariables.put("{PREFIX}", { chatter, instance ->
+            if (chatter !is PlayerChatter) {
+                return@put null
+            }
+
+            return@put vaultChat.getPlayerPrefix(null, chatter.player)
+        })
+
+        chatVariables.put("{SUFFIX}", { chatter, instance ->
+            if (chatter !is PlayerChatter) {
+                return@put null
+            }
+
+            return@put vaultChat.getPlayerSuffix(null, chatter.player)
+        })
     }
 
     override fun reload(config: ConfigurationSection?) { }

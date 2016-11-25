@@ -20,11 +20,14 @@ import me.st28.flexseries.flexchat.api.channel.ChannelInstance
 import me.st28.flexseries.flexchat.api.chatter.Chatter
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.plugin.java.JavaPlugin
+import java.util.*
 
 /**
  * Acts as a layer between a message and chatter provider.
  */
 abstract class ChatProvider(val plugin: JavaPlugin, val name: String) {
+
+    protected val chatVariables: MutableMap<String, (Chatter, ChannelInstance) -> String?> = HashMap()
 
     /**
      * Enables the provider.
@@ -81,10 +84,16 @@ abstract class ChatProvider(val plugin: JavaPlugin, val name: String) {
 
     /**
      * Processes a message by performing variable replacements where applicable.
-     * This method should be overridden in order to implement additional functionality.
+     * Chat variables should be preferred over overriding this method where possible.
      */
     open fun processFormat(chatter: Chatter, instance: ChannelInstance, format: String): String {
-        return format
+        var ret = format
+        chatVariables.forEach {
+            if (ret.contains(it.key)) {
+                ret = ret.replace(it.key, it.value.invoke(chatter, instance) ?: "")
+            }
+        }
+        return ret
     }
 
 }
