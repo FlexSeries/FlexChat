@@ -2,12 +2,14 @@
 # Configuration help - https://github.com/FlexSeries/FlexChat/wiki/Configuration
 #
 
-# General configuration
+# General configuration (and default vanilla provider configuration)
 name: 'default'
 tag: 'D'
 color: 'WHITE'
+prefix: true
+chat radius: 0
 
 # Provider-specific configuration
-providers:
-  vanilla:
-    chat radius: 0
+#providers:
+#  vanilla:
+#    chat radius: 0

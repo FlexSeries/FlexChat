@@ -18,45 +18,107 @@ package me.st28.flexseries.flexchat.backend
 
 import me.st28.flexseries.flexchat.FlexChat
 import me.st28.flexseries.flexchat.api.ChatProvider
-import me.st28.flexseries.flexchat.api.Chatter
+import me.st28.flexseries.flexchat.api.FlexChatAPI
+import me.st28.flexseries.flexchat.api.chatter.PlayerChatter
+import me.st28.flexseries.flexlib.message.Message
+import org.bukkit.Bukkit
 import org.bukkit.configuration.ConfigurationSection
-import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import java.util.concurrent.ExecutionException
 
 /**
  * Handles in-game chat.
+ *
+ * This is the default provider, so it is always loaded.
  */
 class VanillaChatProvider(plugin: FlexChat) : ChatProvider(plugin, "vanilla"), Listener {
 
     override fun enable(config: ConfigurationSection?) { }
 
-    override fun reload(config: ConfigurationSection?) { }
-
-    override fun sendMessage(chatter: Chatter, message: String) {
-        chatter.data.get<Player>("player")?.sendMessage(message)
+    override fun reload(config: ConfigurationSection?) {
+        // TODO: load formats
     }
 
     @EventHandler
     fun onPlayerJoin(e: PlayerJoinEvent) {
-        val chatter = loadChatter(e.player.uniqueId.toString())
-        chatter.data.set("player", e.player)
+        registerChatter(PlayerChatter(this, e.player))
     }
 
     @EventHandler
     fun onPlayerQuit(e: PlayerQuitEvent) {
-        val chatter = unloadChatter(e.player.uniqueId.toString())
-            ?: return
-
-        chatter.data.remove("player")
+        unregisterChatter(e.player.uniqueId.toString())
     }
 
-    @EventHandler
-    fun onAsyncPlayerChat(e: AsyncPlayerChatEvent) {
+    @EventHandler(priority = EventPriority.LOW)
+    fun onAsyncPlayerChat_Lowest(e: AsyncPlayerChatEvent) {
+        if (e.isCancelled) {
+            // Return if canceled
+            return
+        }
 
+        // Set format
+        e.format = try {
+            Bukkit.getScheduler().callSyncMethod(plugin) {
+                val chatter = getChatter(e.player.uniqueId.toString())
+                if (chatter == null) {
+                    // Something went wrong
+                    Message.get(FlexChat::class, "error.unable_to_chat").sendTo(e.player)
+                    throw RuntimeException()
+                }
+
+                val instance = chatter.activeInstance
+                if (instance == null) {
+                    // No active instance
+                    Message.get(FlexChat::class, "error.channel.active_not_set").sendTo(e.player)
+                    throw RuntimeException()
+                }
+
+                // TODO: Get permission group, get format, etc.
+
+                return@callSyncMethod null
+            }.get()
+        } catch (ex: ExecutionException) {
+            e.isCancelled = true
+            return
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    fun onAsyncPlayerChat_Highest(e: AsyncPlayerChatEvent) {
+        if (e.isCancelled) {
+            // Return if canceled
+            return
+        }
+
+        e.isCancelled = true
+        Bukkit.getScheduler().runTask(plugin) {
+            try {
+                val chatter = getChatter(e.player.uniqueId.toString())
+                if (chatter == null) {
+                    // Something went wrong
+                    Message.get(FlexChat::class, "error.unable_to_chat").sendTo(e.player)
+                    return@runTask
+                }
+
+                val instance = chatter.activeInstance
+                if (instance == null) {
+                    // No active instance
+                    Message.get(FlexChat::class, "error.channel.active_not_set").sendTo(e.player)
+                    return@runTask
+                }
+
+                // Send message
+                FlexChatAPI.chat.sendMessage(chatter, instance, e.format, e.message)
+            } catch (ex: Exception) {
+                Message.get(FlexChat::class, "error.unable_to_chat").sendTo(e.player)
+                ex.printStackTrace()
+            }
+        }
     }
 
 }

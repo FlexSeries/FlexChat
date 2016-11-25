@@ -16,9 +16,13 @@
  */
 package me.st28.flexseries.flexchat.commands
 
+import me.st28.flexseries.flexchat.api.FlexChatAPI
+import me.st28.flexseries.flexchat.api.chatter.getChatter
 import me.st28.flexseries.flexlib.command.CommandHandler
 import me.st28.flexseries.flexlib.command.argument.Default
+import me.st28.flexseries.flexlib.message.list.ListBuilder
 import org.bukkit.command.CommandSender
+import java.util.*
 
 object CmdChannel {
 
@@ -27,8 +31,50 @@ object CmdChannel {
             description = "List channels",
             permission = "flexchat.channels.list"
     )
-    fun list(sender: CommandSender, @Default("1") page: Int): String {
-        return "NYI"
+    fun list(sender: CommandSender, @Default("1") page: Int): ListBuilder {
+        val channels = ArrayList(FlexChatAPI.channels.getChannels())
+
+        val chatter = sender.getChatter()
+        val activeChannel = chatter.activeChannel
+
+        /*
+         * Channel Sort Order:
+         * 1) Active channel
+         * 2) Join channels (alphabetical)
+         * 3) Unjoined channels (alphabetical)
+         */
+        channels.sort { c1, c2 ->
+            if (c1 == c2) {
+                return@sort 0
+            }
+
+            if (c2 == activeChannel) {
+                // If the other channel is active, it is automatically first.
+                return@sort 1
+            } else if (c1 == activeChannel) {
+                // If the first channel is active, it is automatically first.
+                return@sort -1
+            }
+
+            val isJoin1 = chatter.isInChannel(c1)
+            val isJoin2 = chatter.isInChannel(c2)
+
+            if (isJoin1 != isJoin2) {
+                // If only one of the channels is joined, the joined one is first.
+                return@sort if (isJoin1) 1 else -1
+            } else {
+                // If both channels are joined or unjoined, they are sorted alphabetically
+                return@sort c1.name.compareTo(c2.name, true)
+            }
+        }
+
+        val builder = ListBuilder()
+
+        builder.page(page, channels.size)
+        builder.header("page", "Chat Channels")
+
+
+        return builder
     }
 
 }

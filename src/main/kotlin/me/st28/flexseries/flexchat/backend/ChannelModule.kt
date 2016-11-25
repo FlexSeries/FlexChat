@@ -17,14 +17,17 @@
 package me.st28.flexseries.flexchat.backend
 
 import me.st28.flexseries.flexchat.FlexChat
-import me.st28.flexseries.flexchat.api.Channel
-import me.st28.flexseries.flexchat.api.ChannelInstance
-import me.st28.flexseries.flexchat.api.ChannelManager
+import me.st28.flexseries.flexchat.api.channel.Channel
+import me.st28.flexseries.flexchat.api.channel.ChannelInstance
+import me.st28.flexseries.flexchat.api.channel.ChannelManager
 import me.st28.flexseries.flexlib.logging.LogHelper
+import me.st28.flexseries.flexlib.message.MasterMessageModule
 import me.st28.flexseries.flexlib.plugin.FlexModule
+import me.st28.flexseries.flexlib.plugin.FlexPlugin
 import me.st28.flexseries.flexlib.plugin.storage.flatfile.YamlFileManager
 import me.st28.flexseries.flexlib.util.translateColorCodes
 import org.apache.commons.lang.StringEscapeUtils
+import org.bukkit.ChatColor
 import java.util.*
 
 class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels", "Manages channels"), ChannelManager {
@@ -54,6 +57,16 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
         activeChannelSymbol = StringEscapeUtils.unescapeJava(config.getString("active symbol.channel")).translateColorCodes()
         activeInstanceSymbol = StringEscapeUtils.unescapeJava(config.getString("active symbol.instance")).translateColorCodes()
 
+        FlexPlugin.getGlobalModule(MasterMessageModule::class)!!.registerElementFormat(
+                "flexchat_channel",
+                config.getString("list format.channel", "&a{1}{2}{3} &8({4}&8)").translateColorCodes()
+        )
+
+        FlexPlugin.getGlobalModule(MasterMessageModule::class)!!.registerElementFormat(
+                "flexchat_channel_instance",
+                config.getString("list format.instance", "&a{1}&7{2} &8({3}&8)").translateColorCodes()
+        )
+
         /* Reload channels */
         channels.clear()
         loadedChannels.clear()
@@ -62,17 +75,23 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
             dataFolder.mkdirs()
         }
 
-        for (file in dataFolder.listFiles { f -> f.endsWith(".channel.yml") }) {
-            val yaml = YamlFileManager(file).config
+        for (file in dataFolder.listFiles { f -> f.endsWith(".yml") }) {
+            try {
+                val yaml = YamlFileManager(file).config
 
-            val channel = BasicChannel(
-                    yaml.getString("name"),
-                    yaml.getString("description", defaultDescription).translateColorCodes()
-            )
-            channel.instances.put("", ChannelInstance(""))
+                val channel = BasicChannel(
+                        yaml.getString("name"),
+                        yaml.getString("description", defaultDescription).translateColorCodes(),
+                        yaml.getString("tag", ""),
+                        ChatColor.valueOf(yaml.getString("color", "WHITE").toUpperCase())
+                )
+                channel.instances.put("", ChannelInstance(channel, ""))
 
-            channels.put(channel.name.toLowerCase(), channel)
-            loadedChannels.add(channel.name.toLowerCase())
+                channels.put(channel.name.toLowerCase(), channel)
+                loadedChannels.add(channel.name.toLowerCase())
+            } catch (ex: Exception) {
+                LogHelper.severe(this, "An exception occurred while loading channel from file '${file.name}'", ex)
+            }
         }
 
         LogHelper.info(this, "Loaded ${loadedChannels.size} channel(s)")
@@ -91,6 +110,18 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
         }
     }
 
+    override fun getChannels(): Collection<Channel> {
+        return channels.values
+    }
+
+    override fun getDefaultChannel(): Channel? {
+        return channels[defaultChannel]
+    }
+
+    override fun getChannel(name: String): Channel? {
+        return channels[name.toLowerCase()]
+    }
+
     override fun registerChannel(channel: Channel): Boolean {
         val key = channel.name.toLowerCase()
         if (channels.containsKey(key)) {
@@ -100,14 +131,6 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
         channels.put(key, channel)
         LogHelper.info(this, "Registered channel '${channel.name}'")
         return true
-    }
-
-    override fun getDefaultChannel(): Channel? {
-        return channels[defaultChannel]
-    }
-
-    override fun getChannel(name: String): Channel? {
-        return channels[name.toLowerCase()]
     }
 
 }

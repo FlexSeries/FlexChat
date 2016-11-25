@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.st28.flexseries.flexchat.api
+package me.st28.flexseries.flexchat.api.channel
 
+import me.st28.flexseries.flexchat.api.chatter.Chatter
 import java.util.*
 
 /**
@@ -23,11 +24,18 @@ import java.util.*
  *
  * @param name The name of the instance.
  */
-class ChannelInstance(val name: String) {
+class ChannelInstance(val channel: Channel, val name: String) {
 
     /**
      * The chatters in this channel instance.
      */
     internal val chatters: MutableSet<Chatter> = HashSet()
+
+    /**
+     * @return True if this instance contains the specified [Chatter].
+     */
+    fun containsChatter(chatter: Chatter): Boolean {
+        return chatters.contains(chatter)
+    }
 
 }

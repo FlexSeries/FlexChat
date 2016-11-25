@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.st28.flexseries.flexchat.api
+package me.st28.flexseries.flexchat.api.channel
 
 /**
  * Represents the API layer of the [Channel] manager.
@@ -22,12 +22,9 @@ package me.st28.flexseries.flexchat.api
 interface ChannelManager {
 
     /**
-     * Registers a [Channel].
-     *
-     * @return True if the channel was successfully registered.
-     *         False if a channel with the same name is already registered.
+     * @return A collection of all loaded [Channel]s.
      */
-    fun registerChannel(channel: Channel): Boolean
+    fun getChannels(): Collection<Channel>
 
     /**
      * Retrieves a channel based on its name.
@@ -43,5 +40,13 @@ interface ChannelManager {
      *         Null if no default channel is defined, or it doesn't exist.
      */
     fun getDefaultChannel(): Channel?
+
+    /**
+     * Registers a [Channel].
+     *
+     * @return True if the channel was successfully registered.
+     *         False if a channel with the same name is already registered.
+     */
+    fun registerChannel(channel: Channel): Boolean
 
 }

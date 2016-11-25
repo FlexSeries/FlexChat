@@ -37,12 +37,8 @@ object CmdFlexChat {
         val chatterModule = FlexPlugin.getPluginModule(FlexChat::class, ChatterModule::class)!!
         val chatModule = FlexPlugin.getPluginModule(FlexChat::class, ChatModule::class)!!
 
-        // Get chatter count
-        var chatterCount = 0
-        chatModule.providers.values.forEach { chatterCount += it.chatters.size }
-
         builder.header("title", "FlexChat Stats")
-        builder.element("element_description", "Chatters", chatterCount.toString())
+        builder.element("element_description", "Chatters", chatterModule.chatters.size.toString())
         builder.element("element_description", "Providers", chatModule.providers.keys.joinToString(", "))
 
         return builder

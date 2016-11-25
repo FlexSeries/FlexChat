@@ -1,13 +1,18 @@
-providers:
-  vanilla:
-    dummy: config
+# Fallback formats
+default formats:
+  default: '{PROVIDER} <{SENDER}> {MESSAGE}'
+  vanilla: '<{SENDER}> {MESSAGE}'
 
 channel prefix:
   format: '&8[{CHCOLOR}{CHTAG}&8] '
+  enabled: true
+  force state: false
 
+# Private message formats
 message formats:
   default: '&f[&7{SENDER} &f\u27A1 &7{RECEIVER}&f] &7{MESSAGE}'
 
-formats:
-  default: '{PROVIDER} <{SENDER}> {MESSAGE}'
-  vanilla: '<{SENDER}> {MESSAGE}'
+# Provider configuration
+#providers:
+#  vanilla:
+#    formats:

@@ -17,6 +17,8 @@
 package me.st28.flexseries.flexchat.api
 
 import me.st28.flexseries.flexchat.FlexChat
+import me.st28.flexseries.flexchat.api.channel.ChannelManager
+import me.st28.flexseries.flexchat.api.chatter.ChatterManager
 import me.st28.flexseries.flexchat.backend.ChannelModule
 import me.st28.flexseries.flexchat.backend.ChatModule
 import me.st28.flexseries.flexchat.backend.ChatterModule

@@ -22,7 +22,7 @@
         <project.mainClass>${project.groupId}.${project.artifactId}.${project.name}</project.mainClass>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.build.javaVersion>1.8</project.build.javaVersion>
-        <kotlin.version>1.0.4</kotlin.version>
+        <kotlin.version>1.0.5-2</kotlin.version>
     </properties>
 
     <scm>
@@ -64,14 +64,6 @@
 
         <resources>
             <resource>
-                <directory>src/main/kotlin</directory>
-
-                <excludes>
-                    <exclude>**/*.kt</exclude>
-                </excludes>
-            </resource>
-
-            <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
@@ -104,13 +96,14 @@
             </plugin>
 
             <plugin>
-                <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
                 <version>${kotlin.version}</version>
 
                 <executions>
                     <execution>
                         <id>compile</id>
+                        <phase>compile</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
@@ -123,6 +116,7 @@
 
                     <execution>
                         <id>test-compile</id>
+                        <phase>test-compile</phase>
                         <goals>
                             <goal>test-compile</goal>
                         </goals>
@@ -159,17 +153,6 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>${project.build.javaVersion}</source>
-                    <target>${project.build.javaVersion}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
             </plugin>
 
             <plugin>

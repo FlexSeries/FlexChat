@@ -14,15 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.st28.flexseries.flexchat.backend
+package me.st28.flexseries.flexchat
 
-import me.st28.flexseries.flexchat.api.channel.Channel
-import org.bukkit.ChatColor
+import me.st28.flexseries.flexlib.permission.PermissionNode
 
-/**
- * Represents a [Channel] loaded by FlexChat that has one instance.
- */
-class BasicChannel(name: String,
-                   description: String,
-                   tag: String,
-                   color: ChatColor) : Channel(name, description, tag, color)
+enum class PermissionNodes : PermissionNode {
+
+    COLOR,
+    FORMAT,
+    MAGIC,
+
+    AUTOJOIN,
+    INFO,
+    JOIN,
+    LEAVE,
+    CHAT,
+    VIEW,
+    SPY,
+
+    BYPASS_IGNORE,
+    BYPASS_MUTE;
+
+    override val node: String = "flexchat.${name.toLowerCase().replace("_", ".")}"
+
+}

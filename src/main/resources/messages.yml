@@ -6,5 +6,5 @@ error:
     not_found: '{#error#}Unable to find chatter {$player {1} $}'
 
   channel:
-    active_not_set: ''
+    active_not_set: '{#error#}You do not have an active channel set.'
     no_permission_chat: 'You do not have permission to chat in channel {1}.'

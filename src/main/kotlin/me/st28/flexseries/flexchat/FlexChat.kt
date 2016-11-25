@@ -23,6 +23,7 @@ import me.st28.flexseries.flexchat.backend.ChatterModule
 import me.st28.flexseries.flexchat.backend.VanillaChatProvider
 import me.st28.flexseries.flexchat.commands.CmdChannel
 import me.st28.flexseries.flexchat.commands.CmdFlexChat
+import me.st28.flexseries.flexchat.commands.CmdMessage
 import me.st28.flexseries.flexlib.plugin.FlexPlugin
 
 class FlexChat : FlexPlugin() {
@@ -38,6 +39,7 @@ class FlexChat : FlexPlugin() {
 
         commandMap.register(CmdChannel)
         commandMap.register(CmdFlexChat)
+        commandMap.register(CmdMessage)
     }
 
 }

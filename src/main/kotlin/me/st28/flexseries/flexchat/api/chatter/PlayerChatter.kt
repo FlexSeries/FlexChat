@@ -14,15 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.st28.flexseries.flexchat.backend
+package me.st28.flexseries.flexchat.api.chatter
 
-import me.st28.flexseries.flexchat.api.channel.Channel
-import org.bukkit.ChatColor
+import me.st28.flexseries.flexchat.backend.VanillaChatProvider
+import org.bukkit.entity.Player
 
-/**
- * Represents a [Channel] loaded by FlexChat that has one instance.
- */
-class BasicChannel(name: String,
-                   description: String,
-                   tag: String,
-                   color: ChatColor) : Channel(name, description, tag, color)
+class PlayerChatter internal constructor(provider: VanillaChatProvider, val player: Player) :
+        Chatter(provider, player.uniqueId.toString())
+{
+
+    override val name: String
+        get() = player.name
+
+    override val displayName: String
+        get() = player.displayName ?: player.name
+
+    override fun hasPermission(permission: String): Boolean {
+        return player.hasPermission(permission)
+    }
+
+    override fun sendMessage(message: String) {
+        player.sendMessage(message)
+    }
+
+}

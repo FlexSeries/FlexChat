@@ -17,47 +17,34 @@
 package me.st28.flexseries.flexchat.backend
 
 import me.st28.flexseries.flexchat.FlexChat
-import me.st28.flexseries.flexchat.api.ChatProvider
-import me.st28.flexseries.flexchat.api.Chatter
-import me.st28.flexseries.flexchat.api.ChatterManager
-import me.st28.flexseries.flexlib.logging.LogHelper
+import me.st28.flexseries.flexchat.api.chatter.Chatter
+import me.st28.flexseries.flexchat.api.chatter.ChatterManager
 import me.st28.flexseries.flexlib.plugin.FlexModule
-import me.st28.flexseries.flexlib.plugin.storage.flatfile.YamlFileManager
-import java.io.File
+import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
+import java.util.*
 
 class ChatterModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chatters", "Manages chatters"), ChatterManager {
 
-    override fun loadChatter(provider: ChatProvider, identifier: String): Chatter {
-        LogHelper.debug(this, "Loading chatter '$identifier'")
+    internal val chatters: MutableMap<String, Chatter> = HashMap()
 
-        val providerFolder = File(dataFolder.path + File.separator + provider.name)
-        providerFolder.mkdirs()
-
-        val file = YamlFileManager(providerFolder.path + File.separator + identifier + ".yml")
-
-        val chatter = Chatter(provider, identifier, file)
-
-        if (file.isEmpty()) {
-            // New, add to default channel + instance
-        }
-
-        // TODO: Load channels and instances
-        val channelSec = file.config.getConfigurationSection("channels")
-
-        return chatter
+    override fun registerChatter(chatter: Chatter) {
+        chatters.put(chatter.identifier, chatter)
     }
 
     override fun saveChatter(chatter: Chatter) {
     }
 
-    override fun unloadChatter(chatter: Chatter, save: Boolean) {
-        LogHelper.debug(this, "Unloading chatter '${chatter.identifier}'")
+    override fun unregisterChatter(chatter: Chatter) {
+        chatters.remove(chatter.identifier)
+    }
 
-        if (save) {
-            saveChatter(chatter)
-        }
+    override fun getChatter(identifier: String): Chatter? {
+        return chatters[identifier]
+    }
 
-        chatter.provider.chatters.remove(chatter.identifier)
+    override fun getChatter(sender: CommandSender): Chatter {
+        return chatters[(sender as? Player)?.uniqueId?.toString() ?: "CONSOLE"]!!
     }
 
 }

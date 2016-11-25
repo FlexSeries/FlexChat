@@ -14,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.st28.flexseries.flexchat.api
+package me.st28.flexseries.flexchat.api.channel
 
+import me.st28.flexseries.flexchat.api.chatter.Chatter
+import org.bukkit.ChatColor
 import java.util.*
 
 /**
@@ -24,7 +26,12 @@ import java.util.*
  * @param name The name of the channel.
  * @param description The description of the channel.
  */
-abstract class Channel(val name: String, val description: String) {
+abstract class Channel(
+        val name: String,
+        val description: String,
+        val tag: String,
+        val color: ChatColor
+) {
 
     /**
      * The instances of this channel.

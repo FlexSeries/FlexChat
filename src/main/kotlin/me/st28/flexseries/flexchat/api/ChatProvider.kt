@@ -16,31 +16,15 @@
  */
 package me.st28.flexseries.flexchat.api
 
-import me.st28.flexseries.flexlib.util.translateColorCodes
+import me.st28.flexseries.flexchat.api.channel.ChannelInstance
+import me.st28.flexseries.flexchat.api.chatter.Chatter
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.*
 
 /**
- * Represents something that provides chat messages for a [Channel].
+ * Acts as a layer between a message and chatter provider.
  */
 abstract class ChatProvider(val plugin: JavaPlugin, val name: String) {
-
-    /**
-     * The display name of the provider, including color codes.
-     */
-    var displayName: String? = null
-        get() = field ?: name
-        private set
-
-    /**
-     * The chatters from this provider.
-     */
-    internal val chatters: MutableMap<String, Chatter> = HashMap()
-
-    internal fun loadGeneralConfig(config: ConfigurationSection?) {
-        displayName = config?.getString("display name")?.translateColorCodes()
-    }
 
     /**
      * Enables the provider.
@@ -59,31 +43,47 @@ abstract class ChatProvider(val plugin: JavaPlugin, val name: String) {
     /**
      * Disables the provider.
      */
-    open fun disable() {
-        chatters.values.forEach { FlexChatAPI.chatters.saveChatter(it) }
-    }
+    open fun disable() { }
 
-    fun getChatters(): Collection<Chatter> {
-        return chatters.values
-    }
-
-    protected fun loadChatter(identifier: String): Chatter {
-        val chatter = FlexChatAPI.chatters.loadChatter(this, identifier)
-        chatters.put(identifier, chatter)
-        return chatter
-    }
-
-    protected fun unloadChatter(identifier: String): Chatter? {
-        val chatter = chatters.remove(identifier)
-        if (chatter != null) {
-            FlexChatAPI.chatters.unloadChatter(chatter)
-        }
-        return chatter
+    /**
+     * Registers a chatter with the provider and FlexChat.
+     */
+    protected fun registerChatter(chatter: Chatter) {
+        FlexChatAPI.chatters.registerChatter(chatter)
     }
 
     /**
-     * Sends a message to a chatter registered under this provider.
+     * Convenience method for retrieving a chatter by their identifier.
      */
-    abstract fun sendMessage(chatter: Chatter, message: String)
+    protected fun getChatter(identifier: String): Chatter? {
+        return FlexChatAPI.chatters.getChatter(identifier)
+    }
+
+    /**
+     * Unregisters a chatter with the provider and FlexChat.
+     */
+    protected fun unregisterChatter(identifier: String) {
+        val found = FlexChatAPI.chatters.getChatter(identifier) ?: return
+        FlexChatAPI.chatters.unregisterChatter(found)
+    }
+
+    /**
+     * Returns the chat format for a specified chatter.
+     * If this method returns null, the default chat format from the chat manager will be used.
+     *
+     * @param chatter The [Chatter] requesting the format.
+     * @param instance The [ChannelInstance] the chatter is chatting in.
+     */
+    open fun getChatFormat(chatter: Chatter, instance: ChannelInstance): String? {
+        return null
+    }
+
+    /**
+     * Processes a message by performing variable replacements where applicable.
+     * This method should be overridden in order to implement additional functionality.
+     */
+    open fun processFormat(chatter: Chatter, instance: ChannelInstance, format: String): String {
+        return format
+    }
 
 }
