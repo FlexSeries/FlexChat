@@ -16,11 +16,15 @@
  */
 package me.st28.flexseries.flexchat.commands
 
+import me.st28.flexseries.flexchat.FlexChat
 import me.st28.flexseries.flexchat.api.FlexChatAPI
 import me.st28.flexseries.flexchat.api.chatter.getChatter
+import me.st28.flexseries.flexchat.backend.ChannelModule
 import me.st28.flexseries.flexlib.command.CommandHandler
 import me.st28.flexseries.flexlib.command.argument.Default
 import me.st28.flexseries.flexlib.message.list.ListBuilder
+import me.st28.flexseries.flexlib.plugin.FlexPlugin
+import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
 import java.util.*
 
@@ -32,6 +36,7 @@ object CmdChannel {
             permission = "flexchat.channels.list"
     )
     fun list(sender: CommandSender, @Default("1") page: Int): ListBuilder {
+        val module = FlexPlugin.getPluginModule(FlexChat::class, ChannelModule::class)!!
         val channels = ArrayList(FlexChatAPI.channels.getChannels())
 
         val chatter = sender.getChatter()
@@ -73,6 +78,29 @@ object CmdChannel {
         builder.page(page, channels.size)
         builder.header("page", "Chat Channels")
 
+        for (channel in channels) {
+            builder.element("flexchat_channel",
+                    // Active
+                    if (channel == activeChannel) {
+                        module.activeChannelSymbol
+                    } else {
+                        ""
+                    },
+
+                    // Color
+                    channel.color.toString(),
+
+                    // Name
+                    channel.name,
+
+                    // Status
+                    if (chatter.isInChannel(channel)) {
+                        "${ChatColor.GREEN}joined"
+                    } else {
+                        "${ChatColor.RED}not joined"
+                    }
+            )
+        }
 
         return builder
     }

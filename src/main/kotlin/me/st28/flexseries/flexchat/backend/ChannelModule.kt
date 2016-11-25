@@ -28,6 +28,8 @@ import me.st28.flexseries.flexlib.plugin.storage.flatfile.YamlFileManager
 import me.st28.flexseries.flexlib.util.translateColorCodes
 import org.apache.commons.lang.StringEscapeUtils
 import org.bukkit.ChatColor
+import java.io.File
+import java.io.FilenameFilter
 import java.util.*
 
 class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels", "Manages channels"), ChannelManager {
@@ -37,8 +39,8 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
 
     private lateinit var defaultDescription: String
 
-    private lateinit var activeChannelSymbol: String
-    private lateinit var activeInstanceSymbol: String
+    internal lateinit var activeChannelSymbol: String
+    internal lateinit var activeInstanceSymbol: String
 
     /**
      * Loaded channels that have been loaded from configuration files.
@@ -75,7 +77,8 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
             dataFolder.mkdirs()
         }
 
-        for (file in dataFolder.listFiles { f -> f.endsWith(".yml") }) {
+        //for (file in dataFolder.listFiles { f -> f.extension == ".yml" }) {
+        for (file in dataFolder.listFiles { dir, name -> name != null && name.endsWith(".yml") }) {
             try {
                 val yaml = YamlFileManager(file).config
 
