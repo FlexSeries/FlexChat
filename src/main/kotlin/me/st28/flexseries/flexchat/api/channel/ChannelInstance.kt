@@ -48,11 +48,28 @@ class ChannelInstance(val channel: Channel, val name: String) {
 
     enum class JoinResult {
 
+        /**
+         * The chatter successfully joined the channel instance.
+         */
         SUCCESS,
 
+        /**
+         * The chatter does not have permission to join instances of the channel.
+         */
         NO_PERMISSION,
 
-        ALREADY_JOINED
+        /**
+         * The channel instance is not normally visible to the chatter.
+         */
+        NOT_VISIBLE,
+
+        /**
+         * The chatter is already in the channel instance.
+         */
+        ALREADY_JOINED;
+
+        val isSuccess: Boolean
+            get() = this == SUCCESS
 
     }
 

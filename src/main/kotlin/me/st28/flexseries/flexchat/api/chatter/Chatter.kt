@@ -16,12 +16,15 @@
  */
 package me.st28.flexseries.flexchat.api.chatter
 
+import me.st28.flexseries.flexchat.FlexChat
 import me.st28.flexseries.flexchat.PermissionNodes
 import me.st28.flexseries.flexchat.api.ChatProvider
 import me.st28.flexseries.flexchat.api.channel.Channel
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance
+import me.st28.flexseries.flexlib.message.Message
 import me.st28.flexseries.flexlib.permission.PermissionNode
 import me.st28.flexseries.flexlib.util.GenericDataContainer
+import org.bukkit.command.CommandSender
 import org.bukkit.configuration.ConfigurationSection
 import java.util.*
 
@@ -102,34 +105,81 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
     }
 
     /**
+     * @return True if the instance is normally visible to this chatter.
+     */
+    fun isInstanceVisible(instance: ChannelInstance): Boolean {
+        return instance.channel.getVisibleInstances(this).contains(instance)
+    }
+
+    private fun shouldSendSpecificInstanceMessage(instance: ChannelInstance): Boolean {
+        return (instance == instance.channel.getDefaultInstance() ||
+                (instance.channel.getVisibleInstances(this).size == 1 && channels[instance.channel]!!.size <= 1))
+    }
+
+    private fun performInstanceJoinCheck(instance: ChannelInstance, silent: Boolean): Boolean {
+        if (isInInstance(instance)) {
+            if (!silent) {
+                if (shouldSendSpecificInstanceMessage(instance)) {
+                    Message.get(FlexChat::class, "error.channel.instance.already_joined",
+                            instance.channel.color, instance.channel.name).sendTo(this)
+                } else {
+                    Message.get(FlexChat::class, "error.channel.instance.already_joined_specific",
+                            instance.channel.color, instance.channel.name, instance.name).sendTo(this)
+                }
+            }
+            return false
+        }
+        return true
+    }
+
+    /**
      * Attempts to add this chatter to a [ChannelInstance].
      * This method will perform a permission check.
      *
      * @param instance The instance to add.
-     * @param silent If true, will not alert the chatter or chatters in the instance of the join.
-     *               Default is false.
+     * @param silent If true, will not alert the chatter or chatters in the instance of the join or
+     *               any error messages. Default is false.
+     *
      * @return SUCCESS if the instance was successfully joined.
      *         ALREADY_JOINED if the instance is already joined.
      *         NO_PERMISSION if the chatter does not have permission to join the channel.
-     *
      */
     fun addInstance(instance: ChannelInstance, silent: Boolean = false): ChannelInstance.JoinResult {
-        // Check if already joined
-        if (isInInstance(instance)) {
+        /* Check if instance is already joined */
+        if (!performInstanceJoinCheck(instance, silent)) {
             return ChannelInstance.JoinResult.ALREADY_JOINED
         }
 
-        // Join permission check
-        if (!hasPermission(PermissionNode.buildVariableNode(PermissionNodes.JOIN, instance.channel.name))) {
+        /*
+         * Visibility check
+         * - Is instance normally visible to chatter?
+         * - If not, does chatter have permission to bypass visibility check?
+         */
+        if (!isInstanceVisible(instance) && !hasPermission(PermissionNodes.BYPASS_VISIBLE)) {
             if (!silent) {
-                // TODO: Send no permission message
+                Message.get(FlexChat::class, "error.instance.not_found",
+                        instance.channel.color, instance.channel.name, instance).sendTo(this)
+            }
+            return ChannelInstance.JoinResult.NOT_VISIBLE
+        }
+
+        /*
+         * Join permission check
+         * - Does chatter have permission to join the channel?
+         * - If not, does chatter have permission to bypass the join check?
+         */
+        if (!hasPermission(PermissionNode.buildVariableNode(PermissionNodes.JOIN, instance.channel.name))
+                && !hasPermission(PermissionNodes.BYPASS_JOIN))
+        {
+            if (!silent) {
+                Message.get(FlexChat::class, "error.channel.no_permission_join",
+                        instance.channel.name).sendTo(this)
             }
             return ChannelInstance.JoinResult.NO_PERMISSION
         }
 
         return if (addInstanceUnsafe(instance, silent)) {
             ChannelInstance.JoinResult.SUCCESS
-            // TODO: Send join message, etc.
         } else {
             // Should never happen since this is handled above
             ChannelInstance.JoinResult.ALREADY_JOINED
@@ -137,26 +187,116 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
     }
 
     /**
-     * Attempts to add this chatter to a [ChatterInstance].
+     * Attempts to add this chatter to a [ChannelInstance].
      * This method will not perform any checks.
      *
      * @param instance The instance to add.
-     * @param silent If true, will not alert the chatter or chatters in the instance of the join.
-     *               Default is false.
+     * @param silent If true, will not alert the chatter or chatters in the instance of the join or
+     *               any error messages. Default is false.
      *
      * @return True if the instance was successfully added.
      *         False if the chatter is already in the instance.
      */
     fun addInstanceUnsafe(instance: ChannelInstance, silent: Boolean = false): Boolean {
-        if (isInInstance(instance)) {
+        /* Check if instance is already joined */
+        if (!performInstanceJoinCheck(instance, silent)) {
             return false
         }
 
         instance.chatters.add(this)
         channels.getOrPut(instance.channel, { HashSet() }).add(instance)
 
-        // TODO: Announce join to instance members
+        if (!silent) {
+            val replacements = arrayOf(instance.channel.color, instance.channel.name, instance.name)
 
+            // Send vague messages
+            Message.get(FlexChat::class, "alert.channel.chatter_joined", *replacements).sendTo(
+                    instance.chatters.filter { !it.shouldSendSpecificInstanceMessage(instance) })
+
+            // Send specific messages
+            Message.get(FlexChat::class, "alert.channel.chatter_joined_specific", *replacements).sendTo(
+                    instance.chatters.filter { it.shouldSendSpecificInstanceMessage(instance) })
+        }
+        return true
+    }
+
+    private fun performActiveInstanceCheck(instance: ChannelInstance, silent: Boolean): Boolean {
+        if (activeInstance == instance) {
+            if (!silent) {
+                // Send already active message
+                if (shouldSendSpecificInstanceMessage(instance)) {
+                    Message.get(FlexChat::class, "error.channel.instance.already_active_specific",
+                            instance.channel.color, instance.channel, instance.name)
+                } else {
+                    Message.get(FlexChat::class, "error.channel.instance.already_active",
+                            instance.channel.color, instance.channel)
+                }.sendTo(this)
+            }
+            return false
+        }
+        return true
+    }
+
+    /**
+     * Attempts to set the active channel instance for this chatter.
+     * This method will perform permission checks.
+     *
+     * @param instance The instance to add.
+     * @param silent If true, will not alert the chatter or chatters in the instance of the join or
+     *               any error messages. Default is false.
+     *
+     * @return SUCCESS if the instance was successfully joined and set to the active instance.
+     *         ALREADY_JOINED if the instance is already the active instance.
+     *         NO_PERMISSION if the chatter is not in the instance and doesn't have permission to join.
+     */
+    fun setActiveInstance(instance: ChannelInstance, silent: Boolean = false): ChannelInstance.JoinResult {
+        if (!isInInstance(instance)) {
+            val ret = addInstance(instance, silent)
+            if (!ret.isSuccess) {
+                return ret
+            }
+        }
+
+        return if (setActiveInstanceUnsafe(instance, silent)) {
+            ChannelInstance.JoinResult.SUCCESS
+        } else {
+            ChannelInstance.JoinResult.ALREADY_JOINED
+        }
+    }
+
+    /**
+     * Sets the active channel instance for this chatter. If the instance is not already joined, it
+     * will be added.
+     * This method does not perform any checks.
+     *
+     * @param instance The instance to set as the active instance.
+     * @param silent If true, will not alert the chatter or chatters in the instance of the join or
+     *               any error messages. Default is false.
+     *
+     * @return True if the instance was successfully set.
+     *         False if the instance is already the active instance.
+     */
+    fun setActiveInstanceUnsafe(instance: ChannelInstance, silent: Boolean = false): Boolean {
+        if (!isInInstance(instance)) {
+            addInstanceUnsafe(instance, silent)
+        }
+
+        // Check if instance is already active
+        if (!performActiveInstanceCheck(instance, silent)) {
+            return false
+        }
+
+        activeInstance = instance
+        if (!silent) {
+            // Send channel now active message
+            if (shouldSendSpecificInstanceMessage(instance)) {
+                Message.get(FlexChat::class, "notice.channel.active_set_specific",
+                        instance.channel.color, instance.channel.name, instance.name)
+            } else {
+                Message.get(FlexChat::class, "notice.channel.active_set",
+                        instance.channel.color, instance.channel.name)
+            }
+        }
         return true
     }
 
@@ -172,4 +312,30 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
      */
     abstract fun sendMessage(message: String)
 
+    /**
+     * Sends a message to the chatter.
+     */
+    abstract fun sendMessage(message: Message)
+
+}
+
+fun <T: Chatter> Message.sendTo(chatter: T) {
+    chatter.sendMessage(this)
+}
+
+fun <T: Chatter> Message.sendTo(chatters: Collection<T>, vararg replacements: Any?) {
+    val remaining: MutableList<T> = ArrayList(chatters)
+    val specific: MutableList<CommandSender> = ArrayList()
+
+    val it = remaining.iterator()
+    while (it.hasNext()) {
+        val cur = it.next()
+        if (cur is PlayerChatter) {
+            specific.add(cur.player)
+            it.remove()
+        }
+    }
+
+    sendTo(specific, replacements)
+    remaining.forEach { it.sendMessage(this) }
 }

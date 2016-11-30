@@ -1,3 +1,13 @@
+tag: '&8[&9\u2709&8] '
+
+alert:
+  channel:
+    # 1: Chatter display name
+    # 2: Channel color
+    # 3: Channel name
+    chatter_joined: '{TAG}&a&o{1} &a&ojoined channel {2}&o{3}'
+    chatter_joined_specific: '{TAG}&a&o'
+
 error:
   unable_to_chat: '{#error#}An internal error occurred. Please contact a staff member.'
   unable_to_chat_channel_muted: '{#error#}Channel {$item {1} $} is muted.'
@@ -7,4 +17,24 @@ error:
 
   channel:
     active_not_set: '{#error#}You do not have an active channel set.'
-    no_permission_chat: 'You do not have permission to chat in channel {1}.'
+    no_permission_chat: '{#error#}You do not have permission to chat in channel {$input_sanitized {1} $}.'
+    no_permission_join: '{#error#}You do not have permission to join channel {$input_sanitized {1} $}.'
+    not_found: '{#error#}Unknown channel {$input {1} $}'
+    instance:
+      already_active: '{#error#}Your active channel is already {$flexchat_instance {1}{,}{2} $}'
+      already_active_specific: '{#error#}Your active channel is already {$flexchat_instance {1}{,}{2}{,}{3} $}'
+      already_joined: '{#error#}You are already in channel {$flexchat_channel {1}{,}{2} $}'
+      already_joined_specific: '{#error#}You are already in channel {$flexchat_instance {1}{,}{2}{,}{3} $}'
+      no_default: '{#error#}Channel {$input_sanitized {1} $} does not have a default instance.'
+      not_found: '{#error#}Unknown channel instance {$flexchat_instance {1}{,}{2}{,}{3} $}'
+
+notice:
+  channel:
+    # 1: Channel color
+    # 2: Channel name
+    active_set: '{TAG}{#notice#}&oNow chatting in {1}&o{2}'
+
+    # 1: Channel color
+    # 2: Channel name
+    # 3: Instance name
+    active_set_specific: '{TAG}{#notice#}&oNow chatting in {1}&o{2}&8&o/&7&o{3}'

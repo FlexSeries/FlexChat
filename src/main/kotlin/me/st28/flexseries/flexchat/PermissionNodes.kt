@@ -33,7 +33,9 @@ enum class PermissionNodes : PermissionNode {
     SPY,
 
     BYPASS_IGNORE,
-    BYPASS_MUTE;
+    BYPASS_JOIN,
+    BYPASS_MUTE,
+    BYPASS_VISIBLE;
 
     override val node: String = "flexchat.${name.toLowerCase().replace("_", ".")}"
 

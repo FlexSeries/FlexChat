@@ -17,11 +17,13 @@
 package me.st28.flexseries.flexchat.commands
 
 import me.st28.flexseries.flexchat.FlexChat
+import me.st28.flexseries.flexchat.PermissionNodes
 import me.st28.flexseries.flexchat.api.FlexChatAPI
 import me.st28.flexseries.flexchat.api.chatter.getChatter
 import me.st28.flexseries.flexchat.backend.ChannelModule
 import me.st28.flexseries.flexlib.command.CommandHandler
 import me.st28.flexseries.flexlib.command.argument.Default
+import me.st28.flexseries.flexlib.message.Message
 import me.st28.flexseries.flexlib.message.list.ListBuilder
 import me.st28.flexseries.flexlib.plugin.FlexPlugin
 import org.bukkit.ChatColor
@@ -29,6 +31,35 @@ import org.bukkit.command.CommandSender
 import java.util.*
 
 object CmdChannel {
+
+    @CommandHandler(
+            "channel",
+            description = "Change active channel"
+    )
+    fun switch(sender: CommandSender, channel: String, instance: String?): Message? {
+        val foundChannel = FlexChatAPI.channels.getChannel(channel)
+            ?: return Message.get(FlexChat::class, "error.channel.not_found", channel)
+
+        val foundInstance = if (instance != null) {
+            foundChannel.getInstance(instance)
+                ?: return Message.get(FlexChat::class, "error.instance.not_found", instance, foundChannel.name)
+        } else {
+            foundChannel.getDefaultInstance()
+                ?: return Message.get(FlexChat::class, "error.instance.no_default", foundChannel.name)
+        }
+
+        // Set active instance. No messages need to be sent here since setActiveInstance handles it
+        FlexChatAPI.chatters.getChatter(sender).setActiveInstance(foundInstance)
+        return null
+    }
+
+    @CommandHandler(
+            "channel join",
+            description = "Join a channel"
+    )
+    fun join(sender: CommandSender, channel: String, instance: String?): Message? {
+        return null
+    }
 
     @CommandHandler(
             "channel list",
@@ -79,7 +110,7 @@ object CmdChannel {
         builder.header("page", "Chat Channels")
 
         for (channel in channels) {
-            builder.element("flexchat_channel",
+            builder.element("flexchat_list_channel",
                     // Active
                     if (channel == activeChannel) {
                         module.activeChannelSymbol

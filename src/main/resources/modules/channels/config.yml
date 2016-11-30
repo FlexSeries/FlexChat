@@ -5,14 +5,23 @@ active symbol:
 default channel: 'default'
 default description: '&c&oNo description set'
 
-list format:
+element formats:
   # 1: active
   # 2: color
   # 3: channel
   # 4: status
-  channel: '&a{1}{2}{3} &8({4}&8)'
+  list_channel: '&a{1}{2}{3} &8({4}&8)'
 
   # 1: active
   # 2: instance
   # 3: status
-  instance: '&a{1}&7{2} &8({3}&8)'
+  list_instance: '&a{1}&7{2} &8({3}&8)'
+
+  # 1: Color
+  # 2: Channel
+  channel: '{1}{2}'
+
+  # 1: Color
+  # 2: Channel
+  # 3: Instance
+  channel: '{1}{2}&8/&7{3}'

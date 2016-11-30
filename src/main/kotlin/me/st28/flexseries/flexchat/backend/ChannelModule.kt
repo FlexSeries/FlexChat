@@ -62,14 +62,28 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
         activeChannelSymbol = StringEscapeUtils.unescapeJava(config.getString("active symbol.channel")).translateColorCodes()
         activeInstanceSymbol = StringEscapeUtils.unescapeJava(config.getString("active symbol.instance")).translateColorCodes()
 
-        FlexPlugin.getGlobalModule(MasterMessageModule::class)!!.registerElementFormat(
-                "flexchat_channel",
-                config.getString("list format.channel", "&a{1}{2}{3} &8({4}&8)").translateColorCodes()
+        val messageModule = FlexPlugin.getGlobalModule(MasterMessageModule::class)!!
+
+        // Register list element formats
+        messageModule.registerElementFormat(
+                "flexchat_list_channel",
+                config.getString("element formats.list_channel", "&a{1}{2}{3} &8({4}&8)").translateColorCodes()
         )
 
-        FlexPlugin.getGlobalModule(MasterMessageModule::class)!!.registerElementFormat(
-                "flexchat_channel_instance",
-                config.getString("list format.instance", "&a{1}&7{2} &8({3}&8)").translateColorCodes()
+        messageModule.registerElementFormat(
+                "flexchat_list_instance",
+                config.getString("element formats.list_instance", "&a{1}&7{2} &8({3}&8)").translateColorCodes()
+        )
+
+        // Register element formats
+        messageModule.registerElementFormat(
+                "flexchat_channel",
+                config.getString("element formats.channel", "{1}{2}")
+        )
+
+        messageModule.registerElementFormat(
+                "flexchat_instance",
+                config.getString("element formats.instance", "{1}{2}&8/&7{3}")
         )
 
         /* Reload channels */
