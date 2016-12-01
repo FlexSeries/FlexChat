@@ -17,13 +17,14 @@
 package me.st28.flexseries.flexchat
 
 import me.st28.flexseries.flexchat.api.FlexChatAPI
+import me.st28.flexseries.flexchat.api.channel.Channel
+import me.st28.flexseries.flexchat.api.channel.ChannelInstance
 import me.st28.flexseries.flexchat.backend.ChannelModule
 import me.st28.flexseries.flexchat.backend.ChatModule
 import me.st28.flexseries.flexchat.backend.ChatterModule
 import me.st28.flexseries.flexchat.backend.VanillaChatProvider
-import me.st28.flexseries.flexchat.commands.CmdChannel
-import me.st28.flexseries.flexchat.commands.CmdFlexChat
-import me.st28.flexseries.flexchat.commands.CmdMessage
+import me.st28.flexseries.flexchat.commands.*
+import me.st28.flexseries.flexlib.command.argument.ArgumentParser
 import me.st28.flexseries.flexlib.plugin.FlexPlugin
 
 class FlexChat : FlexPlugin() {
@@ -36,6 +37,9 @@ class FlexChat : FlexPlugin() {
 
     override fun handleEnable() {
         FlexChatAPI.chat.registerProvider(VanillaChatProvider(this))
+
+        ArgumentParser.register(Channel::class, ChannelParser)
+        ArgumentParser.register(ChannelInstance::class, ChannelInstanceParser)
 
         commandMap.register(CmdChannel)
         commandMap.register(CmdFlexChat)
