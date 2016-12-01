@@ -17,6 +17,7 @@
 package me.st28.flexseries.flexchat.api.chatter
 
 import me.st28.flexseries.flexchat.backend.VanillaChatProvider
+import me.st28.flexseries.flexlib.message.Message
 import org.bukkit.entity.Player
 
 class PlayerChatter internal constructor(provider: VanillaChatProvider, val player: Player) :
@@ -35,6 +36,10 @@ class PlayerChatter internal constructor(provider: VanillaChatProvider, val play
 
     override fun sendMessage(message: String) {
         player.sendMessage(message)
+    }
+
+    override fun sendMessage(message: Message) {
+        message.sendTo(player)
     }
 
 }
