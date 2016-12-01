@@ -10,13 +10,14 @@ element formats:
   # 2: color
   # 3: channel
   # 4: status
-  list_channel: '&a{1}{2}{3} &8({4}&8)'
+  channel: '&a{1}{2}{3} &8({4}&8)'
 
   # 1: active
   # 2: instance
   # 3: status
-  list_instance: '&a{1}&7{2} &8({3}&8)'
+  instance: '&a{1}&7{2} &8({3}&8)'
 
+object formats:
   # 1: Color
   # 2: Channel
   channel: '{1}{2}'

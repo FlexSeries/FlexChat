@@ -66,24 +66,24 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
 
         // Register list element formats
         messageModule.registerElementFormat(
-                "flexchat_list_channel",
+                "flexchat_channel",
                 config.getString("element formats.list_channel", "&a{1}{2}{3} &8({4}&8)").translateColorCodes()
         )
 
         messageModule.registerElementFormat(
-                "flexchat_list_instance",
+                "flexchat_instance",
                 config.getString("element formats.list_instance", "&a{1}&7{2} &8({3}&8)").translateColorCodes()
         )
 
-        // Register element formats
-        messageModule.registerElementFormat(
+        // Register object formats
+        messageModule.registerObjectFormat(
                 "flexchat_channel",
-                config.getString("element formats.channel", "{1}{2}")
+                config.getString("object formats.channel", "{1}{2}").translateColorCodes()
         )
 
-        messageModule.registerElementFormat(
+        messageModule.registerObjectFormat(
                 "flexchat_instance",
-                config.getString("element formats.instance", "{1}{2}&8/&7{3}")
+                config.getString("object formats.instance", "{1}{2}&8/&7{3}").translateColorCodes()
         )
 
         /* Reload channels */
