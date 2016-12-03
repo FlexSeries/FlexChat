@@ -25,12 +25,17 @@ import java.util.*
  *
  * @param name The name of the channel.
  * @param description The description of the channel.
+ * @param tag The short name of the channel.
+ * @param color The default channel color.
+ * @param radius The chat radius for the channel.
+ *               -1 makes the channel global.
  */
 abstract class Channel(
         val name: String,
         val description: String,
         val tag: String,
-        val color: ChatColor
+        val color: ChatColor,
+        val radius: Int
 ) {
 
     /**

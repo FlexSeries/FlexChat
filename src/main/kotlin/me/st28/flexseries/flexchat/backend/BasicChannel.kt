@@ -25,4 +25,5 @@ import org.bukkit.ChatColor
 class BasicChannel(name: String,
                    description: String,
                    tag: String,
-                   color: ChatColor) : Channel(name, description, tag, color)
+                   color: ChatColor,
+                   radius: Int) : Channel(name, description, tag, color, radius)

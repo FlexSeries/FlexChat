@@ -111,7 +111,7 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
         return instance.channel.getVisibleInstances(this).contains(instance)
     }
 
-    private fun shouldSendSpecificInstanceMessage(instance: ChannelInstance): Boolean {
+    internal fun shouldSendSpecificInstanceMessage(instance: ChannelInstance): Boolean {
         return (instance == instance.channel.getDefaultInstance() ||
                 (instance.channel.getVisibleInstances(this).size == 1 && channels[instance.channel]!!.size <= 1))
     }
@@ -124,6 +124,22 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
                             instance.channel.color, instance.channel.name).sendTo(this)
                 } else {
                     Message.get(FlexChat::class, "error.channel.instance.already_joined_specific",
+                            instance.channel.color, instance.channel.name, instance.name).sendTo(this)
+                }
+            }
+            return false
+        }
+        return true
+    }
+
+    private fun performInstanceLeaveCheck(instance: ChannelInstance, silent: Boolean): Boolean {
+        if (!isInInstance(instance)) {
+            if (!silent) {
+                if (shouldSendSpecificInstanceMessage(instance)) {
+                    Message.get(FlexChat::class, "error.channel.instance.not_joined",
+                            instance.channel.color, instance.channel.name).sendTo(this)
+                } else {
+                    Message.get(FlexChat::class, "error.channel.instance.not_joined_specific",
                             instance.channel.color, instance.channel.name, instance.name).sendTo(this)
                 }
             }
@@ -216,6 +232,84 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
             // Send specific messages
             Message.get(FlexChat::class, "alert.channel.chatter_joined_specific", *replacements).sendTo(
                     instance.chatters.filter { it.shouldSendSpecificInstanceMessage(instance) })
+        }
+        return true
+    }
+
+    /**
+     * Attempts to remove this chatter from a [ChannelInstance].
+     * This method will perform a permission check.
+     *
+     * @param instance The instance to remove.
+     * @param silent If true, will not alert the chatter or chatters in the instance of the leave or
+     *               any error messages. Default is false.
+     */
+    fun removeInstance(instance: ChannelInstance, silent: Boolean = false): ChannelInstance.LeaveResult {
+        /* Check if instance is joined */
+        if (!performInstanceLeaveCheck(instance, silent)) {
+            return ChannelInstance.LeaveResult.NOT_JOINED
+        }
+
+        /*
+         * Leave permission check
+         * - Does chatter have permission to leave the channel?
+         * - If not, does chatter have permission to bypass the leave check?
+         */
+        if (!hasPermission(PermissionNode.buildVariableNode(PermissionNodes.LEAVE, instance.channel.name))
+                && !hasPermission(PermissionNodes.BYPASS_LEAVE))
+        {
+            if (!silent) {
+                Message.get(FlexChat::class, "error.channel.no_permission_join",
+                        instance.channel.name).sendTo(this)
+            }
+            return ChannelInstance.LeaveResult.NO_PERMISSION
+        }
+
+        return if (removeInstanceUnsafe(instance, silent)) {
+            return ChannelInstance.LeaveResult.SUCCESS
+        } else {
+            // Should never happen since this is handled above
+            ChannelInstance.LeaveResult.NOT_JOINED
+        }
+    }
+
+    /**
+     * Removes this chatter from a [ChannelInstance].
+     * This method will not perform any checks.
+     *
+     * @param instance The instance to remove.
+     * @param silent If true, will not alert the chatter or chatters in the instance of the leave or
+     *               any error messages. Default is false.
+     *
+     * @return True if the instance was successfully removed.
+     *         False if the instance is not joined.
+     */
+    fun removeInstanceUnsafe(instance: ChannelInstance, silent: Boolean = false): Boolean {
+        /* Check if instance is joined */
+        if (!performInstanceLeaveCheck(instance, silent)) {
+            return false
+        }
+
+        if (!silent) {
+            val replacements = arrayOf(instance.channel.color, instance.channel.name, instance.name)
+
+            // Send vague messages
+            Message.get(FlexChat::class, "alert.channel.chatter_left", *replacements).sendTo(
+                    instance.chatters.filter { !it.shouldSendSpecificInstanceMessage(instance) })
+
+            // Send specific messages
+            Message.get(FlexChat::class, "alert.channel.chatter_left_specific", *replacements).sendTo(
+                    instance.chatters.filter { it.shouldSendSpecificInstanceMessage(instance) })
+        }
+
+        // Remove after leave message is sent so this chatter also receives the message
+        instance.chatters.remove(this)
+        val instances = channels[instance.channel]
+        if (instances != null) {
+            instances.remove(instance)
+            if (instances.isEmpty()) {
+                channels.remove(instance.channel)
+            }
         }
         return true
     }

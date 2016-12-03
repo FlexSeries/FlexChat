@@ -51,6 +51,10 @@ class ChatterModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chatters",
         return chatters[identifier]
     }
 
+    override fun getChatterByName(name: String): Chatter? {
+        return chatters.values.firstOrNull { it.name.equals(name, true) }
+    }
+
     override fun getChatter(sender: CommandSender): Chatter {
         return chatters[(sender as? Player)?.uniqueId?.toString() ?: "CONSOLE"]!!
     }

@@ -19,12 +19,15 @@ package me.st28.flexseries.flexchat.commands
 import me.st28.flexseries.flexchat.FlexChat
 import me.st28.flexseries.flexchat.PermissionNodes
 import me.st28.flexseries.flexchat.api.FlexChatAPI
-import me.st28.flexseries.flexchat.api.chatter.getChatter
+import me.st28.flexseries.flexchat.api.channel.Channel
+import me.st28.flexseries.flexchat.api.channel.ChannelInstance
+import me.st28.flexseries.flexchat.api.chatter.chatter
 import me.st28.flexseries.flexchat.backend.ChannelModule
 import me.st28.flexseries.flexlib.command.CommandHandler
 import me.st28.flexseries.flexlib.command.argument.Default
 import me.st28.flexseries.flexlib.message.Message
 import me.st28.flexseries.flexlib.message.list.ListBuilder
+import me.st28.flexseries.flexlib.permission.hasPermission
 import me.st28.flexseries.flexlib.plugin.FlexPlugin
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
@@ -34,31 +37,73 @@ object CmdChannel {
 
     @CommandHandler(
             "channel",
-            description = "Change active channel"
+            description = "Switch active channel"
     )
-    fun switch(sender: CommandSender, channel: String, instance: String?): Message? {
-        val foundChannel = FlexChatAPI.channels.getChannel(channel)
-            ?: return Message.get(FlexChat::class, "error.channel.not_found", channel)
-
-        val foundInstance = if (instance != null) {
-            foundChannel.getInstance(instance)
-                ?: return Message.get(FlexChat::class, "error.instance.not_found", instance, foundChannel.name)
-        } else {
-            foundChannel.getDefaultInstance()
-                ?: return Message.get(FlexChat::class, "error.instance.no_default", foundChannel.name)
-        }
-
-        // Set active instance. No messages need to be sent here since setActiveInstance handles it
-        FlexChatAPI.chatters.getChatter(sender).setActiveInstance(foundInstance)
-        return null
+    fun switch(sender: CommandSender, channel: ChannelInstance) {
+        sender.chatter.setActiveInstance(channel)
     }
 
     @CommandHandler(
             "channel join",
             description = "Join a channel"
     )
-    fun join(sender: CommandSender, channel: String, instance: String?): Message? {
-        return null
+    fun join(sender: CommandSender, @Default(minArgs = 1) channel: ChannelInstance) {
+        sender.chatter.addInstance(channel)
+    }
+
+    @CommandHandler(
+            "channel leave",
+            description = "Leave a channel"
+    )
+    fun leave(sender: CommandSender, @Default(minArgs = 0) channel: ChannelInstance) {
+        sender.chatter.removeInstance(channel)
+    }
+
+    @CommandHandler(
+            "channel info",
+            description = "View information about a channel"
+    )
+    fun info(sender: CommandSender, @Default(minArgs = 0) channel: Channel): ListBuilder {
+        val builder = ListBuilder()
+
+        builder.header("subtitle", "Channel Info", "${channel.color}${channel.name}")
+
+        builder.element("element_description", "Description", channel.description)
+        builder.element("element_description", "Range", if (channel.radius == -1) {
+            "${ChatColor.ITALIC}Global"
+        } else {
+            "${channel.radius} block${if (channel.radius == 1) "" else "s"}"
+        })
+
+        if (sender.hasPermission(PermissionNodes.BYPASS_VISIBLE)) {
+            builder.element("element_description", "Instances", channel.instances.size.toString())
+        }
+
+        return builder
+    }
+
+    @CommandHandler(
+            "channel who",
+            description = "View a list of chatters in a channel"
+    )
+    fun who(sender: CommandSender, @Default(minArgs = 0) channel: ChannelInstance): ListBuilder {
+        val chatter = sender.chatter
+
+        val builder = ListBuilder()
+
+        if (chatter.shouldSendSpecificInstanceMessage(channel)) {
+            builder.header("subtitle", "Chatters", Message.processedObjectRaw("flexchat_instance",
+                    channel.channel.color, channel.channel.name, channel.name))
+        } else {
+            builder.header("subtitle", "Chatters", Message.processedObjectRaw("flexchat_channel",
+                    channel.channel.color, channel.channel.name))
+        }
+
+        builder.element("element", channel.getVisibleChatters(chatter)
+                .sortedBy { it.name }
+                .joinToString(", ") { it.name })
+
+        return builder
     }
 
     @CommandHandler(
@@ -67,10 +112,10 @@ object CmdChannel {
             permission = "flexchat.channels.list"
     )
     fun list(sender: CommandSender, @Default("1") page: Int): ListBuilder {
-        val module = FlexPlugin.getPluginModule(FlexChat::class, ChannelModule::class)!!
+        val module = FlexPlugin.getPluginModule(FlexChat::class, ChannelModule::class)
         val channels = ArrayList(FlexChatAPI.channels.getChannels())
 
-        val chatter = sender.getChatter()
+        val chatter = sender.chatter
         val activeChannel = chatter.activeChannel
 
         /*
@@ -110,7 +155,7 @@ object CmdChannel {
         builder.header("page", "Chat Channels")
 
         for (channel in channels) {
-            builder.element("flexchat_list_channel",
+            builder.element("flexchat_channel",
                     // Active
                     if (channel == activeChannel) {
                         module.activeChannelSymbol

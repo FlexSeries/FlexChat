@@ -34,6 +34,7 @@ enum class PermissionNodes : PermissionNode {
 
     BYPASS_IGNORE,
     BYPASS_JOIN,
+    BYPASS_LEAVE,
     BYPASS_MUTE,
     BYPASS_VISIBLE;
 

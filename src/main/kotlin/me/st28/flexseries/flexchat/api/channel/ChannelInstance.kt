@@ -17,6 +17,7 @@
 package me.st28.flexseries.flexchat.api.channel
 
 import me.st28.flexseries.flexchat.api.chatter.Chatter
+import me.st28.flexseries.flexchat.api.chatter.PlayerChatter
 import java.util.*
 
 /**
@@ -32,6 +33,20 @@ class ChannelInstance(val channel: Channel, val name: String) {
     internal val chatters: MutableSet<Chatter> = HashSet()
 
     /**
+     * @return A collection of chatters visible to the given chatter.
+     */
+    fun getVisibleChatters(chatter: Chatter): Collection<Chatter> {
+        return if (channel.radius == -1 || chatter !is PlayerChatter) {
+            ArrayList(chatters)
+        } else {
+            val rad2 = channel.radius * channel.radius
+            chatters.filter {
+                (it !is PlayerChatter) || (it.player.location.distanceSquared(chatter.player.location) < rad2)
+            }
+        }
+    }
+
+    /**
      * @return True if this instance contains the specified [Chatter].
      */
     fun containsChatter(chatter: Chatter): Boolean {
@@ -44,6 +59,14 @@ class ChannelInstance(val channel: Channel, val name: String) {
 
     fun addChatterUnsafe(chatter: Chatter, silent: Boolean): Boolean {
         return chatter.addInstanceUnsafe(this, silent)
+    }
+
+    fun removeChatter(chatter: Chatter, silent: Boolean): LeaveResult {
+        return chatter.removeInstance(this, silent)
+    }
+
+    fun removeChatterUnsafe(chatter: Chatter, silent: Boolean): Boolean {
+        return chatter.removeInstanceUnsafe(this, silent)
     }
 
     enum class JoinResult {
@@ -67,6 +90,28 @@ class ChannelInstance(val channel: Channel, val name: String) {
          * The chatter is already in the channel instance.
          */
         ALREADY_JOINED;
+
+        val isSuccess: Boolean
+            get() = this == SUCCESS
+
+    }
+
+    enum class LeaveResult {
+
+        /**
+         * The chatter successfully left the channel instance.
+         */
+        SUCCESS,
+
+        /**
+         * The chatter does not have permission to leave instances of the channel.
+         */
+        NO_PERMISSION,
+
+        /**
+         * The chatter is not in the channel instance.
+         */
+        NOT_JOINED;
 
         val isSuccess: Boolean
             get() = this == SUCCESS

@@ -5,15 +5,17 @@ alert:
     # 1: Chatter display name
     # 2: Channel color
     # 3: Channel name
-    chatter_joined: '{TAG}&a&o{1} &a&ojoined channel {2}&o{3}'
-    chatter_joined_specific: '{TAG}&a&o'
+    chatter_joined: '{TAG}&a&o{1} &a&ojoined channel {$flexchat_channel {1}{,}{2} $}'
+    chatter_joined_specific: '{TAG}&a&o{1} &a&ojoined channel {$flexchat_instance {1}{,}{2}{,}{3} $}'
+    chatter_left: '{TAG}&c&o{1} &c&oleft channel {$flexchat_channel {1}{,}{2} $}'
+    chatter_left_specific: '{TAG}&c&o{1} &c&oleft channel {$flexchat_instance {1}{,}{2}{,}{3} $}'
 
 error:
   unable_to_chat: '{#error#}An internal error occurred. Please contact a staff member.'
   unable_to_chat_channel_muted: '{#error#}Channel {$item {1} $} is muted.'
 
   chatter:
-    not_found: '{#error#}Unable to find chatter {$player {1} $}'
+    not_found: '{#error#}Unable to find chatter {$input {1} $}'
 
   channel:
     active_not_set: '{#error#}You do not have an active channel set.'
@@ -27,6 +29,8 @@ error:
       already_joined_specific: '{#error#}You are already in channel {$flexchat_instance {1}{,}{2}{,}{3} $}'
       no_default: '{#error#}Channel {$input_sanitized {1} $} does not have a default instance.'
       not_found: '{#error#}Unknown channel instance {$flexchat_instance {1}{,}{2}{,}{3} $}'
+      not_joined: '{#error#}You are not in channel {$flexchat_channel {1}{,}{2} $}'
+      not_joined_specific: '{#error#}You are not in channel {$flexchat_instance {1}{,}{2}{,}{3} $}'
 
 notice:
   channel:

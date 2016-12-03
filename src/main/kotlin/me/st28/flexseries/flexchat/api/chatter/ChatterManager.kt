@@ -48,12 +48,17 @@ interface ChatterManager {
     fun getChatter(identifier: String): Chatter?
 
     /**
+     * @return A [Chatter] instance matching the given name.
+     *         Null if no match was found.
+     */
+    fun getChatterByName(name: String): Chatter?
+
+    /**
      * @return The [Chatter] instance for a CommandSender.
      */
     fun getChatter(sender: CommandSender): Chatter
 
 }
 
-fun <T : CommandSender> T.getChatter(): Chatter {
-    return FlexChatAPI.chatters.getChatter(this)
-}
+val <T : CommandSender> T.chatter: Chatter
+    get() = FlexChatAPI.chatters.getChatter(this)
