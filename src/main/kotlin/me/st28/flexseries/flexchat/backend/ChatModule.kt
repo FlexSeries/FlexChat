@@ -42,13 +42,7 @@ class ChatModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chat", "Manag
     private val defaultFormats: MutableMap<String, String> = HashMap()
     private val messageFormats: MutableMap<String, String> = HashMap()
 
-    override fun handleReload(isFirstReload: Boolean) {
-        if (isFirstReload) {
-            return
-        }
-
-        val config = getConfig()
-
+    override fun handleReload() {
         /* Reload chat configuration */
 
         // Default format
@@ -98,7 +92,7 @@ class ChatModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chat", "Manag
 
         providers.put(key, provider)
 
-        val providerConfig = getConfig().getConfigurationSection(provider.name)
+        val providerConfig = config.getConfigurationSection(provider.name)
         provider.enable(providerConfig)
 
         if (provider is Listener) {

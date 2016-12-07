@@ -50,13 +50,7 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
      */
     private val loadedChannels: MutableSet<String> = HashSet()
 
-    override fun handleReload(isFirstReload: Boolean) {
-        if (isFirstReload) {
-            return
-        }
-
-        val config = getConfig()
-
+    override fun handleReload() {
         /* Reload configuration */
         defaultDescription = config.getString("default description", "&c&oNo description set")
         activeChannelSymbol = StringEscapeUtils.unescapeJava(config.getString("active symbol.channel")).translateColorCodes()

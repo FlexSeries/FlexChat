@@ -25,4 +25,4 @@ object formats:
   # 1: Color
   # 2: Channel
   # 3: Instance
-  channel: '{1}{2}&8/&7{3}'
+  instance: '{1}{2}&8/&7{3}'

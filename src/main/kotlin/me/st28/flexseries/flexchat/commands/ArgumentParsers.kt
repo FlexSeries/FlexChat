@@ -31,14 +31,16 @@ object ChannelParser : ArgumentParser<Channel>() {
         val channelName = raw[0]
         return if (channelName.isEmpty()) {
             FlexChatAPI.chatters.getChatter(context.sender).activeChannel
+                    ?: throw ArgumentParseException(FlexChat::class, "error.channel.active_not_set")
         } else {
             FlexChatAPI.channels.getChannel(raw[0])
-        } ?: throw ArgumentParseException(FlexChat::class, "error.channel.not_found", raw[0])
+                    ?: throw ArgumentParseException(FlexChat::class, "error.channel.not_found", raw[0])
+        }
     }
 
 }
 
-object ChannelInstanceParser : ArgumentParser<ChannelInstance>(2) {
+object ChannelInstanceParser : ArgumentParser<ChannelInstance>(2, defaultLabels = arrayOf("instance")) {
 
     override fun parse(context: CommandContext, config: ArgumentConfig, raw: Array<String>): ChannelInstance? {
         val channel = ChannelParser.parse(context, config, raw)!!

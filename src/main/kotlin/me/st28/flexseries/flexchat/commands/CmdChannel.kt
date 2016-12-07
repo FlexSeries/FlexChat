@@ -39,7 +39,7 @@ object CmdChannel {
             "channel",
             description = "Switch active channel"
     )
-    fun switch(sender: CommandSender, channel: ChannelInstance) {
+    fun switch(sender: CommandSender, @Default(minArgs = 1) channel: ChannelInstance) {
         sender.chatter.setActiveInstance(channel)
     }
 
@@ -55,7 +55,7 @@ object CmdChannel {
             "channel leave",
             description = "Leave a channel"
     )
-    fun leave(sender: CommandSender, @Default(minArgs = 0) channel: ChannelInstance) {
+    fun leave(sender: CommandSender, @Default channel: ChannelInstance) {
         sender.chatter.removeInstance(channel)
     }
 
@@ -63,7 +63,7 @@ object CmdChannel {
             "channel info",
             description = "View information about a channel"
     )
-    fun info(sender: CommandSender, @Default(minArgs = 0) channel: Channel): ListBuilder {
+    fun info(sender: CommandSender, @Default channel: Channel): ListBuilder {
         val builder = ListBuilder()
 
         builder.header("subtitle", "Channel Info", "${channel.color}${channel.name}")
@@ -86,7 +86,7 @@ object CmdChannel {
             "channel who",
             description = "View a list of chatters in a channel"
     )
-    fun who(sender: CommandSender, @Default(minArgs = 0) channel: ChannelInstance): ListBuilder {
+    fun who(sender: CommandSender, @Default channel: ChannelInstance): ListBuilder {
         val chatter = sender.chatter
 
         val builder = ListBuilder()
@@ -109,6 +109,7 @@ object CmdChannel {
     @CommandHandler(
             "channel list",
             description = "List channels",
+            isDefault = true,
             permission = "flexchat.channels.list"
     )
     fun list(sender: CommandSender, @Default("1") page: Int): ListBuilder {
@@ -154,7 +155,33 @@ object CmdChannel {
         builder.page(page, channels.size)
         builder.header("page", "Chat Channels")
 
-        for (channel in channels) {
+        builder.elements("flexchat_channel") { index ->
+            val channel = channels[index]
+
+            arrayOf(
+                // Active
+                if (channel == activeChannel) {
+                    module.activeChannelSymbol
+                } else {
+                    ""
+                },
+
+                // Color
+                channel.color.toString(),
+
+                // Name
+                channel.name,
+
+                // Status
+                if (chatter.isInChannel(channel)) {
+                    "${ChatColor.GREEN}joined"
+                } else {
+                    "${ChatColor.RED}not joined"
+                }
+            )
+        }
+
+        /*for (channel in channels) {
             builder.element("flexchat_channel",
                     // Active
                     if (channel == activeChannel) {
@@ -176,7 +203,7 @@ object CmdChannel {
                         "${ChatColor.RED}not joined"
                     }
             )
-        }
+        }*/
 
         return builder
     }

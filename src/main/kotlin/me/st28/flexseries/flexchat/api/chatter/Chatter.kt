@@ -112,7 +112,7 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
     }
 
     internal fun shouldSendSpecificInstanceMessage(instance: ChannelInstance): Boolean {
-        return (instance == instance.channel.getDefaultInstance() ||
+        return !(instance == instance.channel.getDefaultInstance() ||
                 (instance.channel.getVisibleInstances(this).size == 1 && channels[instance.channel]!!.size <= 1))
     }
 
@@ -120,11 +120,11 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
         if (isInInstance(instance)) {
             if (!silent) {
                 if (shouldSendSpecificInstanceMessage(instance)) {
-                    Message.get(FlexChat::class, "error.channel.instance.already_joined",
-                            instance.channel.color, instance.channel.name).sendTo(this)
-                } else {
                     Message.get(FlexChat::class, "error.channel.instance.already_joined_specific",
                             instance.channel.color, instance.channel.name, instance.name).sendTo(this)
+                } else {
+                    Message.get(FlexChat::class, "error.channel.instance.already_joined",
+                            instance.channel.color, instance.channel.name).sendTo(this)
                 }
             }
             return false
@@ -136,11 +136,11 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
         if (!isInInstance(instance)) {
             if (!silent) {
                 if (shouldSendSpecificInstanceMessage(instance)) {
-                    Message.get(FlexChat::class, "error.channel.instance.not_joined",
-                            instance.channel.color, instance.channel.name).sendTo(this)
-                } else {
                     Message.get(FlexChat::class, "error.channel.instance.not_joined_specific",
                             instance.channel.color, instance.channel.name, instance.name).sendTo(this)
+                } else {
+                    Message.get(FlexChat::class, "error.channel.instance.not_joined",
+                            instance.channel.color, instance.channel.name).sendTo(this)
                 }
             }
             return false
@@ -223,7 +223,7 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
         channels.getOrPut(instance.channel, { HashSet() }).add(instance)
 
         if (!silent) {
-            val replacements = arrayOf(instance.channel.color, instance.channel.name, instance.name)
+            val replacements = arrayOf(displayName, instance.channel.color, instance.channel.name, instance.name)
 
             // Send vague messages
             Message.get(FlexChat::class, "alert.channel.chatter_joined", *replacements).sendTo(
@@ -291,7 +291,7 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
         }
 
         if (!silent) {
-            val replacements = arrayOf(instance.channel.color, instance.channel.name, instance.name)
+            val replacements = arrayOf(displayName, instance.channel.color, instance.channel.name, instance.name)
 
             // Send vague messages
             Message.get(FlexChat::class, "alert.channel.chatter_left", *replacements).sendTo(
@@ -304,6 +304,14 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
 
         // Remove after leave message is sent so this chatter also receives the message
         instance.chatters.remove(this)
+
+        // Unset active instance
+        // TODO: Go to next active instance
+        if (activeInstance == instance) {
+            activeInstance = null
+        }
+
+        // Remove instance
         val instances = channels[instance.channel]
         if (instances != null) {
             instances.remove(instance)
@@ -320,10 +328,10 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
                 // Send already active message
                 if (shouldSendSpecificInstanceMessage(instance)) {
                     Message.get(FlexChat::class, "error.channel.instance.already_active_specific",
-                            instance.channel.color, instance.channel, instance.name)
+                            instance.channel.color, instance.channel.name, instance.name)
                 } else {
                     Message.get(FlexChat::class, "error.channel.instance.already_active",
-                            instance.channel.color, instance.channel)
+                            instance.channel.color, instance.channel.name)
                 }.sendTo(this)
             }
             return false

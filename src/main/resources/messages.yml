@@ -5,10 +5,10 @@ alert:
     # 1: Chatter display name
     # 2: Channel color
     # 3: Channel name
-    chatter_joined: '{TAG}&a&o{1} &a&ojoined channel {$flexchat_channel {1}{,}{2} $}'
-    chatter_joined_specific: '{TAG}&a&o{1} &a&ojoined channel {$flexchat_instance {1}{,}{2}{,}{3} $}'
-    chatter_left: '{TAG}&c&o{1} &c&oleft channel {$flexchat_channel {1}{,}{2} $}'
-    chatter_left_specific: '{TAG}&c&o{1} &c&oleft channel {$flexchat_instance {1}{,}{2}{,}{3} $}'
+    chatter_joined: '{TAG}&a&o{1} &a&ojoined channel {$flexchat_channel {2}{,}{3} $}'
+    chatter_joined_specific: '{TAG}&a&o{1} &a&ojoined channel {$flexchat_instance {2}{,}{3}{,}{4} $}'
+    chatter_left: '{TAG}&c&o{1} &c&oleft channel {$flexchat_channel {2}{,}{3} $}'
+    chatter_left_specific: '{TAG}&c&o{1} &c&oleft channel {$flexchat_instance {2}{,}{3}{,}{4} $}'
 
 error:
   unable_to_chat: '{#error#}An internal error occurred. Please contact a staff member.'
