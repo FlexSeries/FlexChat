@@ -397,7 +397,7 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
             } else {
                 Message.get(FlexChat::class, "notice.channel.active_set",
                         instance.channel.color, instance.channel.name)
-            }
+            }.sendTo(this)
         }
         return true
     }
