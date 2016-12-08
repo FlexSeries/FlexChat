@@ -116,7 +116,7 @@ class ChannelInstance(val channel: Channel, val name: String) {
      */
     fun kickChatter(chatter: Chatter, kicker: Chatter? = null, silent: Boolean): LeaveResult {
         // Perform permission check
-        if (kicker != null && kicker.hasPermission(PermissionNodes.KICK.withVariables(channel.name))) {
+        if (kicker != null && !kicker.hasPermission(PermissionNodes.KICK.withVariables(channel.name))) {
             if (!silent) {
                 Message.get(FlexChat::class, "error.channel.no_permission_kick").sendTo(kicker)
             }

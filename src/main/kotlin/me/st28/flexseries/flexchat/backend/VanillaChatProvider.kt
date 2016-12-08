@@ -22,7 +22,7 @@ import me.st28.flexseries.flexchat.api.ChatProvider
 import me.st28.flexseries.flexchat.api.FlexChatAPI
 import me.st28.flexseries.flexchat.api.chatter.PlayerChatter
 import me.st28.flexseries.flexlib.message.Message
-import me.st28.flexseries.flexlib.permission.PermissionNode
+import me.st28.flexseries.flexlib.permission.withVariables
 import net.milkbowl.vault.chat.Chat
 import net.milkbowl.vault.permission.Permission
 import org.bukkit.Bukkit
@@ -96,7 +96,7 @@ class VanillaChatProvider(plugin: FlexChat) : ChatProvider(plugin, "vanilla"), L
             val visible = it.getVisibleInstances(chatter)
 
             // If only one instance is visible and the chatter has permission to autojoin, add them.
-            if (visible.size == 1 && chatter.hasPermission(PermissionNode.buildVariableNode(PermissionNodes.AUTOJOIN, it.name))) {
+            if (visible.size == 1 && chatter.hasPermission(PermissionNodes.AUTOJOIN.withVariables(it.name))) {
                 chatter.addInstance(visible.first(), true)
             }
         }

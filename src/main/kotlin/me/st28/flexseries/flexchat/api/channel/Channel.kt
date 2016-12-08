@@ -38,6 +38,12 @@ abstract class Channel(
         val radius: Int
 ) {
 
+    companion object {
+
+        val DEFAULT_INSTANCE = "(default)"
+
+    }
+
     /**
      * The instances of this channel.
      */
@@ -65,7 +71,7 @@ abstract class Channel(
      *         Null if this channel does not have a default instance.
      */
     fun getDefaultInstance(): ChannelInstance? {
-        return instances[""]
+        return instances[DEFAULT_INSTANCE]
     }
 
     /**

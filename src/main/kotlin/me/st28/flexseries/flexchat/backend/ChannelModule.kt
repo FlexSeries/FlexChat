@@ -24,6 +24,7 @@ import me.st28.flexseries.flexchat.api.channel.ChannelManager
 import me.st28.flexseries.flexlib.logging.LogHelper
 import me.st28.flexseries.flexlib.message.MasterMessageModule
 import me.st28.flexseries.flexlib.permission.PermissionNode
+import me.st28.flexseries.flexlib.permission.withVariables
 import me.st28.flexseries.flexlib.plugin.FlexModule
 import me.st28.flexseries.flexlib.plugin.FlexPlugin
 import me.st28.flexseries.flexlib.plugin.storage.flatfile.YamlFileManager
@@ -56,7 +57,7 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
         activeChannelSymbol = StringEscapeUtils.unescapeJava(config.getString("active symbol.channel")).translateColorCodes()
         activeInstanceSymbol = StringEscapeUtils.unescapeJava(config.getString("active symbol.instance")).translateColorCodes()
 
-        val messageModule = FlexPlugin.getGlobalModule(MasterMessageModule::class)!!
+        val messageModule = FlexPlugin.getGlobalModule(MasterMessageModule::class)
 
         // Register list element formats
         messageModule.registerElementFormat(
@@ -100,10 +101,12 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
                         ChatColor.valueOf(yaml.getString("color", "WHITE").toUpperCase()),
                         yaml.getInt("radius", -1)
                 )
-                channel.instances.put("", ChannelInstance(channel, ""))
+                channel.instances.put(Channel.DEFAULT_INSTANCE, ChannelInstance(channel, Channel.DEFAULT_INSTANCE))
 
                 channels.put(channel.name.toLowerCase(), channel)
                 loadedChannels.add(channel.name.toLowerCase())
+
+                registerPermissions(channel.name)
             } catch (ex: Exception) {
                 LogHelper.severe(this, "An exception occurred while loading channel from file '${file.name}'", ex)
             }
@@ -156,13 +159,14 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
         // Convenience lambda
         val reg = fun(node: PermissionNode, default: PermissionDefault) {
             pm.addPermission(
-                    Permission(PermissionNode.buildVariableNode(node, channelName).node, default)
+                    Permission(node.withVariables(channelName).node, default)
             )
         }
 
         reg(PermissionNodes.AUTOJOIN, PermissionDefault.FALSE)
         reg(PermissionNodes.INFO, PermissionDefault.TRUE)
         reg(PermissionNodes.JOIN, PermissionDefault.OP)
+        reg(PermissionNodes.KICK, PermissionDefault.OP)
         reg(PermissionNodes.LEAVE, PermissionDefault.OP)
         reg(PermissionNodes.CHAT, PermissionDefault.OP)
         reg(PermissionNodes.VIEW, PermissionDefault.TRUE)
@@ -183,6 +187,7 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
         unreg(PermissionNodes.AUTOJOIN)
         unreg(PermissionNodes.INFO)
         unreg(PermissionNodes.JOIN)
+        unreg(PermissionNodes.KICK)
         unreg(PermissionNodes.LEAVE)
         unreg(PermissionNodes.CHAT)
         unreg(PermissionNodes.VIEW)

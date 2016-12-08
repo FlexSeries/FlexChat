@@ -21,9 +21,11 @@ import me.st28.flexseries.flexchat.PermissionNodes
 import me.st28.flexseries.flexchat.api.ChatProvider
 import me.st28.flexseries.flexchat.api.channel.Channel
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance
+import me.st28.flexseries.flexchat.backend.ChannelModule
 import me.st28.flexseries.flexlib.message.Message
 import me.st28.flexseries.flexlib.permission.PermissionNode
 import me.st28.flexseries.flexlib.permission.withVariables
+import me.st28.flexseries.flexlib.plugin.FlexPlugin
 import me.st28.flexseries.flexlib.util.GenericDataContainer
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.ConfigurationSection
@@ -74,14 +76,57 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
      * Loads this chatter's configuration from the given configuration section.
      */
     open fun load(config: ConfigurationSection) {
-        // TODO: Load channels + instances
+        val channelModule = FlexPlugin.getPluginModule(FlexChat::class, ChannelModule::class)
+
+        val channelSec = config.getConfigurationSection("channels")
+        if (channelSec != null) {
+            for ((rawChannel, rawList) in channelSec.getValues(false)) {
+                if (rawList !is List<*>) {
+                    continue
+                }
+
+                val channel = channelModule.getChannel(rawChannel) ?: continue
+
+                channelSec.getStringList(rawChannel).forEach {
+                    val inst = channel.getInstance(it) ?: return@forEach
+
+                    addInstance(inst, true)
+                }
+            }
+        }
+
+        val rawActiveChannel = config.getString("active.channel")
+        val rawActiveInstance = config.getString("active.instance")
+        if (rawActiveChannel != null && rawActiveInstance != null) {
+            val foundInst = channelModule.getChannel(rawActiveChannel)?.getInstance(rawActiveInstance)
+
+            if (foundInst != null && foundInst.containsChatter(this)) {
+                activeInstance = foundInst
+            }
+        }
     }
 
     /**
      * Saves this chatter's configuration to the given configuration section.
      */
     open fun save(config: ConfigurationSection) {
-        // TODO: Save channels + instances
+        for ((channel, instList) in channels) {
+            val key = "channels.${channel.name}"
+
+            if (instList.isEmpty()) {
+                config.set(key, null)
+                continue
+            }
+
+            config.set(key, instList.map { it.name })
+        }
+
+        if (activeInstance == null) {
+            config.set("active", null)
+        } else {
+            config.set("active.channel", activeChannel!!.name)
+            config.set("active.instance", activeInstance!!.name)
+        }
     }
 
     /**

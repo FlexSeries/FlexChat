@@ -30,17 +30,29 @@ class ChatterModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chatters",
 
     internal val chatters: MutableMap<String, Chatter> = HashMap()
 
+    override fun handleSave(async: Boolean) {
+        chatters.values.forEach { saveChatter(it) }
+    }
+
+    private fun getChatterFile(chatter: Chatter): YamlFileManager {
+        return YamlFileManager(dataFolder.path + File.separator + chatter.provider.name + File.separator + chatter.identifier + ".yml")
+    }
+
     override fun registerChatter(chatter: Chatter) {
         chatters.put(chatter.identifier, chatter)
 
-        // TODO: Load chatter
-        val file = YamlFileManager(dataFolder.path + File.separator + chatter.provider.name + File.separator + chatter.identifier + ".yml")
+        val file = getChatterFile(chatter)
         if (file.isEmpty()) {
             chatter.data.set("isNew", true)
         }
+
+        chatter.load(file.config)
     }
 
     override fun saveChatter(chatter: Chatter) {
+        val file = getChatterFile(chatter)
+        chatter.save(file.config)
+        file.save()
     }
 
     override fun unregisterChatter(chatter: Chatter) {
