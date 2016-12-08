@@ -17,12 +17,10 @@
 package me.st28.flexseries.flexchat.backend
 
 import me.st28.flexseries.flexchat.FlexChat
-import me.st28.flexseries.flexchat.PermissionNodes
 import me.st28.flexseries.flexchat.api.ChatProvider
 import me.st28.flexseries.flexchat.api.FlexChatAPI
 import me.st28.flexseries.flexchat.api.chatter.PlayerChatter
 import me.st28.flexseries.flexlib.message.Message
-import me.st28.flexseries.flexlib.permission.withVariables
 import net.milkbowl.vault.chat.Chat
 import net.milkbowl.vault.permission.Permission
 import org.bukkit.Bukkit
@@ -90,22 +88,6 @@ class VanillaChatProvider(plugin: FlexChat) : ChatProvider(plugin, "vanilla"), L
     fun onPlayerJoin(e: PlayerJoinEvent) {
         val chatter = PlayerChatter(this, e.player)
         registerChatter(chatter)
-
-        // Attempt to add chatter to autojoinable channels
-        FlexChatAPI.channels.getChannels().forEach {
-            val visible = it.getVisibleInstances(chatter)
-
-            // If only one instance is visible and the chatter has permission to autojoin, add them.
-            if (visible.size == 1 && chatter.hasPermission(PermissionNodes.AUTOJOIN.withVariables(it.name))) {
-                chatter.addInstance(visible.first(), true)
-            }
-        }
-
-        // Set active instance
-        val defaultInstance = FlexChatAPI.channels.getDefaultChannel()?.getDefaultInstance()
-        if (defaultInstance != null && defaultInstance.containsChatter(chatter)) {
-            chatter.activeInstance = defaultInstance
-        }
     }
 
     @EventHandler

@@ -17,8 +17,11 @@
 package me.st28.flexseries.flexchat.backend
 
 import me.st28.flexseries.flexchat.FlexChat
+import me.st28.flexseries.flexchat.PermissionNodes
+import me.st28.flexseries.flexchat.api.FlexChatAPI
 import me.st28.flexseries.flexchat.api.chatter.Chatter
 import me.st28.flexseries.flexchat.api.chatter.ChatterManager
+import me.st28.flexseries.flexlib.permission.withVariables
 import me.st28.flexseries.flexlib.plugin.FlexModule
 import me.st28.flexseries.flexlib.plugin.storage.flatfile.YamlFileManager
 import org.bukkit.command.CommandSender
@@ -42,11 +45,34 @@ class ChatterModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chatters",
         chatters.put(chatter.identifier, chatter)
 
         val file = getChatterFile(chatter)
+        val isNew: Boolean
+
         if (file.isEmpty()) {
+            isNew = true
             chatter.data.set("isNew", true)
+        } else {
+            isNew = false
         }
 
         chatter.load(file.config)
+
+        // Attempt to add chatter to autojoinable channels
+        FlexChatAPI.channels.getChannels().forEach {
+            val visible = it.getVisibleInstances(chatter)
+
+            // If only one instance is visible and the chatter has permission to autojoin, add them.
+            if (visible.size == 1 && chatter.hasPermission(PermissionNodes.AUTOJOIN.withVariables(it.name))) {
+                chatter.addInstance(visible.first(), true)
+            }
+        }
+
+        // Set active instance to default, if chatter is new
+        if (isNew) {
+            val defaultInstance = FlexChatAPI.channels.getDefaultChannel()?.getDefaultInstance()
+            if (defaultInstance != null && defaultInstance.containsChatter(chatter)) {
+                chatter.activeInstance = defaultInstance
+            }
+        }
     }
 
     override fun saveChatter(chatter: Chatter) {

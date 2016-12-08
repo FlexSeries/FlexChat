@@ -16,8 +16,10 @@
  */
 package me.st28.flexseries.flexchat.api
 
+import me.st28.flexseries.flexchat.PermissionNodes
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance
 import me.st28.flexseries.flexchat.api.chatter.Chatter
+import me.st28.flexseries.flexlib.permission.withVariables
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
