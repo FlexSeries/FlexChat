@@ -44,9 +44,9 @@ notice:
   channel:
     # 1: Channel color
     # 2: Channel name
-    active_set: '{TAG}{#notice#}&oNow chatting in {1}&o{2}'
+    active_set: '{TAG}{#notice#}&oNow chatting in {$flexchat_channel {1}{,}{2} $}'
 
     # 1: Channel color
     # 2: Channel name
     # 3: Instance name
-    active_set_specific: '{TAG}{#notice#}&oNow chatting in {1}&o{2}&8&o/&7&o{3}'
+    active_set_specific: '{TAG}{#notice#}&oNow chatting in {$flexchat_instance {1}{,}{2}{,}{3} $}'
