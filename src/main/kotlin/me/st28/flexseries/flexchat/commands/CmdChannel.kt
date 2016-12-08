@@ -21,6 +21,7 @@ import me.st28.flexseries.flexchat.PermissionNodes
 import me.st28.flexseries.flexchat.api.FlexChatAPI
 import me.st28.flexseries.flexchat.api.channel.Channel
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance
+import me.st28.flexseries.flexchat.api.chatter.Chatter
 import me.st28.flexseries.flexchat.api.chatter.chatter
 import me.st28.flexseries.flexchat.backend.ChannelModule
 import me.st28.flexseries.flexlib.command.CommandHandler
@@ -45,7 +46,8 @@ object CmdChannel {
 
     @CommandHandler(
             "channel join",
-            description = "Join a channel"
+            description = "Join a channel",
+            permission = "flexchat.join"
     )
     fun join(sender: CommandSender, @Default(minArgs = 1) channel: ChannelInstance) {
         sender.chatter.addInstance(channel)
@@ -53,7 +55,8 @@ object CmdChannel {
 
     @CommandHandler(
             "channel leave",
-            description = "Leave a channel"
+            description = "Leave a channel",
+            permission = "flexchat.leave"
     )
     fun leave(sender: CommandSender, @Default channel: ChannelInstance) {
         sender.chatter.removeInstance(channel)
@@ -61,7 +64,8 @@ object CmdChannel {
 
     @CommandHandler(
             "channel info",
-            description = "View information about a channel"
+            description = "View information about a channel",
+            permission = "flexchat.info"
     )
     fun info(sender: CommandSender, @Default channel: Channel): ListBuilder {
         val builder = ListBuilder()
@@ -84,10 +88,20 @@ object CmdChannel {
 
     @CommandHandler(
             "channel who",
-            description = "View a list of chatters in a channel"
+            description = "View a list of chatters in a channel",
+            permission = "flexchat.who"
     )
-    fun who(sender: CommandSender, @Default channel: ChannelInstance): ListBuilder {
+    fun who(sender: CommandSender, @Default channel: ChannelInstance): Any {
         val chatter = sender.chatter
+
+        if (!channel.containsChatter(chatter) && !chatter.hasPermission(PermissionNodes.WHO_OTHER)) {
+            val replacements = arrayOf(channel.channel.color, channel.channel.name, channel.name)
+            if (chatter.shouldSendSpecificInstanceMessage(channel)) {
+                return Message.get(FlexChat::class, "error.channel.instance.not_joined_specific", *replacements)
+            } else {
+                return Message.get(FlexChat::class, "error.channel.instance.not_joined", *replacements)
+            }
+        }
 
         val builder = ListBuilder()
 
@@ -110,7 +124,7 @@ object CmdChannel {
             "channel list",
             description = "List channels",
             isDefault = true,
-            permission = "flexchat.channels.list"
+            permission = "flexchat.list"
     )
     fun list(sender: CommandSender, @Default("1") page: Int): ListBuilder {
         val module = FlexPlugin.getPluginModule(FlexChat::class, ChannelModule::class)
@@ -206,6 +220,24 @@ object CmdChannel {
         }*/
 
         return builder
+    }
+
+    @CommandHandler(
+            "channel kick",
+            description = "Kick a chatter from a channel",
+            permission = "flexchat.kick"
+    )
+    fun kick(sender: CommandSender, chatter: Chatter, @Default channel: ChannelInstance) {
+        channel.kickChatter(chatter, sender.chatter, false)
+    }
+
+    @CommandHandler(
+            "channel mute",
+            description = "Mute a channel",
+            permission = "flexchat.mute"
+    )
+    fun mute(sender: CommandSender, @Default channel: ChannelInstance) {
+        sender.sendMessage("NYI")
     }
 
 }

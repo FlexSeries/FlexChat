@@ -16,8 +16,13 @@
  */
 package me.st28.flexseries.flexchat.api.channel
 
+import me.st28.flexseries.flexchat.FlexChat
+import me.st28.flexseries.flexchat.PermissionNodes
 import me.st28.flexseries.flexchat.api.chatter.Chatter
 import me.st28.flexseries.flexchat.api.chatter.PlayerChatter
+import me.st28.flexseries.flexchat.api.chatter.sendTo
+import me.st28.flexseries.flexlib.message.Message
+import me.st28.flexseries.flexlib.permission.withVariables
 import java.util.*
 
 /**
@@ -53,20 +58,120 @@ class ChannelInstance(val channel: Channel, val name: String) {
         return chatters.contains(chatter)
     }
 
+    /**
+     * @see Chatter.addInstance
+     */
     fun addChatter(chatter: Chatter, silent: Boolean): JoinResult {
         return chatter.addInstance(this, silent)
     }
 
+    /**
+     * @see Chatter.addInstanceUnsafe
+     */
     fun addChatterUnsafe(chatter: Chatter, silent: Boolean): Boolean {
         return chatter.addInstanceUnsafe(this, silent)
     }
 
+    /**
+     * @see Chatter.removeInstance
+     */
     fun removeChatter(chatter: Chatter, silent: Boolean): LeaveResult {
         return chatter.removeInstance(this, silent)
     }
 
+    /**
+     * @see Chatter.removeInstanceUnsafe
+     */
     fun removeChatterUnsafe(chatter: Chatter, silent: Boolean): Boolean {
         return chatter.removeInstanceUnsafe(this, silent)
+    }
+
+    private fun performChatterKickCheck(chatter: Chatter, kicker: Chatter?, silent: Boolean): Boolean {
+        if (!containsChatter(chatter)) {
+            if (!silent && kicker != null) {
+                val replacements = arrayOf(chatter.displayName, channel.color, channel.name, name)
+                if (kicker.shouldSendSpecificInstanceMessage(this)) {
+                    Message.get(FlexChat::class, "error.chatter.not_in_instance_specific", *replacements)
+                } else {
+                    Message.get(FlexChat::class, "error.chatter.not_in_instance", *replacements)
+                }
+            }
+            return false
+        }
+        return true
+    }
+
+    /**
+     * Kicks a chatter from the instance.
+     * This method will perform permission checks.
+     *
+     * @param chatter The [Chatter] to kick.
+     * @param kicker The [Chatter] performing the kick.
+     *               Null to send a generic kick message.
+     * @param silent If true, will not send any messages.
+     *
+     * @return SUCCESS if the chatter was successfully kicked.
+     *         NO_PERMISSION if the kicker is not null and doesn't have permission to kick.
+     *         NOT_JOINED if the target is not in the instance.
+     */
+    fun kickChatter(chatter: Chatter, kicker: Chatter? = null, silent: Boolean): LeaveResult {
+        // Perform permission check
+        if (kicker != null && kicker.hasPermission(PermissionNodes.KICK.withVariables(channel.name))) {
+            if (!silent) {
+                Message.get(FlexChat::class, "error.channel.no_permission_kick").sendTo(kicker)
+            }
+            return LeaveResult.NO_PERMISSION
+        }
+
+        // Perform join check
+        if (!performChatterKickCheck(chatter, kicker, silent)) {
+            return LeaveResult.NOT_JOINED
+        }
+
+        if (kickChatterUnsafe(chatter, kicker, silent)) {
+            return LeaveResult.SUCCESS
+        } else {
+            // Should never happen since this is handled above
+            return LeaveResult.NOT_JOINED
+        }
+    }
+
+    /**
+     * Kicks a chatter from the instance.
+     * This method does not perform any checks.
+     *
+     * @param chatter The [Chatter] to kick.
+     * @param kicker The [Chatter] performing the kick.
+     *               Null to send a generic kick message.
+     * @param silent If true, will not send any messages.
+     *
+     * @return True if the chatter was successfully kicked.
+     *         False if the chatter is not in this instance.
+     */
+    fun kickChatterUnsafe(chatter: Chatter, kicker: Chatter? = null, silent: Boolean): Boolean {
+        if (!performChatterKickCheck(chatter, kicker, silent)) {
+            return false
+        }
+
+        if (!silent) {
+            val replacements = arrayOf(chatter.displayName, channel.color, channel.name, name, kicker?.name)
+
+            val messageKey = if (kicker != null) {
+                "alert.channel.chatter_kicked_by"
+            } else {
+                "alert.channel.chatter_kicked"
+            }
+
+            // Send vague messages
+            Message.get(FlexChat::class, messageKey, *replacements).sendTo(
+                    chatters.filter { !it.shouldSendSpecificInstanceMessage(this) })
+
+            // Send specific messages
+            Message.get(FlexChat::class, "${messageKey}_specific", *replacements).sendTo(
+                    chatters.filter { it.shouldSendSpecificInstanceMessage(this) })
+        }
+        removeChatterUnsafe(chatter, true)
+        return true
     }
 
     enum class JoinResult {

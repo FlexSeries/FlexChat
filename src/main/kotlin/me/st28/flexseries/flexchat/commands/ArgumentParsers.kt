@@ -20,10 +20,13 @@ import me.st28.flexseries.flexchat.FlexChat
 import me.st28.flexseries.flexchat.api.FlexChatAPI
 import me.st28.flexseries.flexchat.api.channel.Channel
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance
+import me.st28.flexseries.flexchat.api.chatter.Chatter
+import me.st28.flexseries.flexchat.backend.ChatterModule
 import me.st28.flexseries.flexlib.command.CommandContext
 import me.st28.flexseries.flexlib.command.argument.ArgumentConfig
 import me.st28.flexseries.flexlib.command.argument.ArgumentParseException
 import me.st28.flexseries.flexlib.command.argument.ArgumentParser
+import me.st28.flexseries.flexlib.plugin.FlexPlugin
 
 object ChannelParser : ArgumentParser<Channel>() {
 
@@ -53,6 +56,18 @@ object ChannelInstanceParser : ArgumentParser<ChannelInstance>(2, defaultLabels 
             channel.getInstance(instanceName)
                     ?: throw ArgumentParseException(FlexChat::class, "error.channel.instance.not_found", channel.color, channel.name, instanceName)
         }
+    }
+
+}
+
+object ChatterParser : ArgumentParser<Chatter>() {
+
+    override fun parse(context: CommandContext, config: ArgumentConfig, raw: Array<String>): Chatter? {
+        val rawInput = raw[0]
+        val chatterModule = FlexPlugin.getPluginModule(FlexChat::class, ChatterModule::class)
+        return chatterModule.getChatterByName(rawInput)  // Try by name
+                ?: chatterModule.getChatter(rawInput)  // Try by identifier
+                ?: throw ArgumentParseException(FlexChat::class, "error.chatter.not_found", rawInput)
     }
 
 }

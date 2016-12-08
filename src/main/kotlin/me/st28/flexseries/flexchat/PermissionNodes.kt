@@ -24,13 +24,23 @@ enum class PermissionNodes : PermissionNode {
     FORMAT,
     MAGIC,
 
+    /* Dynamic permissions */
     AUTOJOIN,
+    CHAT,
     INFO,
     JOIN,
+    KICK,
     LEAVE,
-    CHAT,
-    VIEW,
     SPY,
+    VIEW,
+    /* ------------------- */
+
+    LIST,
+
+    MESSAGE,
+
+    WHO,
+    WHO_OTHER,
 
     BYPASS_IGNORE,
     BYPASS_JOIN,

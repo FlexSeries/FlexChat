@@ -23,6 +23,7 @@ import me.st28.flexseries.flexchat.api.channel.Channel
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance
 import me.st28.flexseries.flexlib.message.Message
 import me.st28.flexseries.flexlib.permission.PermissionNode
+import me.st28.flexseries.flexlib.permission.withVariables
 import me.st28.flexseries.flexlib.util.GenericDataContainer
 import org.bukkit.command.CommandSender
 import org.bukkit.configuration.ConfigurationSection
@@ -184,7 +185,7 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
          * - Does chatter have permission to join the channel?
          * - If not, does chatter have permission to bypass the join check?
          */
-        if (!hasPermission(PermissionNode.buildVariableNode(PermissionNodes.JOIN, instance.channel.name))
+        if (!hasPermission(PermissionNodes.JOIN.withVariables(instance.channel.name))
                 && !hasPermission(PermissionNodes.BYPASS_JOIN))
         {
             if (!silent) {
@@ -255,7 +256,7 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
          * - Does chatter have permission to leave the channel?
          * - If not, does chatter have permission to bypass the leave check?
          */
-        if (!hasPermission(PermissionNode.buildVariableNode(PermissionNodes.LEAVE, instance.channel.name))
+        if (!hasPermission(PermissionNodes.LEAVE.withVariables(instance.channel.name))
                 && !hasPermission(PermissionNodes.BYPASS_LEAVE))
         {
             if (!silent) {
