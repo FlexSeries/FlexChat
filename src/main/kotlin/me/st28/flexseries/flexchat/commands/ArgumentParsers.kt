@@ -36,8 +36,9 @@ object ChannelParser : ArgumentParser<Channel>() {
             FlexChatAPI.chatters.getChatter(context.sender).activeChannel
                     ?: throw ArgumentParseException(FlexChat::class, "error.channel.active_not_set")
         } else {
-            FlexChatAPI.channels.getChannel(raw[0])
-                    ?: throw ArgumentParseException(FlexChat::class, "error.channel.not_found", raw[0])
+            FlexChatAPI.channels.getChannel(channelName)
+                    ?: FlexChatAPI.channels.getChannelByTag(channelName)
+                    ?: throw ArgumentParseException(FlexChat::class, "error.channel.not_found", channelName)
         }
     }
 

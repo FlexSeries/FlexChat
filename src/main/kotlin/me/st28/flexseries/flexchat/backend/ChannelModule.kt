@@ -140,6 +140,10 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
         return channels[name.toLowerCase()]
     }
 
+    override fun getChannelByTag(tag: String): Channel? {
+        return channels.values.firstOrNull { it.tag.equals(tag, true) }
+    }
+
     override fun registerChannel(channel: Channel): Boolean {
         val key = channel.name.toLowerCase()
         if (channels.containsKey(key)) {

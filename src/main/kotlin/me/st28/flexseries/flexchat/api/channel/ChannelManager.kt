@@ -36,6 +36,16 @@ interface ChannelManager {
     fun getChannel(name: String): Channel?
 
     /**
+     * Retrieves a channel based on its tag.
+     *
+     * @param tag The tag of the channel. Case insensitive.
+     *
+     * @return The found [Channel].
+     *         Null if no matching channel was found.
+     */
+    fun getChannelByTag(tag: String): Channel?
+
+    /**
      * @return The default [Channel], as defined in the configuration file.
      *         Null if no default channel is defined, or it doesn't exist.
      */
