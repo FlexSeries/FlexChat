@@ -150,8 +150,7 @@ class ChatModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chat", "Manag
         }
 
         applicableFormat = applicableFormat.replace("{MESSAGE}", finalMessage)
-
-        instance.chatters.forEach { it.sendMessage(applicableFormat) }
+        instance.getVisibleChatters(chatter).forEach { it.sendMessage(applicableFormat) }
     }
 
 }

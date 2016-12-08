@@ -31,7 +31,7 @@ error:
     no_permission_mute: '{#error#}You do not have permission to mute this channel.'
     not_found: '{#error#}Unknown channel {$input {1} $}'
     instance:
-      already_active: '{#error#}Your active channel is already {$flexchat_instance {1}{,}{2} $}'
+      already_active: '{#error#}Your active channel is already {$flexchat_channel {1}{,}{2} $}'
       already_active_specific: '{#error#}Your active channel is already {$flexchat_instance {1}{,}{2}{,}{3} $}'
       already_joined: '{#error#}You are already in channel {$flexchat_channel {1}{,}{2} $}'
       already_joined_specific: '{#error#}You are already in channel {$flexchat_instance {1}{,}{2}{,}{3} $}'

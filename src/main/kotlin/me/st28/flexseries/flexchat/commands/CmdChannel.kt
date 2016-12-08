@@ -113,9 +113,12 @@ object CmdChannel {
                     channel.channel.color, channel.channel.name))
         }
 
-        builder.element("element", channel.getVisibleChatters(chatter)
-                .sortedBy { it.name }
-                .joinToString(", ") { it.name })
+        val chatters = channel.getVisibleChatters(chatter)
+        if (chatters.isNotEmpty()) {
+            builder.element("element", chatters
+                    .sortedBy { it.name }
+                    .joinToString(", ") { it.name })
+        }
 
         return builder
     }

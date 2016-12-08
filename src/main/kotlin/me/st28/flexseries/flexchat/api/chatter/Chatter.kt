@@ -158,8 +158,9 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
     }
 
     internal fun shouldSendSpecificInstanceMessage(instance: ChannelInstance): Boolean {
-        return !(instance == instance.channel.getDefaultInstance() ||
-                (instance.channel.getVisibleInstances(this).size == 1 && channels[instance.channel]!!.size <= 1))
+        return instance != instance.channel.getDefaultInstance() &&
+                (instance.channel.getVisibleInstances(this).size != 1 ||
+                channels[instance.channel]!!.size > 1)
     }
 
     private fun performInstanceJoinCheck(instance: ChannelInstance, silent: Boolean): Boolean {
@@ -270,14 +271,15 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
 
         if (!silent) {
             val replacements = arrayOf(displayName, instance.channel.color, instance.channel.name, instance.name)
+            val chatters = instance.getVisibleChatters(this)
 
             // Send vague messages
             Message.get(FlexChat::class, "alert.channel.chatter_joined", *replacements).sendTo(
-                    instance.chatters.filter { !it.shouldSendSpecificInstanceMessage(instance) })
+                    chatters.filter { !it.shouldSendSpecificInstanceMessage(instance) })
 
             // Send specific messages
             Message.get(FlexChat::class, "alert.channel.chatter_joined_specific", *replacements).sendTo(
-                    instance.chatters.filter { it.shouldSendSpecificInstanceMessage(instance) })
+                    chatters.filter { it.shouldSendSpecificInstanceMessage(instance) })
         }
         return true
     }
@@ -338,14 +340,15 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
 
         if (!silent) {
             val replacements = arrayOf(displayName, instance.channel.color, instance.channel.name, instance.name)
+            val chatters = instance.getVisibleChatters(this)
 
             // Send vague messages
             Message.get(FlexChat::class, "alert.channel.chatter_left", *replacements).sendTo(
-                    instance.chatters.filter { !it.shouldSendSpecificInstanceMessage(instance) })
+                    chatters.filter { !it.shouldSendSpecificInstanceMessage(instance) })
 
             // Send specific messages
             Message.get(FlexChat::class, "alert.channel.chatter_left_specific", *replacements).sendTo(
-                    instance.chatters.filter { it.shouldSendSpecificInstanceMessage(instance) })
+                    chatters.filter { it.shouldSendSpecificInstanceMessage(instance) })
         }
 
         // Remove after leave message is sent so this chatter also receives the message

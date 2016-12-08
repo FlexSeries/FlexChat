@@ -99,7 +99,7 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
                         yaml.getString("description", defaultDescription).translateColorCodes(),
                         yaml.getString("tag", ""),
                         ChatColor.valueOf(yaml.getString("color", "WHITE").toUpperCase()),
-                        yaml.getInt("radius", -1)
+                        yaml.getInt("chat radius", -1)
                 )
                 channel.instances.put(Channel.DEFAULT_INSTANCE, ChannelInstance(channel, Channel.DEFAULT_INSTANCE))
 

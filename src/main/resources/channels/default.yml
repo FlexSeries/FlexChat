@@ -7,7 +7,7 @@ name: 'default'
 tag: 'D'
 color: 'WHITE'
 prefix: true
-chat radius: 0
+chat radius: -1
 
 # Provider-specific configuration
 #providers:
