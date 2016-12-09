@@ -30,6 +30,7 @@ import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.event.Listener
 import java.util.*
+import kotlin.reflect.KClass
 
 class ChatModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chat", "Manages chat"), ChatManager {
 
@@ -101,6 +102,14 @@ class ChatModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chat", "Manag
 
         LogHelper.info(this, "Registered chat provider '$key' (${provider.javaClass.canonicalName})")
         return true
+    }
+
+    override fun getProviderByName(name: String): ChatProvider? {
+        return providers[name.toLowerCase()]
+    }
+
+    override fun <T : ChatProvider> getProviderByClass(clazz: KClass<T>): T? {
+        return providers.values.firstOrNull { it.javaClass.kotlin == clazz } as T?
     }
 
     override fun getDefaultChatFormat(provider: ChatProvider): String {

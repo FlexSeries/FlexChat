@@ -18,6 +18,7 @@ package me.st28.flexseries.flexchat.api
 
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance
 import me.st28.flexseries.flexchat.api.chatter.Chatter
+import kotlin.reflect.KClass
 
 /**
  * The API layer of the chat manager.
@@ -31,6 +32,18 @@ interface ChatManager {
      *         False if a provider with the same name is already registered.
      */
     fun registerProvider(provider: ChatProvider): Boolean
+
+    /**
+     * @return A [ChatProvider] based on the given name.
+     *         Null if no chat provider was found.
+     */
+    fun getProviderByName(name: String): ChatProvider?
+
+    /**
+     * @return A [ChatProvider] based on the given class.
+     *         Null if no chat provider was found.
+     */
+    fun <T : ChatProvider> getProviderByClass(clazz: KClass<T>): T?
 
     /**
      * @return The default chat format for a specified [ChatProvider].

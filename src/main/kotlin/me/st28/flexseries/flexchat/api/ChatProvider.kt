@@ -16,13 +16,13 @@
  */
 package me.st28.flexseries.flexchat.api
 
-import me.st28.flexseries.flexchat.PermissionNodes
 import me.st28.flexseries.flexchat.api.channel.ChannelInstance
 import me.st28.flexseries.flexchat.api.chatter.Chatter
-import me.st28.flexseries.flexlib.permission.withVariables
+import me.st28.flexseries.flexlib.plugin.FlexPlugin
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.*
+import kotlin.reflect.KClass
 
 /**
  * Acts as a layer between a message and chatter provider.
@@ -71,6 +71,31 @@ abstract class ChatProvider(val plugin: JavaPlugin, val name: String) {
         val found = FlexChatAPI.chatters.getChatter(identifier) ?: return null
         FlexChatAPI.chatters.unregisterChatter(found)
         return found
+    }
+
+    /**
+     * Registers a chat variable for this provider.
+     * Variables will have the format {<plugin name>_<variable name>} (i.e. {Kingdoms_RANK}).
+     *
+     * @param plugin The plugin that is registering the variable.
+     * @param name The name of the variable. Conventionally in all caps (i.e. WORLD, DISPLAYNAME)
+     * @param replacer A function that will return a replacement based on a given chatter and instance.
+     *
+     * @return True if the variable was successfully registered.
+     *         False if a conflicting variable is already registered.
+     */
+    fun registerVariable(plugin: KClass<out FlexPlugin>,
+                         name: String,
+                         replacer: (Chatter, ChannelInstance) -> String?): Boolean
+    {
+        val key = "{${plugin.simpleName}_$name}"
+
+        if (chatVariables.containsKey(key)) {
+            return false
+        }
+
+        chatVariables.put(key, replacer)
+        return true
     }
 
     /**
