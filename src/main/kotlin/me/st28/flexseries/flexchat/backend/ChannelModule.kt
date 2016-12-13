@@ -105,6 +105,17 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
                         ChatColor.valueOf(yaml.getString("color", "WHITE").toUpperCase()),
                         yaml.getInt("chat radius", -1)
                 )
+
+                // Load channel formats
+                yaml.getConfigurationSection("formats")?.getKeys(false)?.forEach {
+                    // it = provider name
+                    val formats = channel.formats.getOrPut(it, { HashMap() })
+
+                    yaml.getConfigurationSection("formats.$it")?.getValues(true)?.forEach {
+                        formats.put(it.key, it.value as String)
+                    }
+                }
+
                 channel.instances.put(Channel.DEFAULT_INSTANCE, ChannelInstance(channel, Channel.DEFAULT_INSTANCE))
 
                 channels.put(channel.name.toLowerCase(), channel)
@@ -141,20 +152,11 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
             val chatterOldChannels = HashMap(chatter.channels)
             chatter.channels.clear()
 
-            println("Reloading chatter '${chatter.name}'")
-
             // Update channels
             for ((channel, instances) in chatterOldChannels) {
                 val updatedChannel = channels[channel.name.toLowerCase()] ?: continue
-                println("Found channel '${updatedChannel.name}'")
-
                 instances.forEach {
-                    //updatedChannel.getInstance(it.name)?.addChatter(chatter, true)
-                    val updatedInstance = updatedChannel.getInstance(it.name)
-                    if (updatedInstance != null) {
-                        updatedInstance.addChatter(chatter, true)
-                        println("Found instance: '${updatedInstance.name}")
-                    }
+                    updatedChannel.getInstance(it.name)?.addChatter(chatter, true)
                 }
             }
 
@@ -170,8 +172,6 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
                 } else {
                     chatter.activeInstance = updatedInstance
                 }
-
-                println("Updated active")
             }
         }
     }

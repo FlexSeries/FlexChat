@@ -103,7 +103,10 @@ class VanillaChatProvider(plugin: FlexChat) : ChatProvider(plugin, "vanilla"), L
         }
 
         val group = PermissionHelper.getTopGroup(chatter.player, formats.keys)
-        val format = formats[group] ?: formats["default"] ?: return getDefaultFormat()
+
+        val format = instance.channel.getFormat(this, group)
+                ?: formats[group]
+                ?: formats["default"] ?: return getDefaultFormat()
 
         val matcher = GLOBAL_FORMAT.matcher(format)
         return if (matcher.matches()) {
@@ -153,7 +156,7 @@ class VanillaChatProvider(plugin: FlexChat) : ChatProvider(plugin, "vanilla"), L
                     throw RuntimeException()
                 }
 
-                return@callSyncMethod ""
+                return@callSyncMethod getChatFormat(chatter, instance)
             }.get()
         } catch (ex: ExecutionException) {
             e.isCancelled = true

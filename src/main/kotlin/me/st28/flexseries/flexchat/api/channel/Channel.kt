@@ -16,6 +16,7 @@
  */
 package me.st28.flexseries.flexchat.api.channel
 
+import me.st28.flexseries.flexchat.api.ChatProvider
 import me.st28.flexseries.flexchat.api.chatter.Chatter
 import org.bukkit.ChatColor
 import java.util.*
@@ -43,6 +44,8 @@ abstract class Channel(
         val DEFAULT_INSTANCE = "(default)"
 
     }
+
+    internal val formats: MutableMap<String, MutableMap<String, String>> = HashMap()
 
     /**
      * The instances of this channel.
@@ -83,6 +86,11 @@ abstract class Channel(
      */
     fun getInstance(name: String): ChannelInstance? {
         return instances[name.toLowerCase()]
+    }
+
+    fun getFormat(provider: ChatProvider, name: String): String? {
+        val providerFormats = formats[provider.name] ?: return null
+        return providerFormats[name] ?: providerFormats["default"]
     }
 
 }
