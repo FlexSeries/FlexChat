@@ -19,8 +19,11 @@ package me.st28.flexseries.flexchat.backend
 import me.st28.flexseries.flexchat.FlexChat
 import me.st28.flexseries.flexchat.api.ChatProvider
 import me.st28.flexseries.flexchat.api.FlexChatAPI
+import me.st28.flexseries.flexchat.api.channel.ChannelInstance
+import me.st28.flexseries.flexchat.api.chatter.Chatter
 import me.st28.flexseries.flexchat.api.chatter.PlayerChatter
 import me.st28.flexseries.flexlib.message.Message
+import me.st28.flexseries.flexlib.permission.PermissionHelper
 import net.milkbowl.vault.chat.Chat
 import net.milkbowl.vault.permission.Permission
 import org.bukkit.Bukkit
@@ -31,7 +34,9 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import java.util.*
 import java.util.concurrent.ExecutionException
+import java.util.regex.Pattern
 
 /**
  * Handles in-game chat.
@@ -40,8 +45,16 @@ import java.util.concurrent.ExecutionException
  */
 class VanillaChatProvider(plugin: FlexChat) : ChatProvider(plugin, "vanilla"), Listener {
 
+    private companion object {
+
+        val GLOBAL_FORMAT: Pattern = Pattern.compile("\\[g:(\\S+)\\]")
+
+    }
+
     private lateinit var vaultPerm: Permission
     private lateinit var vaultChat: Chat
+
+    private val formats: MutableMap<String, String> = HashMap()
 
     override fun enable(config: ConfigurationSection?) {
         // Setup Vault hook
@@ -84,6 +97,22 @@ class VanillaChatProvider(plugin: FlexChat) : ChatProvider(plugin, "vanilla"), L
 
     override fun reload(config: ConfigurationSection?) { }
 
+    override fun getChatFormat(chatter: Chatter, instance: ChannelInstance): String? {
+        if (chatter !is PlayerChatter) {
+            return getDefaultFormat()
+        }
+
+        val group = PermissionHelper.getTopGroup(chatter.player, formats.keys)
+        val format = formats[group] ?: formats["default"] ?: return getDefaultFormat()
+
+        val matcher = GLOBAL_FORMAT.matcher(format)
+        return if (matcher.matches()) {
+            getGlobalFormat(matcher.group(1))
+        } else {
+            format
+        }
+    }
+
     @EventHandler
     fun onPlayerJoin(e: PlayerJoinEvent) {
         val chatter = PlayerChatter(this, e.player)
@@ -123,8 +152,6 @@ class VanillaChatProvider(plugin: FlexChat) : ChatProvider(plugin, "vanilla"), L
                     Message.get(FlexChat::class, "error.channel.active_not_set").sendTo(e.player)
                     throw RuntimeException()
                 }
-
-                // TODO: Get permission group, get format, etc.
 
                 return@callSyncMethod ""
             }.get()

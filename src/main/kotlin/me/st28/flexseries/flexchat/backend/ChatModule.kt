@@ -32,7 +32,16 @@ import org.bukkit.event.Listener
 import java.util.*
 import kotlin.reflect.KClass
 
-class ChatModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chat", "Manages chat"), ChatManager {
+class ChatModule(plugin: FlexChat) :
+        FlexModule<FlexChat>(plugin, "chat", "Manages chat"),
+        ChatManager
+{
+
+    private companion object {
+
+        val DEFAULT_FORMAT = "<{SENDER}> {MESSAGE}"
+
+    }
 
     internal val providers: MutableMap<String, ChatProvider> = HashMap()
 
@@ -40,21 +49,18 @@ class ChatModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chat", "Manag
     private var channelPrefixEnabled: Boolean = true
     private var channelPrefixForce: Boolean = false
 
-    private val defaultFormats: MutableMap<String, String> = HashMap()
+    private val globalFormats: MutableMap<String, MutableMap<String, String>> = HashMap()
     private val messageFormats: MutableMap<String, String> = HashMap()
 
     override fun handleReload() {
         /* Reload chat configuration */
 
-        // Default format
-        defaultFormats.clear()
-        config.getConfigurationSection("default formats")?.getValues(false)?.forEach {
-            defaultFormats.put(it.key, it.value as String)
-        }
-
-        if (!defaultFormats.containsKey("default")) {
-            LogHelper.info(this, "No default format found, inserting fallback")
-            defaultFormats.put("default", "<{SENDER}> {MESSAGE}")
+        // Global formats
+        config.getConfigurationSection("global formats")?.getKeys(false)?.forEach {
+            val providerFormats = globalFormats.getOrPut(it, { HashMap() })
+            config.getConfigurationSection("global formats.$it").getValues(true).forEach {
+                providerFormats.put(it.key, it.value as String)
+            }
         }
 
         // Channel prefix config
@@ -113,7 +119,11 @@ class ChatModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chat", "Manag
     }
 
     override fun getDefaultChatFormat(provider: ChatProvider): String {
-        return defaultFormats[provider.name] ?: defaultFormats["default"]!!
+        return globalFormats[provider.name]?.get("default") ?: DEFAULT_FORMAT
+    }
+
+    override fun getGlobalChatFormat(provider: ChatProvider, name: String): String {
+        return globalFormats[provider.name]?.get(name) ?: DEFAULT_FORMAT
     }
 
     override fun processFormat(chatter: Chatter, instance: ChannelInstance, format: String): String {

@@ -9,6 +9,12 @@ color: 'WHITE'
 prefix: true
 chat radius: -1
 
+# Format configuration
+#formats:
+#  vanilla:
+#    default: '&8[{GROUP}&8] &f{NAME}&8: &f{MESSAGE}'
+#    example: '[g:default]'
+
 # Provider-specific configuration
 #providers:
 #  vanilla:

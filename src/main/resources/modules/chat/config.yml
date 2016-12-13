@@ -1,7 +1,7 @@
-# Fallback formats
-default formats:
-  default: '{PROVIDER} <{NAME}> {MESSAGE}'
-  vanilla: '<{NAME}> {MESSAGE}'
+# Global channel formats
+global formats:
+  vanilla:
+    default: '<{NAME}> {MESSAGE}'
 
 channel prefix:
   format: '&8[{CHCOLOR}{CHTAG}&8]&f '

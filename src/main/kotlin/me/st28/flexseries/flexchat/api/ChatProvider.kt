@@ -98,6 +98,14 @@ abstract class ChatProvider(val plugin: JavaPlugin, val name: String) {
         return true
     }
 
+    open fun getDefaultFormat(): String {
+        return FlexChatAPI.chat.getDefaultChatFormat(this);
+    }
+
+    fun getGlobalFormat(name: String): String {
+        return FlexChatAPI.chat.getGlobalChatFormat(this, name)
+    }
+
     /**
      * Returns the chat format for a specified chatter.
      * If this method returns null, the default chat format from the chat manager will be used.

@@ -51,6 +51,11 @@ interface ChatManager {
     fun getDefaultChatFormat(provider: ChatProvider): String
 
     /**
+     * @return A chat format with the given name for a specified [ChatProvider].
+     */
+    fun getGlobalChatFormat(provider: ChatProvider, name: String): String
+
+    /**
      * Processes a format and replaces any variables.
      */
     fun processFormat(chatter: Chatter, instance: ChannelInstance, format: String): String

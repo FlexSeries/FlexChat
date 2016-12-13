@@ -80,17 +80,11 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
 
         val channelSec = config.getConfigurationSection("channels")
         if (channelSec != null) {
-            for ((rawChannel, rawList) in channelSec.getValues(false)) {
-                if (rawList !is List<*>) {
-                    continue
-                }
+            for (channelName in channelSec.getKeys(false)) {
+                val channel = channelModule.getChannel(channelName) ?: continue
 
-                val channel = channelModule.getChannel(rawChannel) ?: continue
-
-                channelSec.getStringList(rawChannel).forEach {
-                    val inst = channel.getInstance(it) ?: return@forEach
-
-                    addInstance(inst, true)
+                channelSec.getStringList(channelName).forEach {
+                    channel.getInstance(it)?.addChatter(this, true)
                 }
             }
         }
@@ -110,6 +104,10 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
      * Saves this chatter's configuration to the given configuration section.
      */
     open fun save(config: ConfigurationSection) {
+        // Clear channel section
+        config.set("channels", null)
+
+        // Save channels and instances
         for ((channel, instList) in channels) {
             val key = "channels.${channel.name}"
 
@@ -121,6 +119,7 @@ abstract class Chatter(val provider: ChatProvider, val identifier: String) {
             config.set(key, instList.map { it.name })
         }
 
+        // Save active channel/instance
         if (activeInstance == null) {
             config.set("active", null)
         } else {

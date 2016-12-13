@@ -160,7 +160,7 @@ object CmdChannel {
 
             if (isJoin1 != isJoin2) {
                 // If only one of the channels is joined, the joined one is first.
-                return@sort if (isJoin1) 1 else -1
+                return@sort if (isJoin1) -1 else 1
             } else {
                 // If both channels are joined or unjoined, they are sorted alphabetically
                 return@sort c1.name.compareTo(c2.name, true)

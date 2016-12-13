@@ -81,8 +81,11 @@ class ChatterModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "chatters",
         file.save()
     }
 
-    override fun unregisterChatter(chatter: Chatter) {
-        chatters.remove(chatter.identifier)
+    override fun unregisterChatter(chatter: Chatter, save: Boolean) {
+        val found = chatters.remove(chatter.identifier)
+        if (save && found != null) {
+            saveChatter(found)
+        }
     }
 
     override fun getChatter(identifier: String): Chatter? {

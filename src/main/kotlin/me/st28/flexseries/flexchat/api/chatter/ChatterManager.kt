@@ -38,8 +38,10 @@ interface ChatterManager {
 
     /**
      * Unregisters a chatter.
+     *
+     * @param save If true, will save the chatter. Default = true.
      */
-    fun unregisterChatter(chatter: Chatter)
+    fun unregisterChatter(chatter: Chatter, save: Boolean = true)
 
     /**
      * @return A [Chatter] instance matching the given identifier.
