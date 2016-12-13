@@ -51,6 +51,8 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
      */
     private val loadedChannels: MutableSet<String> = HashSet()
 
+    private val registeredChannelPerms: MutableSet<String> = HashSet()
+
     override fun handleReload() {
         /* Reload configuration */
         defaultDescription = config.getString("default description", "&c&oNo description set")
@@ -82,6 +84,8 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
         )
 
         /* Reload channels */
+        val oldNotLoaded = HashSet(loadedChannels) // Old channels that weren't reloaded
+
         channels.clear()
         loadedChannels.clear()
 
@@ -105,6 +109,7 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
 
                 channels.put(channel.name.toLowerCase(), channel)
                 loadedChannels.add(channel.name.toLowerCase())
+                oldNotLoaded.remove(channel.name.toLowerCase())
 
                 registerPermissions(channel.name)
             } catch (ex: Exception) {
@@ -113,6 +118,9 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
         }
 
         LogHelper.info(this, "Loaded ${loadedChannels.size} channel(s)")
+
+        /* Unregister old permissions */
+        oldNotLoaded.forEach { unregisterPermissions(it) }
 
         /* Reload default channel */
         defaultChannel = config.getString("default channel")
@@ -124,6 +132,46 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
 
             if (!channels.containsKey(defaultChannel!!)) {
                 LogHelper.warning(this, "Default chat channel is not loaded")
+            }
+        }
+
+        /* Reload chatters */
+        val chatterModule = plugin.getModule(ChatterModule::class) ?: return
+        for (chatter in chatterModule.chatters.values) {
+            val chatterOldChannels = HashMap(chatter.channels)
+            chatter.channels.clear()
+
+            println("Reloading chatter '${chatter.name}'")
+
+            // Update channels
+            for ((channel, instances) in chatterOldChannels) {
+                val updatedChannel = channels[channel.name.toLowerCase()] ?: continue
+                println("Found channel '${updatedChannel.name}'")
+
+                instances.forEach {
+                    //updatedChannel.getInstance(it.name)?.addChatter(chatter, true)
+                    val updatedInstance = updatedChannel.getInstance(it.name)
+                    if (updatedInstance != null) {
+                        updatedInstance.addChatter(chatter, true)
+                        println("Found instance: '${updatedInstance.name}")
+                    }
+                }
+            }
+
+            // Update active
+            if (chatter.activeInstance != null) {
+                val instName = chatter.activeInstance!!.name
+                val chanName = chatter.activeChannel!!.name
+
+                val updatedInstance = channels[chanName]?.getInstance(instName)
+
+                if (updatedInstance == null) {
+                    chatter.activeInstance = null
+                } else {
+                    chatter.activeInstance = updatedInstance
+                }
+
+                println("Updated active")
             }
         }
     }
@@ -158,6 +206,11 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
 
     private fun registerPermissions(channelName: String) {
         val channelName = channelName.toLowerCase()
+        if (registeredChannelPerms.contains(channelName)) {
+            return
+        }
+        registeredChannelPerms.add(channelName)
+
         val pm = Bukkit.getPluginManager()
 
         // Convenience lambda
@@ -177,8 +230,13 @@ class ChannelModule(plugin: FlexChat) : FlexModule<FlexChat>(plugin, "channels",
         reg(PermissionNodes.SPY, PermissionDefault.OP)
     }
 
-    private fun unregisterPermission(channelName: String) {
+    private fun unregisterPermissions(channelName: String) {
         val channelName = channelName.toLowerCase()
+        if (!registeredChannelPerms.contains(channelName)) {
+            return
+        }
+        registeredChannelPerms.remove(channelName)
+
         val pm = Bukkit.getPluginManager()
 
         // Convenience lambda
